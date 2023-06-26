@@ -118,7 +118,7 @@
       "url": "https://packages.unity.com"
     },
     "online.kamishiro.alterdresser": {
-      "version": "file:AlterDresser",
+      "version": "file:online.kamishiro.alter-dersser",
       "depth": 0,
       "source": "embedded",
       "dependencies": {}
