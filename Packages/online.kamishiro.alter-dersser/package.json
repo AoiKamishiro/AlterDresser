@@ -1,0 +1,19 @@
+{
+  "name": "online.kamishiro.alterdresser",
+  "displayName": "AlterDresser",
+  "version": "v0.10.1",
+  "description": "",
+  "gitDependencies": {},
+  "legacyFolders": {},
+  "type": "tool",
+  "unity": "2019.4",
+  "author": {
+    "name": "Kamishiro Industries",
+    "url": "https://kamishiro.online/",
+    "email": "aoi.kamishiro@kamishiro.online"
+  },
+  "vpmDependencies": {
+      "com.vrchat.avatars": ">=3.2.0",
+      "nadena.dev.modular-avatar": ">=1.6.0"
+  }
+}
