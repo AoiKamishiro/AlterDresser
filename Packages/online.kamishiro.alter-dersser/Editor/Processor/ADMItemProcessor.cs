@@ -20,7 +20,7 @@ namespace online.kamishiro.alterdresser.editor
 {
     internal static class ADMItemProcessor
     {
-        internal static void Process(ADMItem item)
+        internal static void Process(ADMItem item, ADBuildContext context)
         {
             if (ADEditorUtils.IsEditorOnly(item.transform)) return;
 
@@ -31,7 +31,6 @@ namespace online.kamishiro.alterdresser.editor
 
             SerializedObject so = new SerializedObject(item);
             so.Update();
-            SerializedProperty addedComponents = so.FindProperty(nameof(ADS.addedComponents));
 
             if (ADEditorUtils.WillUse(item))
             {
@@ -51,9 +50,7 @@ namespace online.kamishiro.alterdresser.editor
                     };
                     maMenuItem.Control = control;
                     maMenuItem.MenuSource = SubmenuSource.MenuAsset;
-                    Undo.RegisterCreatedObjectUndo(maMenuItem, ADSettings.undoName);
-                    addedComponents.InsertArrayElementAtIndex(addedComponents.arraySize);
-                    addedComponents.GetArrayElementAtIndex(addedComponents.arraySize - 1).objectReferenceValue = maMenuItem;
+                    ADEditorUtils.SaveGeneratedItem(maMenuItem, context);
 
                     //Animator
                     string path = $"Assets/{ADSettings.tempDirPath}/ADMI_{item.Id}.controller";
@@ -63,9 +60,7 @@ namespace online.kamishiro.alterdresser.editor
                     maMargeAnimator.animator = animatorController;
                     maMargeAnimator.layerType = VRCAvatarDescriptor.AnimLayerType.FX;
                     maMargeAnimator.pathMode = MergeAnimatorPathMode.Absolute;
-                    Undo.RegisterCreatedObjectUndo(maMargeAnimator, ADSettings.undoName);
-                    addedComponents.InsertArrayElementAtIndex(addedComponents.arraySize);
-                    addedComponents.GetArrayElementAtIndex(addedComponents.arraySize - 1).objectReferenceValue = maMargeAnimator;
+                    ADEditorUtils.SaveGeneratedItem(maMargeAnimator, context);
 
                     ADAnimationUtils.AddParameter(animatorController, paramAppliedID, ACPT.Int);
                     ADAnimationUtils.AddParameter(animatorController, ADSettings.paramIsReady, ACPT.Bool);
@@ -138,9 +133,7 @@ namespace online.kamishiro.alterdresser.editor
                     };
                     maMenuItem.Control = control;
                     maMenuItem.MenuSource = SubmenuSource.MenuAsset;
-                    Undo.RegisterCreatedObjectUndo(maMenuItem, ADSettings.undoName);
-                    addedComponents.InsertArrayElementAtIndex(addedComponents.arraySize);
-                    addedComponents.GetArrayElementAtIndex(addedComponents.arraySize - 1).objectReferenceValue = maMenuItem;
+                    ADEditorUtils.SaveGeneratedItem(maMenuItem, context);
 
                     //Animator
                     string path = $"Assets/{ADSettings.tempDirPath}/ADMI_{item.Id}.controller";
@@ -150,9 +143,7 @@ namespace online.kamishiro.alterdresser.editor
                     maMargeAnimator.animator = animatorController;
                     maMargeAnimator.layerType = VRCAvatarDescriptor.AnimLayerType.FX;
                     maMargeAnimator.pathMode = MergeAnimatorPathMode.Absolute;
-                    Undo.RegisterCreatedObjectUndo(maMargeAnimator, ADSettings.undoName);
-                    addedComponents.InsertArrayElementAtIndex(addedComponents.arraySize);
-                    addedComponents.GetArrayElementAtIndex(addedComponents.arraySize - 1).objectReferenceValue = maMargeAnimator;
+                    ADEditorUtils.SaveGeneratedItem(maMargeAnimator, context);
 
                     ADAnimationUtils.AddParameter(animatorController, paramAppliedID, ACPT.Bool);
                     ADAnimationUtils.AddParameter(animatorController, ADSettings.paramIsReady, ACPT.Bool);

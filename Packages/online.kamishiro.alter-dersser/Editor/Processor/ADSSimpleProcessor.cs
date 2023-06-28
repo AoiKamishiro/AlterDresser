@@ -5,14 +5,13 @@ using UnityEditor.Animations;
 using UnityEngine;
 using ACM = UnityEditor.Animations.AnimatorConditionMode;
 using ACPT = UnityEngine.AnimatorControllerParameterType;
-using ADS = online.kamishiro.alterdresser.ADSwitchBase;
 using ADSSimple = online.kamishiro.alterdresser.AlterDresserSwitchSimple;
 
 namespace online.kamishiro.alterdresser.editor
 {
     internal static class ADSSimpleProcessor
     {
-        internal static void Process(ADSSimple item)
+        internal static void Process(ADSSimple item, ADBuildContext context)
         {
             if (ADEditorUtils.IsEditorOnly(item.transform)) return;
 
@@ -20,7 +19,6 @@ namespace online.kamishiro.alterdresser.editor
 
             SerializedObject so = new SerializedObject(item);
             so.Update();
-            SerializedProperty addedComponents = so.FindProperty(nameof(ADS.addedComponents));
 
             string path = $"Assets/{ADSettings.tempDirPath}/ADSS_{item.Id}.controller";
             AnimatorController animator = ADAnimationUtils.CreateController(path);
@@ -28,9 +26,7 @@ namespace online.kamishiro.alterdresser.editor
             ModularAvatarMergeAnimator maMargeAnimator = item.gameObject.AddComponent<ModularAvatarMergeAnimator>();
             maMargeAnimator.deleteAttachedAnimator = true;
             maMargeAnimator.animator = animator;
-            Undo.RegisterCreatedObjectUndo(maMargeAnimator, ADSettings.undoName);
-            addedComponents.InsertArrayElementAtIndex(addedComponents.arraySize);
-            addedComponents.GetArrayElementAtIndex(addedComponents.arraySize - 1).objectReferenceValue = maMargeAnimator;
+            ADEditorUtils.SaveGeneratedItem(maMargeAnimator, context);
 
             string[] targetPathes = item.GetComponentsInChildren<SkinnedMeshRenderer>(true).
                 Where(x => !x.gameObject.CompareTag("EditorOnly")).

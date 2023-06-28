@@ -17,20 +17,17 @@ namespace online.kamishiro.alterdresser.editor
             {ParticleType.ParticleRing_Yellow, "6f5d4244b2381874987644bcca8e7b62" },
         };
 
-        internal static void Process(ADEParticle item)
+        internal static void Process(ADEParticle item, ADBuildContext context)
         {
             SerializedObject so = new SerializedObject(item);
             so.Update();
-            SerializedProperty addedGameobjects = so.FindProperty(nameof(ADEParticle.addedGameObjects));
 
             GameObject effect = item.particleType == ParticleType.None ? null : Object.Instantiate(AssetDatabase.LoadAssetAtPath<GameObject>(AssetDatabase.GUIDToAssetPath(particleGUID[item.particleType])));
 
             if (effect != null)
             {
                 effect.transform.SetParent(ADRuntimeUtils.GetAvatar(item.transform).transform);
-                Undo.RegisterCreatedObjectUndo(effect, ADSettings.undoName);
-                addedGameobjects.InsertArrayElementAtIndex(addedGameobjects.arraySize);
-                addedGameobjects.GetArrayElementAtIndex(addedGameobjects.arraySize - 1).objectReferenceValue = effect;
+                ADEditorUtils.SaveGeneratedItem(effect, context);
             }
             so.ApplyModifiedProperties();
         }

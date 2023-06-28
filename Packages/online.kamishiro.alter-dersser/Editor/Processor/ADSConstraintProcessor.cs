@@ -25,8 +25,6 @@ namespace online.kamishiro.alterdresser.editor
 
             SerializedObject so = new SerializedObject(item);
             so.Update();
-            SerializedProperty addedComponents = so.FindProperty(nameof(ADS.addedComponents));
-            SerializedProperty addedObjects = so.FindProperty(nameof(ADS.addedGameObjects));
 
             string path = $"Assets/{ADSettings.tempDirPath}/ADSC_{item.Id}.controller";
             AnimatorController animator = ADAnimationUtils.CreateController(path);
@@ -35,9 +33,7 @@ namespace online.kamishiro.alterdresser.editor
             maMargeAnimator.deleteAttachedAnimator = true;
             maMargeAnimator.animator = animator;
             maMargeAnimator.pathMode = MergeAnimatorPathMode.Absolute;
-            Undo.RegisterCreatedObjectUndo(maMargeAnimator, ADSettings.undoName);
-            addedComponents.InsertArrayElementAtIndex(addedComponents.arraySize);
-            addedComponents.GetArrayElementAtIndex(addedComponents.arraySize - 1).objectReferenceValue = maMargeAnimator;
+            ADEditorUtils.SaveGeneratedItem(maMargeAnimator, context);
 
             GameObject fixedToWorld = context.fixed2world;
             if (context.fixed2world == null)
@@ -55,9 +51,7 @@ namespace online.kamishiro.alterdresser.editor
                 fixedToWorldConstraint.locked = true;
                 context.fixed2world = fixedToWorld;
 
-                Undo.RegisterCreatedObjectUndo(fixedToWorld, ADSettings.undoName);
-                addedObjects.InsertArrayElementAtIndex(addedObjects.arraySize);
-                addedObjects.GetArrayElementAtIndex(addedObjects.arraySize - 1).objectReferenceValue = fixedToWorld;
+                ADEditorUtils.SaveGeneratedItem(fixedToWorld, context);
             }
 
             GameObject objPosMirror = new GameObject(item.name);
@@ -73,9 +67,7 @@ namespace online.kamishiro.alterdresser.editor
             objPosMirrorConstraint.locked = true;
 
             ParentConstraint constraint = AddConstraint(item, objPosMirror.transform);
-            Undo.RegisterCreatedObjectUndo(constraint, ADSettings.undoName);
-            addedComponents.InsertArrayElementAtIndex(addedComponents.arraySize);
-            addedComponents.GetArrayElementAtIndex(addedComponents.arraySize - 1).objectReferenceValue = constraint;
+            ADEditorUtils.SaveGeneratedItem(constraint, context);
 
 
             ADAnimationUtils.AddParameter(animator, ADSettings.paramIsReady, ACPT.Bool);

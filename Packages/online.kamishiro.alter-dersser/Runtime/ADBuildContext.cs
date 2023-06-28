@@ -9,5 +9,16 @@ namespace online.kamishiro.alterdresser
         public GameObject fixed2world;
         public GameObject enhancedRootBone;
         public GameObject initializer;
+        public Object[] generatedObjects;
+        public MeshRendererBuckup[] meshRendererBackup;
+    }
+
+    [System.Serializable]
+    public class MeshRendererBuckup : Object
+    {
+        public MeshRenderer renderer;
+        public MeshFilter filter;
+        public Material[] materials;
+        public Mesh mesh;
     }
 }

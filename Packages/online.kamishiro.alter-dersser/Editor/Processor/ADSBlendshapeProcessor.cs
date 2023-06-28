@@ -5,14 +5,13 @@ using UnityEditor.Animations;
 using UnityEngine;
 using ACM = UnityEditor.Animations.AnimatorConditionMode;
 using ACPT = UnityEngine.AnimatorControllerParameterType;
-using ADS = online.kamishiro.alterdresser.ADSwitchBase;
 using ADSBlendshape = online.kamishiro.alterdresser.AlterDresserSwitchBlendshape;
 
 namespace online.kamishiro.alterdresser.editor
 {
     internal static class ADSBlendshapeProcessor
     {
-        internal static void Process(ADSBlendshape item, string[] blendShapes)
+        internal static void Process(ADSBlendshape item, string[] blendShapes, ADBuildContext context)
         {
             if (ADEditorUtils.IsEditorOnly(item.transform)) return;
 
@@ -20,7 +19,6 @@ namespace online.kamishiro.alterdresser.editor
 
             SerializedObject so = new SerializedObject(item);
             so.Update();
-            SerializedProperty sp = so.FindProperty(nameof(ADS.addedComponents));
 
             string path = $"Assets/{ADSettings.tempDirPath}/ADSB_{item.Id}.controller";
             AnimatorController animator = ADAnimationUtils.CreateController(path);
@@ -28,9 +26,7 @@ namespace online.kamishiro.alterdresser.editor
             ModularAvatarMergeAnimator maMargeAnimator = item.gameObject.AddComponent<ModularAvatarMergeAnimator>();
             maMargeAnimator.deleteAttachedAnimator = true;
             maMargeAnimator.animator = animator;
-            Undo.RegisterCreatedObjectUndo(maMargeAnimator, ADSettings.undoName);
-            sp.InsertArrayElementAtIndex(sp.arraySize);
-            sp.GetArrayElementAtIndex(sp.arraySize - 1).objectReferenceValue = maMargeAnimator;
+            ADEditorUtils.SaveGeneratedItem(maMargeAnimator, context);
 
             foreach (string blendShape in blendShapes)
             {
@@ -52,8 +48,8 @@ namespace online.kamishiro.alterdresser.editor
                 ADAnimationUtils.AddTransisionWithCondition(enabledState, disablingState, new (ACM, float, string)[] { (ACM.Equals, 0, paramName), (ACM.If, 0, ADSettings.paramIsReady) });
                 ADAnimationUtils.AddTransisionWithCondition(enabledState, disablingState, new (ACM, float, string)[] { (ACM.Less, 0, paramName), (ACM.If, 0, ADSettings.paramIsReady) });
                 ADAnimationUtils.AddTransisionWithExitTime(disablingState, disabledState, ADSettings.AD_MotionTime);
-                ADAnimationUtils.AddTransisionWithExitTime(enablingState,enabledState, ADSettings.AD_MotionTime);
-                ADAnimationUtils.AddTransisionWithCondition(disabledState,enabledState, new (ACM, float, string)[] { (ACM.Greater, 0, paramName), (ACM.IfNot, 0, ADSettings.paramIsReady) });
+                ADAnimationUtils.AddTransisionWithExitTime(enablingState, enabledState, ADSettings.AD_MotionTime);
+                ADAnimationUtils.AddTransisionWithCondition(disabledState, enabledState, new (ACM, float, string)[] { (ACM.Greater, 0, paramName), (ACM.IfNot, 0, ADSettings.paramIsReady) });
 
                 AssetDatabase.AddObjectToAsset(enabledClip, animator);
                 AssetDatabase.AddObjectToAsset(disabledClip, animator);

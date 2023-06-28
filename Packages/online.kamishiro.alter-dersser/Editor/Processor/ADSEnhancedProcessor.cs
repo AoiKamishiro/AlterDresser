@@ -6,7 +6,6 @@ using UnityEditor.Animations;
 using UnityEngine;
 using ACM = UnityEditor.Animations.AnimatorConditionMode;
 using ACPT = UnityEngine.AnimatorControllerParameterType;
-using ADS = online.kamishiro.alterdresser.ADSwitchBase;
 using ADSEnhanced = online.kamishiro.alterdresser.AlterDresserSwitchEnhanced;
 
 namespace online.kamishiro.alterdresser.editor
@@ -19,13 +18,11 @@ namespace online.kamishiro.alterdresser.editor
 
             ADEditorUtils.CreateTempDir();
 
-            MeshInstanciator(item);
+            MeshInstanciator(item, context);
             MaterialInstanciator(item);
 
             SerializedObject so = new SerializedObject(item);
             so.Update();
-            SerializedProperty addedComponents = so.FindProperty(nameof(ADS.addedComponents));
-            SerializedProperty addedGameObjects = so.FindProperty(nameof(ADS.addedGameObjects));
 
             if (!context.enhancedRootBone)
             {
@@ -34,9 +31,7 @@ namespace online.kamishiro.alterdresser.editor
                 rootBone.transform.SetPositionAndRotation(Vector3.up, Quaternion.identity);
 
                 context.enhancedRootBone = rootBone;
-                Undo.RegisterCreatedObjectUndo(rootBone, ADSettings.undoName);
-                addedGameObjects.InsertArrayElementAtIndex(addedGameObjects.arraySize);
-                addedGameObjects.GetArrayElementAtIndex(addedGameObjects.arraySize - 1).objectReferenceValue = rootBone;
+                ADEditorUtils.SaveGeneratedItem(rootBone, context);
             }
 
             string path = $"Assets/{ADSettings.tempDirPath}/ADSE_{item.Id}.controller";
@@ -45,9 +40,7 @@ namespace online.kamishiro.alterdresser.editor
             ModularAvatarMergeAnimator maMargeAnimator = item.gameObject.AddComponent<ModularAvatarMergeAnimator>();
             maMargeAnimator.deleteAttachedAnimator = true;
             maMargeAnimator.animator = animator;
-            Undo.RegisterCreatedObjectUndo(maMargeAnimator, ADSettings.undoName);
-            addedComponents.InsertArrayElementAtIndex(addedComponents.arraySize);
-            addedComponents.GetArrayElementAtIndex(addedComponents.arraySize - 1).objectReferenceValue = maMargeAnimator;
+            ADEditorUtils.SaveGeneratedItem(maMargeAnimator, context);
 
             AvatarObjectReference avatarObjectReference = new AvatarObjectReference
             {
@@ -64,9 +57,7 @@ namespace online.kamishiro.alterdresser.editor
                 maMeshSettings.InheritBounds = ModularAvatarMeshSettings.InheritMode.Set;
                 maMeshSettings.RootBone = avatarObjectReference;
                 maMeshSettings.Bounds = new Bounds(ADRuntimeUtils.GetAvatar(item.transform).ViewPosition / 2, new Vector3(2.5f, 2.5f, 2.5f));
-                Undo.RegisterCreatedObjectUndo(maMeshSettings, ADSettings.undoName);
-                addedComponents.InsertArrayElementAtIndex(addedComponents.arraySize);
-                addedComponents.GetArrayElementAtIndex(addedComponents.arraySize - 1).objectReferenceValue = maMeshSettings;
+                ADEditorUtils.SaveGeneratedItem(maMeshSettings, context);
             }
 
             string[] targetPathes = item.GetComponentsInChildren<SkinnedMeshRenderer>(true).
@@ -108,7 +99,7 @@ namespace online.kamishiro.alterdresser.editor
             AssetDatabase.AddObjectToAsset(enablingAnimationClip, animator);
             AssetDatabase.AddObjectToAsset(disablingAnimationClip, animator);
         }
-        internal static void MeshInstanciator(ADSEnhanced item)
+        internal static void MeshInstanciator(ADSEnhanced item, ADBuildContext context)
         {
             foreach (MeshFilter meshFilter in item.GetComponentsInChildren<MeshFilter>().Where(x => !x.gameObject.CompareTag("EditorOnly")).Where(x => x.sharedMesh != null))
             {
@@ -118,7 +109,6 @@ namespace online.kamishiro.alterdresser.editor
 
                 SerializedObject so = new SerializedObject(item);
                 so.Update();
-                SerializedProperty addedGO = so.FindProperty(nameof(ADSEnhanced.addedGameObjects));
                 SerializedProperty sp = so.FindProperty(nameof(ADSEnhanced.meshOverrides));
                 sp.InsertArrayElementAtIndex(sp.arraySize);
                 SerializedProperty elem = sp.GetArrayElementAtIndex(sp.arraySize - 1);
@@ -148,10 +138,8 @@ namespace online.kamishiro.alterdresser.editor
 
                 AssetDatabase.CreateAsset(newMesh, $"Assets/{ADSettings.tempDirPath}/{ADRuntimeUtils.GenerateID(newMesh)}.asset");
 
-                addedGO.InsertArrayElementAtIndex(addedGO.arraySize);
-                addedGO.GetArrayElementAtIndex(addedGO.arraySize - 1).objectReferenceValue = bone;
-                addedGO.InsertArrayElementAtIndex(addedGO.arraySize);
-                addedGO.GetArrayElementAtIndex(addedGO.arraySize - 1).objectReferenceValue = renderer;
+                ADEditorUtils.SaveGeneratedItem(bone, context);
+                ADEditorUtils.SaveGeneratedItem(renderer, context);
 
 
                 so.ApplyModifiedProperties();

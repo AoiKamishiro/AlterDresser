@@ -104,6 +104,17 @@ namespace online.kamishiro.alterdresser.editor
             }
             return results.Take(8).Contains(item);
         }
+        internal static void SaveGeneratedItem(UnityEngine.Object generatedObject, ADBuildContext context)
+        {
+            if (generatedObject == null) return;
+            Undo.RegisterCreatedObjectUndo(generatedObject, ADSettings.undoName);
+            SerializedObject so = new SerializedObject(context);
+            SerializedProperty sp = so.FindProperty(nameof(ADBuildContext.generatedObjects));
+            so.Update();
+            sp.InsertArrayElementAtIndex(sp.arraySize);
+            sp.GetArrayElementAtIndex(sp.arraySize - 1).objectReferenceValue = generatedObject;
+            so.ApplyModifiedProperties();
+        }
 
         [InitializeOnLoadMethod]
         private static void DisableGizmoIcon()

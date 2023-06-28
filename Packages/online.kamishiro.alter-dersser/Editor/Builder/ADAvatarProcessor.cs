@@ -2,6 +2,7 @@
 using System.Linq;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using VRC.SDK3.Avatars.Components;
 using ADB = online.kamishiro.alterdresser.ADBase;
 using ADEParticle = online.kamishiro.alterdresser.AlterDresserEffectParticel;
@@ -35,7 +36,7 @@ namespace online.kamishiro.alterdresser.editor
             avatar.transform.localScale = Vector3.one;
             GameObject initilaizer = Object.Instantiate(AssetDatabase.LoadAssetAtPath<GameObject>(AssetDatabase.GUIDToAssetPath("58a6979cd308b904a9575d1dc1fbeaec")));
             initilaizer.transform.SetParent(avatar.transform, false);
-            buildContext.initializer = initilaizer;
+            ADEditorUtils.SaveGeneratedItem(initilaizer, buildContext);
 
             try
             {
@@ -99,16 +100,21 @@ namespace online.kamishiro.alterdresser.editor
                     }
                 }
 
-                adsBlendshapes.ToList().ForEach(x => { ADSBlendshapeProcessor.Process(x.Key, x.Value); });
+                adsBlendshapes.ToList().ForEach(x => { ADSBlendshapeProcessor.Process(x.Key, x.Value, buildContext); });
                 adsConstraints.ForEach(x => ADSConstraintProcessor.Process(x, buildContext));
-                adsSimples.ForEach(x => ADSSimpleProcessor.Process(x));
+                adsSimples.ForEach(x => ADSSimpleProcessor.Process(x, buildContext));
                 adsEnhanceds.ForEach(x => ADSEnhancedProcessor.Process(x, buildContext));
-                admItems.ForEach(x => ADMItemProcessor.Process(x));
-                admGroups.ForEach(x => ADMGroupProcessor.Process(x));
-                admItems.Select(x => x as ADM).Concat(admGroups.Select(x => x as ADM)).ToList().ForEach(x => ADMInstallerProcessor.Process(x));
+                admItems.ForEach(x => ADMItemProcessor.Process(x, buildContext));
+                admGroups.ForEach(x => ADMGroupProcessor.Process(x, buildContext));
+                admItems.Select(x => x as ADM).Concat(admGroups.Select(x => x as ADM)).ToList().ForEach(x => ADMInstallerProcessor.Process(x, buildContext));
 
                 ADEParticle[] adePartilces = avatar.GetComponentsInChildren<ADEParticle>(true);
-                if (adePartilces.Length > 0) ADMEParticleProcessor.Process(adePartilces[0]);
+                if (adePartilces.Length > 0) ADMEParticleProcessor.Process(adePartilces[0], buildContext);
+            }
+            catch
+            {
+                EditorUtility.DisplayDialog("Altert Dresser", $"処理中にエラーが発生しました。Alter Dresser を適用せずに再生されます。\nアバター: {avatar.name}", "OK");
+                ResetAvatar(avatar);
             }
             finally
             {
@@ -155,6 +161,85 @@ namespace online.kamishiro.alterdresser.editor
                 if (binaryNumber[smr.sharedMesh.blendShapeCount - 1 - bi] == '1') addBlendShapeNames = addBlendShapeNames.Append(smr.sharedMesh.GetBlendShapeName(bi));
             }
             return addBlendShapeNames;
+        }
+
+        [MenuItem("Tools/Alter Dresser/Reset Avatar Manually")]
+        public static void ResetAvatarManually()
+        {
+            for (int i = 0; i < SceneManager.sceneCount; i++)
+            {
+                Scene scene = SceneManager.GetSceneAt(i);
+                scene.GetRootGameObjects().Select(x => x.GetComponent<ADBuildContext>()).Where(x => x != null).Select(x => x.gameObject).ToList().ForEach(x => ResetAvatar(x));
+            }
+
+        }
+        private static void ResetAvatar(GameObject avatar)
+        {
+            ADBuildContext target = avatar.GetComponent<ADBuildContext>();
+
+            foreach (Object t in target.generatedObjects.Where(x => x != null))
+            {
+                if (PrefabUtility.IsPartOfPrefabInstance(t))
+                {
+                    if (t is GameObject)
+                    {
+                        PrefabUtility.RevertAddedGameObject(t as GameObject, InteractionMode.AutomatedAction);
+                        continue;
+                    }
+                    if (t is Component)
+                    {
+                        PrefabUtility.RevertAddedComponent(t as Component, InteractionMode.AutomatedAction);
+                        continue;
+                    }
+                }
+                Undo.DestroyObjectImmediate(t);
+            }
+            foreach (MeshRendererBuckup t in target.meshRendererBackup)
+            {
+                RevertMesh(t);
+            }
+
+            Object.DestroyImmediate(target);
+        }
+        private static void RevertMesh(MeshRendererBuckup backup)
+        {
+            if (backup.filter)
+            {
+                SerializedObject m = new SerializedObject(backup.filter);
+                SerializedProperty m_mesh = m.FindProperty("m_Mesh");
+                m.Update();
+                if (PrefabUtility.IsPartOfPrefabInstance(backup.filter))
+                {
+                    PrefabUtility.RevertPropertyOverride(m_mesh, InteractionMode.AutomatedAction);
+                    if (m_mesh.objectReferenceValue != backup.mesh) m_mesh.objectReferenceValue = backup.mesh;
+                }
+                else
+                {
+                    m_mesh.objectReferenceValue = backup.mesh;
+                }
+                m.ApplyModifiedProperties();
+            }
+            if (backup.renderer)
+            {
+                SerializedObject m = new SerializedObject(backup.renderer);
+                m.Update();
+                SerializedProperty m_materials = m.FindProperty("m_Materials");
+                if (PrefabUtility.IsPartOfPrefabInstance(backup.renderer))
+                {
+                    PrefabUtility.RevertPropertyOverride(m_materials, InteractionMode.AutomatedAction);
+                }
+                else
+                {
+                    m_materials.arraySize = backup.materials.Length;
+                    for (int k = 0; k < backup.materials.Length; k++)
+                    {
+                        m_materials.GetArrayElementAtIndex(k).objectReferenceValue = backup.materials[k];
+                    }
+                }
+                m.ApplyModifiedProperties();
+
+                backup.renderer.sharedMaterials = backup.materials.ToArray();
+            }
         }
     }
 }

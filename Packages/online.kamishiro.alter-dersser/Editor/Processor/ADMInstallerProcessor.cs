@@ -17,7 +17,7 @@ namespace online.kamishiro.alterdresser.editor
 {
     internal static class ADMInstallerProcessor
     {
-        internal static void Process(ADM item)
+        internal static void Process(ADM item, ADBuildContext context)
         {
             if (ADEditorUtils.IsEditorOnly(item.transform)) return;
 
@@ -25,14 +25,11 @@ namespace online.kamishiro.alterdresser.editor
 
             SerializedObject so = new SerializedObject(item);
             so.Update();
-            SerializedProperty addedComponents = so.FindProperty(nameof(ADS.addedComponents));
 
             if (IsRootGroup(item))
             {
                 ModularAvatarMenuInstaller maMenuInstaller = item.gameObject.AddComponent<ModularAvatarMenuInstaller>();
-                Undo.RegisterCreatedObjectUndo(maMenuInstaller, ADSettings.undoName);
-                addedComponents.InsertArrayElementAtIndex(addedComponents.arraySize);
-                addedComponents.GetArrayElementAtIndex(addedComponents.arraySize - 1).objectReferenceValue = maMenuInstaller;
+                ADEditorUtils.SaveGeneratedItem(maMenuInstaller, context);
             }
 
             string paramFixup = $"ADM_{item.Id}_Fixup";
@@ -51,9 +48,7 @@ namespace online.kamishiro.alterdresser.editor
                 maMargeAnimator.animator = animatorController;
                 maMargeAnimator.layerType = VRCAvatarDescriptor.AnimLayerType.FX;
                 maMargeAnimator.pathMode = MergeAnimatorPathMode.Absolute;
-                Undo.RegisterCreatedObjectUndo(maMargeAnimator, ADSettings.undoName);
-                addedComponents.InsertArrayElementAtIndex(addedComponents.arraySize);
-                addedComponents.GetArrayElementAtIndex(addedComponents.arraySize - 1).objectReferenceValue = maMargeAnimator;
+                ADEditorUtils.SaveGeneratedItem(maMargeAnimator, context);
 
                 ModularAvatarParameters maParameters = item.gameObject.AddComponent<ModularAvatarParameters>();
                 ParameterConfig paramConfig = new ParameterConfig
@@ -64,9 +59,7 @@ namespace online.kamishiro.alterdresser.editor
                     nameOrPrefix = paramClothID
                 };
                 maParameters.parameters = new List<ParameterConfig>() { paramConfig };
-                Undo.RegisterCreatedObjectUndo(maParameters, ADSettings.undoName);
-                addedComponents.InsertArrayElementAtIndex(addedComponents.arraySize);
-                addedComponents.GetArrayElementAtIndex(addedComponents.arraySize - 1).objectReferenceValue = maParameters;
+                ADEditorUtils.SaveGeneratedItem(maParameters, context);
                 ADAnimationUtils.AddParameter(animatorController, ADSettings.paramIsReady, ACPT.Bool);
                 ADAnimationUtils.AddParameter(animatorController, paramPlayCCAnimation, ACPT.Bool);
                 ADAnimationUtils.AddParameter(animatorController, paramClothChangeReady, ACPT.Bool);
@@ -233,9 +226,7 @@ namespace online.kamishiro.alterdresser.editor
                 maMargeAnimator.animator = animatorController;
                 maMargeAnimator.layerType = VRCAvatarDescriptor.AnimLayerType.FX;
                 maMargeAnimator.pathMode = MergeAnimatorPathMode.Absolute;
-                Undo.RegisterCreatedObjectUndo(maMargeAnimator, ADSettings.undoName);
-                addedComponents.InsertArrayElementAtIndex(addedComponents.arraySize);
-                addedComponents.GetArrayElementAtIndex(addedComponents.arraySize - 1).objectReferenceValue = maMargeAnimator;
+                ADEditorUtils.SaveGeneratedItem(maMargeAnimator, context);
 
                 ModularAvatarParameters maParameters = item.gameObject.AddComponent<ModularAvatarParameters>();
                 ParameterConfig paramConfig = new ParameterConfig
@@ -246,9 +237,7 @@ namespace online.kamishiro.alterdresser.editor
                     nameOrPrefix = paramClothID
                 };
                 maParameters.parameters = new List<ParameterConfig>() { paramConfig };
-                Undo.RegisterCreatedObjectUndo(maParameters, ADSettings.undoName);
-                addedComponents.InsertArrayElementAtIndex(addedComponents.arraySize);
-                addedComponents.GetArrayElementAtIndex(addedComponents.arraySize - 1).objectReferenceValue = maParameters;
+                ADEditorUtils.SaveGeneratedItem(maParameters, context);
                 ADAnimationUtils.AddParameter(animatorController, ADSettings.paramIsReady, ACPT.Bool);
                 ADAnimationUtils.AddParameter(animatorController, paramPlayCCAnimation, ACPT.Bool);
                 ADAnimationUtils.AddParameter(animatorController, paramClothChangeReady, ACPT.Bool);

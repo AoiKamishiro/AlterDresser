@@ -8,7 +8,7 @@ namespace online.kamishiro.alterdresser.editor
 {
     internal static class ADMGroupProcessor
     {
-        internal static void Process(ADMGroup item)
+        internal static void Process(ADMGroup item, ADBuildContext context)
         {
             if (ADEditorUtils.IsEditorOnly(item.transform)) return;
 
@@ -16,7 +16,6 @@ namespace online.kamishiro.alterdresser.editor
 
             SerializedObject so = new SerializedObject(item);
             so.Update();
-            SerializedProperty addedComponents = so.FindProperty(nameof(ADS.addedComponents));
 
             if (ADEditorUtils.WillUse(item))
             {
@@ -29,9 +28,7 @@ namespace online.kamishiro.alterdresser.editor
                 };
                 maMenuItem.Control = control;
                 maMenuItem.MenuSource = SubmenuSource.Children;
-                Undo.RegisterCreatedObjectUndo(maMenuItem, ADSettings.undoName);
-                addedComponents.InsertArrayElementAtIndex(addedComponents.arraySize);
-                addedComponents.GetArrayElementAtIndex(addedComponents.arraySize - 1).objectReferenceValue = maMenuItem;
+                ADEditorUtils.SaveGeneratedItem(maMenuItem, context);
             }
 
             so.ApplyModifiedProperties();
