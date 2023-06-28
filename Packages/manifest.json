@@ -10,10 +10,6 @@
     "com.unity.ugui": "1.0.0",
     "com.unity.xr.oculus.standalone": "2.38.4",
     "com.unity.xr.openvr.standalone": "2.0.5",
-    "vrc.sdk.avatars": "3.2.1",
-    "vrc.sdk.base": "3.2.1",
-    "vrc.tools.av3emulator": "3.2.0",
-    "vrc.tools.modular-avatar": "1.6.0",
     "com.unity.modules.ai": "1.0.0",
     "com.unity.modules.androidjni": "1.0.0",
     "com.unity.modules.animation": "1.0.0",
@@ -46,16 +42,5 @@
     "com.unity.modules.wind": "1.0.0",
     "com.unity.modules.xr": "1.0.0"
   },
-  "scopedRegistries": [
-    {
-      "name": "Dependency Packages",
-      "url": "https://package.kamishiro.online/",
-      "scopes": [
-        "vrc.sdk.base",
-        "vrc.sdk.avatars",
-        "vrc.tools.av3emulator",
-        "vrc.tools.modular-avatar"
-      ]
-    }
-  ]
+  "scopedRegistries": []
 }

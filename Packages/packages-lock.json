@@ -1,5 +1,17 @@
 {
   "dependencies": {
+    "com.anatawa12.avatar-optimizer": {
+      "version": "file:com.anatawa12.avatar-optimizer",
+      "depth": 0,
+      "source": "embedded",
+      "dependencies": {}
+    },
+    "com.anatawa12.custom-localization-for-editor-extension": {
+      "version": "file:com.anatawa12.custom-localization-for-editor-extension",
+      "depth": 0,
+      "source": "embedded",
+      "dependencies": {}
+    },
     "com.unity.burst": {
       "version": "1.4.11",
       "depth": 1,
@@ -117,45 +129,55 @@
       "dependencies": {},
       "url": "https://packages.unity.com"
     },
+    "com.vrchat.avatars": {
+      "version": "file:com.vrchat.avatars",
+      "depth": 0,
+      "source": "embedded",
+      "dependencies": {}
+    },
+    "com.vrchat.base": {
+      "version": "file:com.vrchat.base",
+      "depth": 0,
+      "source": "embedded",
+      "dependencies": {
+        "com.unity.burst": "1.4.11",
+        "com.unity.mathematics": "1.2.5",
+        "com.unity.nuget.newtonsoft-json": "3.0.2"
+      }
+    },
+    "com.vrchat.core.vpm-resolver": {
+      "version": "file:com.vrchat.core.vpm-resolver",
+      "depth": 0,
+      "source": "embedded",
+      "dependencies": {
+        "com.unity.nuget.newtonsoft-json": "3.0.2"
+      }
+    },
+    "jp.lilxyzw.liltoon": {
+      "version": "file:jp.lilxyzw.liltoon",
+      "depth": 0,
+      "source": "embedded",
+      "dependencies": {}
+    },
+    "lyuma.av3emulator": {
+      "version": "file:lyuma.av3emulator",
+      "depth": 0,
+      "source": "embedded",
+      "dependencies": {}
+    },
+    "nadena.dev.modular-avatar": {
+      "version": "file:nadena.dev.modular-avatar",
+      "depth": 0,
+      "source": "embedded",
+      "dependencies": {
+        "com.unity.nuget.newtonsoft-json": "2.0.0"
+      }
+    },
     "online.kamishiro.alterdresser": {
       "version": "file:online.kamishiro.alter-dersser",
       "depth": 0,
       "source": "embedded",
       "dependencies": {}
-    },
-    "vrc.sdk.avatars": {
-      "version": "3.2.1",
-      "depth": 0,
-      "source": "registry",
-      "dependencies": {},
-      "url": "https://package.kamishiro.online"
-    },
-    "vrc.sdk.base": {
-      "version": "3.2.1",
-      "depth": 0,
-      "source": "registry",
-      "dependencies": {
-        "com.unity.burst": "1.4.11",
-        "com.unity.mathematics": "1.2.5",
-        "com.unity.nuget.newtonsoft-json": "3.0.2"
-      },
-      "url": "https://package.kamishiro.online"
-    },
-    "vrc.tools.av3emulator": {
-      "version": "3.2.0",
-      "depth": 0,
-      "source": "registry",
-      "dependencies": {},
-      "url": "https://package.kamishiro.online"
-    },
-    "vrc.tools.modular-avatar": {
-      "version": "1.6.0",
-      "depth": 0,
-      "source": "registry",
-      "dependencies": {
-        "com.unity.nuget.newtonsoft-json": "2.0.0"
-      },
-      "url": "https://package.kamishiro.online"
     },
     "com.unity.modules.ai": {
       "version": "1.0.0",
