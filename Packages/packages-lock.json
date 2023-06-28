@@ -173,7 +173,7 @@
         "com.unity.nuget.newtonsoft-json": "2.0.0"
       }
     },
-    "online.kamishiro.alterdresser": {
+    "online.kamishiro.alter-dersser": {
       "version": "file:online.kamishiro.alter-dersser",
       "depth": 0,
       "source": "embedded",

@@ -1,19 +1,19 @@
 {
-  "name": "online.kamishiro.alterdresser",
-  "displayName": "AlterDresser",
-  "version": "0.10.2",
-  "description": "",
-  "gitDependencies": {},
-  "legacyFolders": {},
+  "name": "online.kamishiro.alter-dersser",
+  "displayName": "Alter Dresser",
+  "version": "0.10.7",
   "unity": "2019.4",
+  "description": "",
   "author": {
     "name": "Kamishiro Industries",
     "url": "https://kamishiro.online/",
     "email": "aoi.kamishiro@kamishiro.online"
   },
+  "url": "https://kamishiro.online/alter-dresser",
+  "repo": "http://vpm.kamishiro.online/packages.json",
   "vpmDependencies": {
-      "com.vrchat.avatars": ">=3.2.0",
-      "nadena.dev.modular-avatar": ">=1.6.0",
-      "jp.lilxyzw.liltoon": ">=1.4.0"
+    "com.vrchat.avatars": ">=3.2.0",
+    "nadena.dev.modular-avatar": ">=1.6.0",
+    "jp.lilxyzw.liltoon": ">=1.4.0"
   }
 }

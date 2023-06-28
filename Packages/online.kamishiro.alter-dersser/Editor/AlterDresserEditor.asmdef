@@ -2,7 +2,8 @@
     "name": "online.kamishiro.alterdresser.editor",
     "references": [
         "GUID:fc900867c0f47cd49b6e2ae4ef907300",
-        "GUID:3fb1fd900eafd4f468674867fecd8611"
+        "GUID:3fb1fd900eafd4f468674867fecd8611",
+        "GUID:e7f0f8dffe955d640bbc76d1d4f4986e"
     ],
     "includePlatforms": [
         "Editor"

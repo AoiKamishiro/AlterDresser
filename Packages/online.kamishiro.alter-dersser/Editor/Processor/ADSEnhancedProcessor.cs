@@ -1,4 +1,5 @@
-﻿using nadena.dev.modular_avatar.core;
+﻿using lilToon;
+using nadena.dev.modular_avatar.core;
 using System.Linq;
 using UnityEditor;
 using UnityEditor.Animations;
@@ -193,12 +194,13 @@ namespace online.kamishiro.alterdresser.editor
                 if (overrideMode.intValue == (int)ADSEnhancedMaterialOverrideType.AutoGenerate || (overrideMode.intValue == (int)ADSEnhancedMaterialOverrideType.UseManual && overrideMat.objectReferenceValue == null))
                 {
                     Material newMat = Object.Instantiate((Material)baseMat.objectReferenceValue);
+                    newMat.SetFloat("_TransparentMode", 2.0f);
+                    lilToonInspector.SetupMaterialWithRenderingMode(newMat, RenderingMode.Transparent, TransparentMode.Normal, false, false, false, true);
+                    lilMaterialUtils.SetupMultiMaterial(newMat);
+
                     newMat.shader = ADEditorUtils.LiltoonMulti;
                     newMat.EnableKeyword("GEOM_TYPE_BRANCH_DETAIL");
                     newMat.EnableKeyword("UNITY_UI_CLIP_RECT ");
-                    newMat.SetInt("_DstBlend", 10);
-                    newMat.SetInt("_TransparentMode", 2);
-                    newMat.SetInt("_ZWrite", 1);
                     newMat.renderQueue = 2461;
                     newMat.SetVector("_DissolveParams", new Vector4(3, 1, -1, 0.01f));
                     AssetDatabase.CreateAsset(newMat, $"Assets/{ADSettings.tempDirPath}/{ADRuntimeUtils.GenerateID(newMat)}.mat");
