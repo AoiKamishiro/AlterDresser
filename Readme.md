@@ -1,1 +1,3 @@
-[VCC](vcc://vpm/addRepo?url=https://aoikamishiro.github.io/vpm/vpm.json)
+Alter Dresser はエフェクトつきの着替えを非破壊的に行う事ができるツールです。もちろん、エフェクトのないオブジェクトのオン・オフや、シェイプキーの同時操作、小物等のオブジェクト位置の同時調整も可能です！  
+
+詳しくは[ドキュメントページ](https://kamishiro.online/alter-dresser)をご確認ください。
