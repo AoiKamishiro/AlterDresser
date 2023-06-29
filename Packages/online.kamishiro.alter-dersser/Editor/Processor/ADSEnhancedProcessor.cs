@@ -190,6 +190,7 @@ namespace online.kamishiro.alterdresser.editor
                     newMat.EnableKeyword("GEOM_TYPE_BRANCH_DETAIL");
                     newMat.EnableKeyword("UNITY_UI_CLIP_RECT ");
                     newMat.renderQueue = 2461;
+                    newMat.SetFloat("_DissolveNoiseStrength", 0.0f);
                     newMat.SetVector("_DissolveParams", new Vector4(3, 1, -1, 0.01f));
                     AssetDatabase.CreateAsset(newMat, $"Assets/{ADSettings.tempDirPath}/{ADRuntimeUtils.GenerateID(newMat)}.mat");
 
