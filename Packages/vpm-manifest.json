@@ -1,8 +1,5 @@
 {
   "dependencies": {
-    "com.anatawa12.avatar-optimizer": {
-      "version": "1.0.0"
-    },
     "lyuma.av3emulator": {
       "version": "3.2.0"
     },
@@ -14,28 +11,24 @@
     },
     "com.vrchat.core.vpm-resolver": {
       "version": "0.1.20"
+    },
+    "com.anatawa12.avatar-optimizer": {
+      "version": "1.0.0"
     }
   },
   "locked": {
-    "com.anatawa12.avatar-optimizer": {
-      "version": "1.0.0",
-      "dependencies": {
-        "com.anatawa12.custom-localization-for-editor-extension": "^1.0.0",
-        "com.vrchat.avatars": "~3.2.0-beta.1"
-      }
-    },
     "com.anatawa12.custom-localization-for-editor-extension": {
       "version": "1.0.0",
       "dependencies": {}
     },
     "com.vrchat.avatars": {
-      "version": "3.2.2-beta.1",
+      "version": "3.2.1",
       "dependencies": {
-        "com.vrchat.base": "3.2.2-beta.1"
+        "com.vrchat.base": "^3.2.1"
       }
     },
     "com.vrchat.base": {
-      "version": "3.2.2-beta.1",
+      "version": "3.2.1",
       "dependencies": {}
     },
     "lyuma.av3emulator": {
@@ -57,6 +50,13 @@
     "com.vrchat.core.vpm-resolver": {
       "version": "0.1.20",
       "dependencies": {}
+    },
+    "com.anatawa12.avatar-optimizer": {
+      "version": "1.0.0",
+      "dependencies": {
+        "com.anatawa12.custom-localization-for-editor-extension": "^1.0.0",
+        "com.vrchat.avatars": "~3.2.0-beta.1"
+      }
     }
   }
 }
