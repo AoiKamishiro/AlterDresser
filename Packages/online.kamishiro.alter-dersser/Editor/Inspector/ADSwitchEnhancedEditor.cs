@@ -109,6 +109,7 @@ namespace online.kamishiro.alterdresser.editor
                 return _reorderable;
             }
         }
+
         private Material[] _matList;
         private Material[] MatList
         {
@@ -119,6 +120,19 @@ namespace online.kamishiro.alterdresser.editor
                     _matList = GetMaterials();
                 }
                 return _matList;
+            }
+        }
+
+        private SerializedProperty _doMergeMesh;
+        private SerializedProperty DoMergeMesh
+        {
+            get
+            {
+                if (_doMergeMesh == null)
+                {
+                    _doMergeMesh = SerializedObject.FindProperty(nameof(ADSEnhanced.doMergeMesh));
+                }
+                return _doMergeMesh;
             }
         }
 
@@ -189,6 +203,20 @@ namespace online.kamishiro.alterdresser.editor
             }
 
             ReorderableList.DoLayoutList();
+
+#if AD_AVATAR_OPTIMIZER_IMPORTED
+            bool disabled = false;
+#else
+            bool disabled = true;
+#endif
+            EditorGUILayout.Space();
+            EditorGUILayout.BeginVertical(new GUIStyle(GUI.skin.box));
+            using (new EditorGUI.DisabledGroupScope(disabled))
+            {
+                EditorGUILayout.LabelField(new GUIContent("Auto Avatar Optimizer", "AvatarOptimizerが導入されたプロジェクトでのみ利用可能なオプションです"), EditorStyles.boldLabel);
+                EditorGUILayout.PropertyField(DoMergeMesh, new GUIContent("子のメッシュを統合する", "ビルド時に Merge Skinned Mesh を生成します。"));
+            }
+            EditorGUILayout.EndVertical();
         }
 
         private Material[] GetMaterials()

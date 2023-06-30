@@ -1,5 +1,4 @@
 ﻿using nadena.dev.modular_avatar.core;
-using System;
 using UnityEngine;
 using VRC.SDKBase;
 

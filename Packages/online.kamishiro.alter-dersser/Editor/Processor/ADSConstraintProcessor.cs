@@ -7,7 +7,6 @@ using UnityEngine;
 using UnityEngine.Animations;
 using ACM = UnityEditor.Animations.AnimatorConditionMode;
 using ACPT = UnityEngine.AnimatorControllerParameterType;
-using ADS = online.kamishiro.alterdresser.ADSwitchBase;
 using ADSConstraint = online.kamishiro.alterdresser.AlterDresserSwitchConstraint;
 
 namespace online.kamishiro.alterdresser.editor

@@ -1,4 +1,6 @@
 ﻿using nadena.dev.modular_avatar.core;
+using System;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
 using UnityEditor.Animations;
@@ -55,6 +57,38 @@ namespace online.kamishiro.alterdresser.editor
                 AssetDatabase.AddObjectToAsset(disabledClip, animator);
             }
 
+#if AD_AVATAR_OPTIMIZER_IMPORTED
+            if (item.doFleezeBlendshape && item.TryGetComponent(out SkinnedMeshRenderer smr) && smr.sharedMesh && smr.sharedMesh.blendShapeCount > 0)
+            {
+                string binaryNumber = Convert.ToString(item.fleezeBlendshapeMask, 2);
+                while (smr.sharedMesh.blendShapeCount - binaryNumber.Length > 0)
+                {
+                    binaryNumber = "0" + binaryNumber;
+                }
+                IEnumerable<bool> mask = binaryNumber.ToCharArray().Select(x => x != '1');
+
+                Component m = item.gameObject.AddComponent(ADOptimizerImported.FreezeBlendShapeType);
+                SerializedObject so1 = new SerializedObject(m);
+                so1.Update();
+                SerializedProperty shapeKeysSet = so1.FindProperty("shapeKeysSet").FindPropertyRelative("mainSet");
+
+                IEnumerable<string> usingBlendshape = ADRuntimeUtils.GetAvatar(item.transform).GetComponentsInChildren<AlterDresserMenuItem>(true)
+                       .SelectMany(x => x.adElements)
+                       .Where(x => x.mode == SwitchMode.Blendshape)
+                       .Where(x => x.objRefValue == item)
+                       .SelectMany(x => ADSwitchBlendshapeEditor.GetUsingBlendshapeNames(x))
+                       .Distinct();
+
+                foreach (string i in Enumerable.Range(0, smr.sharedMesh.blendShapeCount).Where(x => mask.ElementAt(x)).Select(x => smr.sharedMesh.GetBlendShapeName(x)).Distinct().Except(usingBlendshape))
+                {
+                    shapeKeysSet.InsertArrayElementAtIndex(shapeKeysSet.arraySize);
+                    shapeKeysSet.GetArrayElementAtIndex(shapeKeysSet.arraySize - 1).stringValue = i;
+                }
+
+                so1.ApplyModifiedProperties();
+                ADEditorUtils.SaveGeneratedItem(m, context);
+            }
+#endif
             so.ApplyModifiedProperties();
         }
         internal static AnimationClip CreateBlendshapeEnabledAnimationClip(string name, string blendShapeName)

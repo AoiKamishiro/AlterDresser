@@ -2,7 +2,6 @@
 using UnityEditor;
 using VRC.SDK3.Avatars.ScriptableObjects;
 using ADMGroup = online.kamishiro.alterdresser.AlterDresserMenuGroup;
-using ADS = online.kamishiro.alterdresser.ADSwitchBase;
 
 namespace online.kamishiro.alterdresser.editor
 {

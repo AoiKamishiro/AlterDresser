@@ -7,6 +7,7 @@ namespace online.kamishiro.alterdresser
     [AddComponentMenu("AlterDresser/AD Switch Enhanced")]
     public class AlterDresserSwitchEnhanced : ADSwitchBase
     {
+        public bool doMergeMesh;
         public ADSEnhancedMaterialOverride[] materialOverrides = Array.Empty<ADSEnhancedMaterialOverride>();
         public ADSEnhancedMeshOverride[] meshOverrides = Array.Empty<ADSEnhancedMeshOverride>();
     }

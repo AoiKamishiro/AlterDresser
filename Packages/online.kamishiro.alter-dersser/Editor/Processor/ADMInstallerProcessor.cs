@@ -11,7 +11,6 @@ using ACPT = UnityEngine.AnimatorControllerParameterType;
 using ADM = online.kamishiro.alterdresser.ADMenuBase;
 using ADMGroup = online.kamishiro.alterdresser.AlterDresserMenuGroup;
 using ADMItem = online.kamishiro.alterdresser.AlterDresserMenuItem;
-using ADS = online.kamishiro.alterdresser.ADSwitchBase;
 
 namespace online.kamishiro.alterdresser.editor
 {

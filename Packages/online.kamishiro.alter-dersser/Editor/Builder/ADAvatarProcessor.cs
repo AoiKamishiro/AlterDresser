@@ -73,7 +73,7 @@ namespace online.kamishiro.alterdresser.editor
                         foreach (ADMElemtnt elem in (item as ADMItem).adElements.Where(x => x.mode == SwitchMode.Blendshape).Where(x => x.objRefValue != null))
                         {
                             bool isNew = true;
-                            IEnumerable<string> addBlendShapeNames = GetBlendshapeNames(elem);
+                            IEnumerable<string> addBlendShapeNames = ADSwitchBlendshapeEditor.GetUsingBlendshapeNames(elem);
                             for (int i = 0; i < adsBlendshapes.Count(); i++)
                             {
                                 if (adsBlendshapes.Keys.ElementAt(i).Id == elem.objRefValue.Id)
@@ -144,24 +144,6 @@ namespace online.kamishiro.alterdresser.editor
 
             return depth;
         }
-        private static IEnumerable<string> GetBlendshapeNames(ADMElemtnt item)
-        {
-            IEnumerable<string> addBlendShapeNames = Enumerable.Empty<string>();
-            SkinnedMeshRenderer smr = item.objRefValue.GetComponent<SkinnedMeshRenderer>();
-            if (!smr || !smr.sharedMesh) return Enumerable.Empty<string>();
-            string binaryNumber = System.Convert.ToString(item.intValue, 2);
-
-            while (smr.sharedMesh.blendShapeCount - binaryNumber.Length > 0)
-            {
-                binaryNumber = "0" + binaryNumber;
-            }
-
-            for (int bi = 0; bi < smr.sharedMesh.blendShapeCount; bi++)
-            {
-                if (binaryNumber[smr.sharedMesh.blendShapeCount - 1 - bi] == '1') addBlendShapeNames = addBlendShapeNames.Append(smr.sharedMesh.GetBlendShapeName(bi));
-            }
-            return addBlendShapeNames;
-        }
 
         [MenuItem("Tools/Alter Dresser/Reset Avatar Manually")]
         public static void ResetAvatarManually()
@@ -171,7 +153,16 @@ namespace online.kamishiro.alterdresser.editor
                 Scene scene = SceneManager.GetSceneAt(i);
                 scene.GetRootGameObjects().Select(x => x.GetComponent<ADBuildContext>()).Where(x => x != null).Select(x => x.gameObject).ToList().ForEach(x => ResetAvatar(x));
             }
+        }
 
+        [MenuItem("Tools/Alter Dresser/Manual Bake Selected")]
+        public static void ManualBakeSelected()
+        {
+            GameObject cur = Selection.activeGameObject;
+            if (cur != null && cur.scene != null)
+            {
+                ProcessAvatar(ADRuntimeUtils.GetAvatar(cur.transform).gameObject);
+            }
         }
         private static void ResetAvatar(GameObject avatar)
         {
