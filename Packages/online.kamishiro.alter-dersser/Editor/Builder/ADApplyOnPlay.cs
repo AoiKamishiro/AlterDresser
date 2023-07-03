@@ -11,8 +11,8 @@ namespace online.kamishiro.alterdresser.editor
     [InitializeOnLoad]
     internal static class ADApplyOnPlay
     {
-        private static readonly string PREFS_KEY_ON_PLAY = "ADApplyOnPlay";
-        private static bool IsApplyedOnPlay
+        private static readonly string PREFS_KEY_ON_PLAY = "ADOnPlayProcessing";
+        private static bool OnPlayProcessing
         {
             get => EditorPrefs.GetBool(PREFS_KEY_ON_PLAY);
             set => EditorPrefs.SetBool(PREFS_KEY_ON_PLAY, value);
@@ -27,17 +27,17 @@ namespace online.kamishiro.alterdresser.editor
 
         private static void OnPlayModeStateChanged(PlayModeStateChange obj)
         {
-            if (obj == PlayModeStateChange.ExitingEditMode && !ADApplyOnBuild.IsApplyedOnBuild)
+            if (obj == PlayModeStateChange.ExitingEditMode && !ADApplyOnBuild.OnBuildProcessing)
             {
                 InitializeOnEnterPlayMode();
-                IsApplyedOnPlay = true;
+                OnPlayProcessing = true;
             }
 
-            if (obj == PlayModeStateChange.EnteredEditMode && IsApplyedOnPlay)
+            if (obj == PlayModeStateChange.EnteredEditMode && OnPlayProcessing)
             {
                 FinalizeOnExitPlayMode();
                 ADEditorUtils.DeleteTempDir();
-                IsApplyedOnPlay = false;
+                OnPlayProcessing = false;
             }
         }
 

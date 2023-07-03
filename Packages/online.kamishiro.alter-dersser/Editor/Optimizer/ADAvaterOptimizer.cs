@@ -2,10 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using UnityEditor;
 
-[InitializeOnLoad]
-internal static class ADOptimizerImported
+internal static class ADAvaterOptimizer
 {
     private static Assembly _avatarOptimizerAssembly;
     private static Assembly AvatarOptimzerAssembly
@@ -55,25 +53,5 @@ internal static class ADOptimizerImported
         }
     }
 
-    static ADOptimizerImported()
-    {
-        string symbols = PlayerSettings.GetScriptingDefineSymbolsForGroup(EditorUserBuildSettings.selectedBuildTargetGroup);
-        string targetSymbol = "AD_AVATAR_OPTIMIZER_IMPORTED";
-
-        if (AvatarOptimzerAssembly != null)
-        {
-            if (!symbols.Split(';').Contains(targetSymbol))
-            {
-                PlayerSettings.SetScriptingDefineSymbolsForGroup(EditorUserBuildSettings.selectedBuildTargetGroup, symbols + ";" + targetSymbol);
-            }
-        }
-        else
-        {
-            string newSymbols = string.Join(";", symbols.Split(';').Where(x => x != targetSymbol).ToArray());
-            if (symbols != newSymbols)
-            {
-                PlayerSettings.SetScriptingDefineSymbolsForGroup(EditorUserBuildSettings.selectedBuildTargetGroup, newSymbols);
-            }
-        }
-    }
+    internal static bool IsImported => AvatarOptimzerAssembly != null;
 }

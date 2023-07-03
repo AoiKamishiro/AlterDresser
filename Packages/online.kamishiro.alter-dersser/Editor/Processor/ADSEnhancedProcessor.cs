@@ -97,31 +97,7 @@ namespace online.kamishiro.alterdresser.editor
             AssetDatabase.AddObjectToAsset(disabledAnimationClip, animator);
             AssetDatabase.AddObjectToAsset(enablingAnimationClip, animator);
             AssetDatabase.AddObjectToAsset(disablingAnimationClip, animator);
-#if AD_AVATAR_OPTIMIZER_IMPORTED
-            if (item.doMergeMesh)
-            {
-                IEnumerable<SkinnedMeshRenderer> renderer = item.GetComponentsInChildren<SkinnedMeshRenderer>(true).Where(x => x != null);
-                GameObject mergedMesh = new GameObject("MergedMesh");
-                ADEditorUtils.SaveGeneratedItem(mergedMesh, context);
-                mergedMesh.transform.SetParent(item.transform);
-                Component m = mergedMesh.AddComponent(ADOptimizerImported.MergeMeshType);
-                SerializedObject so1 = new SerializedObject(m);
-                so1.Update();
-                SerializedProperty renderersSet = so1.FindProperty("renderersSet").FindPropertyRelative("mainSet");
-                foreach (SkinnedMeshRenderer i in renderer)
-                {
-                    renderersSet.InsertArrayElementAtIndex(renderersSet.arraySize);
-                    renderersSet.GetArrayElementAtIndex(renderersSet.arraySize - 1).objectReferenceValue = i;
-                }
-                so1.ApplyModifiedProperties();
 
-                ModularAvatarMeshSettings maMeshSettings = mergedMesh.AddComponent<ModularAvatarMeshSettings>();
-                maMeshSettings.InheritBounds = ModularAvatarMeshSettings.InheritMode.Set;
-                maMeshSettings.RootBone = avatarObjectReference;
-                maMeshSettings.Bounds = new Bounds(ADRuntimeUtils.GetAvatar(item.transform).ViewPosition / 2, new Vector3(2.5f, 2.5f, 2.5f));
-                ADEditorUtils.SaveGeneratedItem(maMeshSettings, context);
-            }
-#endif
             so.ApplyModifiedProperties();
         }
         internal static void MeshInstanciator(ADSEnhanced item, ADBuildContext context)
@@ -221,7 +197,7 @@ namespace online.kamishiro.alterdresser.editor
 
                     internalMat.objectReferenceValue = newMat;
                 }
-                if ((overrideMode.intValue == (int)ADSEnhancedMaterialOverrideType.UseManual && overrideMat.objectReferenceValue != null))
+                if (overrideMode.intValue == (int)ADSEnhancedMaterialOverrideType.UseManual && overrideMat.objectReferenceValue != null)
                 {
                     internalMat.objectReferenceValue = overrideMat.objectReferenceValue;
                 }

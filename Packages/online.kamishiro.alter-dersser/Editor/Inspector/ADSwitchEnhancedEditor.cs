@@ -74,9 +74,9 @@ namespace online.kamishiro.alterdresser.editor
                             SerializedProperty overrideMode = elem.FindPropertyRelative(nameof(ADSEnhancedMaterialOverride.overrideMode));
 
                             Rect r1 = new Rect(rect.x, rect.yMin + Margin, (rect.width / 3) - Margin, LineHeight);
-                            Rect r2 = new Rect(rect.x + (rect.width / 3), rect.yMin + Margin, (rect.width / 3) * 2 - Margin, LineHeight);
+                            Rect r2 = new Rect(rect.x + (rect.width / 3), rect.yMin + Margin, rect.width / 3 * 2 - Margin, LineHeight);
                             Rect r2a = new Rect(rect.x + (rect.width / 3), rect.yMin + Margin, (rect.width / 3) - Margin, LineHeight);
-                            Rect r2b = new Rect(rect.x + (rect.width / 3) * 2, rect.yMin + Margin, (rect.width / 3) - Margin, LineHeight);
+                            Rect r2b = new Rect(rect.x + rect.width / 3 * 2, rect.yMin + Margin, (rect.width / 3) - Margin, LineHeight);
                             Rect r3 = new Rect(rect.x + Margin * 3, rect.yMin + LineHeight + Margin * 2, rect.width - Margin - Margin * 3, LineHeight);
 
                             EditorGUI.ObjectField(r1, baseMat.objectReferenceValue, typeof(Material), true);
@@ -204,14 +204,9 @@ namespace online.kamishiro.alterdresser.editor
 
             ReorderableList.DoLayoutList();
 
-#if AD_AVATAR_OPTIMIZER_IMPORTED
-            bool disabled = false;
-#else
-            bool disabled = true;
-#endif
             EditorGUILayout.Space();
             EditorGUILayout.BeginVertical(new GUIStyle(GUI.skin.box));
-            using (new EditorGUI.DisabledGroupScope(disabled))
+            using (new EditorGUI.DisabledGroupScope(!ADAvaterOptimizer.IsImported))
             {
                 EditorGUILayout.LabelField(new GUIContent("Auto Avatar Optimizer", "AvatarOptimizerが導入されたプロジェクトでのみ利用可能なオプションです"), EditorStyles.boldLabel);
                 EditorGUILayout.PropertyField(DoMergeMesh, new GUIContent("子のメッシュを統合する", "ビルド時に Merge Skinned Mesh を生成します。"));

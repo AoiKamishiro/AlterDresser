@@ -1,4 +1,5 @@
-﻿using System;
+﻿using nadena.dev.modular_avatar.core;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
@@ -66,13 +67,19 @@ namespace online.kamishiro.alterdresser.editor
             {
                 if (_usingBlendshapeNames == null)
                 {
-                    _usingBlendshapeNames = ADRuntimeUtils.GetAvatar((target as ADSBlendshape).transform).GetComponentsInChildren<AlterDresserMenuItem>(true)
+                    IEnumerable<string> temp = ADRuntimeUtils.GetAvatar((target as ADSBlendshape).transform).GetComponentsInChildren<AlterDresserMenuItem>(true)
                        .SelectMany(x => x.adElements)
                        .Where(x => x.mode == SwitchMode.Blendshape)
                        .Where(x => x.objRefValue == (target as ADSBlendshape))
                        .SelectMany(x => GetUsingBlendshapeNames(x))
-                       .Distinct()
-                       .ToList();
+                       .Distinct();
+
+                    if ((target as ADSBlendshape).TryGetComponent(out ModularAvatarBlendshapeSync ma))
+                    {
+                        temp = temp.Concat(ma.Bindings.Select(x => x.LocalBlendshape != string.Empty ? x.LocalBlendshape : x.Blendshape)).Distinct();
+                    }
+
+                    _usingBlendshapeNames = temp.ToList();
                 }
                 return _usingBlendshapeNames;
             }
@@ -87,7 +94,7 @@ namespace online.kamishiro.alterdresser.editor
         {
             ADSBlendshape item = (ADSBlendshape)target;
 
-            if (!(item).TryGetComponent(out SkinnedMeshRenderer smr))
+            if (!item.TryGetComponent(out SkinnedMeshRenderer smr))
             {
                 EditorGUILayout.HelpBox("SkinnedMeshrendereが必要です。", MessageType.Error);
                 return;
@@ -106,17 +113,6 @@ namespace online.kamishiro.alterdresser.editor
             EditorGUILayout.HelpBox("BlendShapeの切り替えをします。", MessageType.Info);
             EditorGUILayout.Space();
 
-#if AD_AVATAR_OPTIMIZER_IMPORTED
-            bool disabled = false;
-
-            if (item.doFleezeBlendshape && item.TryGetComponent(ADOptimizerImported.FreezeBlendShapeType, out Component c))
-            {
-                DestroyImmediate(c);
-            }
-#else
-            bool disabled = true;
-#endif
-            IEnumerable<string> blendshapes = Enumerable.Empty<string>();
             string binaryNumber = Convert.ToString(FleezeBlendshapeMask.intValue, 2);
             while (BlendShapeNames.Count() - binaryNumber.Length > 0)
             {
@@ -126,13 +122,13 @@ namespace online.kamishiro.alterdresser.editor
 
             EditorGUILayout.Space();
             EditorGUILayout.BeginVertical(new GUIStyle(GUI.skin.box));
-            using (new EditorGUI.DisabledGroupScope(disabled))
+            using (new EditorGUI.DisabledGroupScope(!ADAvaterOptimizer.IsImported))
             {
                 EditorGUILayout.LabelField(new GUIContent("Auto Avatar Optimizer", "AvatarOptimizerが導入されたプロジェクトでのみ利用可能なオプションです"), EditorStyles.boldLabel);
                 EditorGUILayout.PropertyField(DoFleezeBlendshape, new GUIContent("使わないシェイプキーを固定する", "ビルド時に Freeze Blendshape を生成します。"));
                 EditorGUILayout.Space();
 
-                EditorGUILayout.LabelField("Blendshape一覧　(チェックの無い物は現在の値で固定されます。)");
+                EditorGUILayout.LabelField("利用するBlendshape　(チェックの無い物は現在の値で固定されます。)");
                 EditorGUI.indentLevel++;
                 for (int i = BlendShapeNames.Count() - 1; i >= 0; i--)
                 {

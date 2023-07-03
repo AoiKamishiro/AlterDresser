@@ -11,8 +11,8 @@ namespace online.kamishiro.alterdresser.editor
 {
     public class ADApplyOnBuild : IVRCSDKPreprocessAvatarCallback, IVRCSDKPostprocessAvatarCallback
     {
-        private static readonly string PREFS_KEY_ON_BUILD = "ADApplyOnBuild";
-        internal static bool IsApplyedOnBuild
+        private static readonly string PREFS_KEY_ON_BUILD = "ADOnBuildProcessing";
+        internal static bool OnBuildProcessing
         {
             get => EditorPrefs.GetBool(PREFS_KEY_ON_BUILD);
             set => EditorPrefs.SetBool(PREFS_KEY_ON_BUILD, value);
@@ -32,7 +32,7 @@ namespace online.kamishiro.alterdresser.editor
             if (obj == PlayModeStateChange.EnteredEditMode)
             {
                 ADEditorUtils.DeleteTempDir();
-                IsApplyedOnBuild = false;
+                OnBuildProcessing = false;
             }
         }
 
@@ -40,7 +40,7 @@ namespace online.kamishiro.alterdresser.editor
         {
             try
             {
-                IsApplyedOnBuild = true;
+                OnBuildProcessing = true;
                 ADAvatarProcessor.ProcessAvatar(avatarGameObject);
                 return true;
             }
