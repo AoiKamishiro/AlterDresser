@@ -60,3 +60,5 @@ crashlytics-build.properties
 
 #Additionals
 .vsconfig
+
+Assets/*
