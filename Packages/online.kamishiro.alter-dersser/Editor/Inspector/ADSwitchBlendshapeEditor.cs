@@ -6,6 +6,7 @@ using UnityEditor;
 using UnityEngine;
 using ADMElemtnt = online.kamishiro.alterdresser.ADMItemElement;
 using ADSBlendshape = online.kamishiro.alterdresser.AlterDresserSwitchBlendshape;
+using L = online.kamishiro.alterdresser.editor.ADLocalizer;
 
 namespace online.kamishiro.alterdresser.editor
 {
@@ -110,8 +111,12 @@ namespace online.kamishiro.alterdresser.editor
                 return;
             }
 
-            EditorGUILayout.HelpBox("BlendShapeの切り替えをします。", MessageType.Info);
-            EditorGUILayout.Space();
+            using (new EditorGUILayout.VerticalScope(new GUIStyle(GUI.skin.box)))
+            {
+                EditorGUILayout.LabelField(new GUIContent("AD Switch Blendshape", L.ADSBDescription), EditorStyles.boldLabel);
+                EditorGUILayout.Space();
+                EditorGUILayout.HelpBox(L.ADSB_MSG_NoSettings, MessageType.Info);
+            }
 
             string binaryNumber = Convert.ToString(FleezeBlendshapeMask.intValue, 2);
             while (BlendShapeNames.Count() - binaryNumber.Length > 0)
@@ -120,36 +125,36 @@ namespace online.kamishiro.alterdresser.editor
             }
             char[] bin = binaryNumber.ToCharArray();
 
-            EditorGUILayout.Space();
-            EditorGUILayout.BeginVertical(new GUIStyle(GUI.skin.box));
-            using (new EditorGUI.DisabledGroupScope(!ADAvaterOptimizer.IsImported))
+            using (new EditorGUILayout.VerticalScope(new GUIStyle(GUI.skin.box)))
             {
-                EditorGUILayout.LabelField(new GUIContent("Auto Avatar Optimizer", "AvatarOptimizerが導入されたプロジェクトでのみ利用可能なオプションです"), EditorStyles.boldLabel);
-                EditorGUILayout.PropertyField(DoFleezeBlendshape, new GUIContent("使わないシェイプキーを固定する", "ビルド時に Freeze Blendshape を生成します。"));
-                EditorGUILayout.Space();
-
-                EditorGUILayout.LabelField("利用するBlendshape　(チェックの無い物は現在の値で固定されます。)");
-                EditorGUI.indentLevel++;
-                for (int i = BlendShapeNames.Count() - 1; i >= 0; i--)
+                using (new EditorGUI.DisabledGroupScope(!ADAvaterOptimizer.IsImported))
                 {
-                    int num = BlendShapeNames.Count() - 1 - i;
-                    if (UsingBlendShapeNames.Contains(BlendShapeNames[num]))
+                    EditorGUILayout.LabelField(new GUIContent(L.ADAOTitle, L.ADAODescription), EditorStyles.boldLabel);
+                    EditorGUILayout.PropertyField(DoFleezeBlendshape, new GUIContent(L.ADSB_AO_DoFreeze, L.ADSB_AO_DoFreeze_Tips));
+                    EditorGUILayout.Space();
+
+                    EditorGUILayout.LabelField(L.ADSB_AO_ListTitle);
+                    EditorGUI.indentLevel++;
+                    for (int i = BlendShapeNames.Count() - 1; i >= 0; i--)
                     {
-                        using (new EditorGUI.DisabledGroupScope(true))
+                        int num = BlendShapeNames.Count() - 1 - i;
+                        if (UsingBlendShapeNames.Contains(BlendShapeNames[num]))
                         {
-                            bin[BlendShapeNames.Count() - 1 - i] = EditorGUILayout.Toggle(BlendShapeNames[num], true) ? '1' : '0';
+                            using (new EditorGUI.DisabledGroupScope(true))
+                            {
+                                bin[BlendShapeNames.Count() - 1 - i] = EditorGUILayout.Toggle(BlendShapeNames[num], true) ? '1' : '0';
+                            }
+                        }
+                        else
+                        {
+                            bin[BlendShapeNames.Count() - 1 - i] = EditorGUILayout.Toggle(BlendShapeNames[num], bin[BlendShapeNames.Count() - 1 - i] == '1') ? '1' : '0';
                         }
                     }
-                    else
-                    {
-                        bin[BlendShapeNames.Count() - 1 - i] = EditorGUILayout.Toggle(BlendShapeNames[num], bin[BlendShapeNames.Count() - 1 - i] == '1') ? '1' : '0';
-                    }
-                }
-                EditorGUI.indentLevel--;
+                    EditorGUI.indentLevel--;
 
-                FleezeBlendshapeMask.intValue = Convert.ToInt32(new string(bin), 2);
+                    FleezeBlendshapeMask.intValue = Convert.ToInt32(new string(bin), 2);
+                }
             }
-            EditorGUILayout.EndVertical();
         }
         internal static IEnumerable<string> GetUsingBlendshapeNames(ADMElemtnt item)
         {

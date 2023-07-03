@@ -10,6 +10,7 @@ using ADSBlendshape = online.kamishiro.alterdresser.AlterDresserSwitchBlendshape
 using ADSConstraint = online.kamishiro.alterdresser.AlterDresserSwitchConstraint;
 using ADSEnhanced = online.kamishiro.alterdresser.AlterDresserSwitchEnhanced;
 using ADSSimple = online.kamishiro.alterdresser.AlterDresserSwitchSimple;
+using L = online.kamishiro.alterdresser.editor.ADLocalizer;
 
 namespace online.kamishiro.alterdresser.editor
 {
@@ -56,7 +57,7 @@ namespace online.kamishiro.alterdresser.editor
                         draggable = true,
                         drawHeaderCallback = (rect) =>
                         {
-                            EditorGUI.LabelField(rect, new GUIContent("オブジェクト"));
+                            EditorGUI.LabelField(rect, new GUIContent(L.ADMI_RLTitle));
                         },
                         elementHeightCallback = (index) =>
                         {
@@ -151,10 +152,10 @@ namespace online.kamishiro.alterdresser.editor
                                             ADSConstraint c = objVal.objectReferenceValue as ADSConstraint;
                                             IEnumerable<string> names = new List<string>();
                                             IEnumerable<GUIContent> nams = Enumerable.Empty<GUIContent>();
-                                            names = names.Append("ワールド固定");
+                                            names = names.Append(L.ADMI_RL_F2W);
                                             for (int i = 0; i < c.targets.Length; i++)
                                             {
-                                                names = names.Append(c.targets[i] ? $"{i} : {c.targets[i].name}" : $"{i} : なし(現在位置)");
+                                                names = names.Append(c.targets[i] ? $"{i} : {c.targets[i].name}" : $"{i} : {L.ADMI_RL_CUR}");
                                             }
                                             int popup = intVal.intValue == -100 ? 0 : intVal.intValue + 1;
                                             popup = EditorGUI.Popup(r3, popup, names.ToArray());
@@ -178,11 +179,13 @@ namespace online.kamishiro.alterdresser.editor
 
         protected override void OnInnerInspectorGUI()
         {
-            EditorGUILayout.HelpBox("このメニューで有効にしたいAlterDressorSwitchを設定します。", MessageType.Info);
-            EditorGUILayout.Space();
-            EditorGUILayout.PropertyField(MenuIcon, new GUIContent("メニューアイコン"));
-            if (ADMItemProcessor.IsRoot((ADMItem)target)) EditorGUILayout.PropertyField(InitState, new GUIContent("初期値"));
-            List.DoLayoutList();
+            using (new EditorGUILayout.VerticalScope(new GUIStyle(GUI.skin.box)))
+            {
+                EditorGUILayout.LabelField(new GUIContent("AD Menu Item", L.ADMIDescription), EditorStyles.boldLabel);
+                EditorGUILayout.PropertyField(MenuIcon, new GUIContent(L.ADMI_PF_MenuIcon));
+                if (ADMItemProcessor.IsRoot((ADMItem)target)) EditorGUILayout.PropertyField(InitState, new GUIContent(L.ADMI_PF_InitValue));
+                List.DoLayoutList();
+            }
         }
         private static IEnumerable<string> GetList(IEnumerable<ADS> adss)
         {

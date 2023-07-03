@@ -1,5 +1,6 @@
 ﻿using UnityEditor;
 using UnityEngine;
+using L = online.kamishiro.alterdresser.editor.ADLocalizer;
 
 namespace online.kamishiro.alterdresser.editor
 {
@@ -20,6 +21,13 @@ namespace online.kamishiro.alterdresser.editor
 
         public sealed override void OnInspectorGUI()
         {
+
+            EditorGUILayout.Space();
+            EditorGUILayout.BeginVertical(new GUIStyle(GUI.skin.box));
+            EditorGUILayout.LabelField(L.Common, EditorStyles.boldLabel);
+            L.LanguageIndex = EditorGUILayout.Popup(L.LangSettings, L.LanguageIndex, L.LangList);
+            EditorGUILayout.EndVertical();
+
             SerializedObject.Update();
             OnInnerInspectorGUI();
             SerializedObject.ApplyModifiedProperties();

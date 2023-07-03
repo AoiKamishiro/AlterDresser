@@ -1,5 +1,7 @@
 ﻿using UnityEditor;
+using UnityEngine;
 using ADSSimple = online.kamishiro.alterdresser.AlterDresserSwitchSimple;
+using L = online.kamishiro.alterdresser.editor.ADLocalizer;
 
 namespace online.kamishiro.alterdresser.editor
 {
@@ -8,9 +10,12 @@ namespace online.kamishiro.alterdresser.editor
     {
         protected override void OnInnerInspectorGUI()
         {
-            EditorGUILayout.HelpBox("アニメーション効果を使わずにオブジェクトの切り替えをします。", MessageType.Info);
-            EditorGUILayout.Space();
-            EditorGUILayout.HelpBox("このコンポーネント上で設定する項目はありません。", MessageType.Info);
+            using (new EditorGUILayout.VerticalScope(new GUIStyle(GUI.skin.box)))
+            {
+                EditorGUILayout.LabelField(new GUIContent("AD Switch Simple", L.ADSSDescription), EditorStyles.boldLabel);
+                EditorGUILayout.Space();
+                EditorGUILayout.HelpBox(L.ADSS_MSG_NoSettings, MessageType.Info);
+            }
         }
     }
 }

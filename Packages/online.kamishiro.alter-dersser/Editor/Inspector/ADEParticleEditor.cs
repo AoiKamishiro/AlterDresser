@@ -1,4 +1,5 @@
 ﻿using UnityEditor;
+using L = online.kamishiro.alterdresser.editor.ADLocalizer;
 
 namespace online.kamishiro.alterdresser.editor
 {
@@ -17,7 +18,7 @@ namespace online.kamishiro.alterdresser.editor
         }
         protected override void OnInnerInspectorGUI()
         {
-            EditorGUILayout.HelpBox("Enhanced Switch を使用した際のエフェクトを設定します。", MessageType.Info);
+            EditorGUILayout.HelpBox(L.ADEPDescription, MessageType.Info);
             EditorGUILayout.Space();
             EditorGUILayout.PropertyField(ParticleType);
         }

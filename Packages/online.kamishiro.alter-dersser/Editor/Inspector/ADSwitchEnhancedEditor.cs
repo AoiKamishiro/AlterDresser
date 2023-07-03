@@ -6,6 +6,7 @@ using UnityEditorInternal;
 using UnityEngine;
 using ADS = online.kamishiro.alterdresser.ADSwitchBase;
 using ADSEnhanced = online.kamishiro.alterdresser.AlterDresserSwitchEnhanced;
+using L = online.kamishiro.alterdresser.editor.ADLocalizer;
 
 namespace online.kamishiro.alterdresser.editor
 {
@@ -50,7 +51,7 @@ namespace online.kamishiro.alterdresser.editor
                         draggable = false,
                         drawHeaderCallback = (rect) =>
                         {
-                            EditorGUI.LabelField(rect, new GUIContent("Material Overrides"));
+                            EditorGUI.LabelField(rect, new GUIContent(L.ADSE_RL_Title));
                         },
                         elementHeightCallback = (index) =>
                         {
@@ -80,17 +81,18 @@ namespace online.kamishiro.alterdresser.editor
                             Rect r3 = new Rect(rect.x + Margin * 3, rect.yMin + LineHeight + Margin * 2, rect.width - Margin - Margin * 3, LineHeight);
 
                             EditorGUI.ObjectField(r1, baseMat.objectReferenceValue, typeof(Material), true);
+                            string[] matOverride = new string[] { L.ADSE_MO_Auto, L.ADSE_MO_Manual, L.ADSE_MO_None };
                             if (overrideMode.intValue == (int)ADSEnhancedMaterialOverrideType.UseManual)
                             {
-                                overrideMode.intValue = (int)(ADSEnhancedMaterialOverrideType)EditorGUI.EnumPopup(r2a, (ADSEnhancedMaterialOverrideType)overrideMode.intValue);
+                                overrideMode.intValue = EditorGUI.Popup(r2a, overrideMode.intValue, matOverride);
                                 overrideMat.objectReferenceValue = EditorGUI.ObjectField(r2b, overrideMat.objectReferenceValue, typeof(Material), true);
                             }
                             else
                             {
-                                overrideMode.intValue = (int)(ADSEnhancedMaterialOverrideType)EditorGUI.EnumPopup(r2, (ADSEnhancedMaterialOverrideType)overrideMode.intValue);
+                                overrideMode.intValue = EditorGUI.Popup(r2, overrideMode.intValue, matOverride);
                                 if (overrideMat.objectReferenceValue != null) overrideMat.objectReferenceValue = null;
                             }
-                            Foldouts[index] = EditorGUI.Foldout(r3, Foldouts[index], "Referenced MeshRenderer");
+                            Foldouts[index] = EditorGUI.Foldout(r3, Foldouts[index], L.ADSE_RL_RefRenderer);
                             if (Foldouts[index])
                             {
                                 Renderer[] mrs = GetRelatedRenderers((Material)baseMat.objectReferenceValue);
@@ -146,17 +148,15 @@ namespace online.kamishiro.alterdresser.editor
         {
             if (MatList.Length <= 0)
             {
-                EditorGUILayout.HelpBox("子に有効なMaterialが設定されたSkinnedMeshrendereが必要です。", MessageType.Error);
+                EditorGUILayout.HelpBox(L.ADSE_ERR_NoMat, MessageType.Error);
                 return;
             }
 
             if (((ADSEnhanced)target).GetComponentsInChildren<ADSEnhanced>(true).Length > 1)
             {
-                EditorGUILayout.HelpBox("AlterDresser Enhanced を入れ子にすると正しく動作しない場合があります。", MessageType.Error);
+                EditorGUILayout.HelpBox(L.ADSE_ERR_Child, MessageType.Error);
             }
 
-            EditorGUILayout.HelpBox("アニメーション効果を使用してオブジェクトの切り替えをします。", MessageType.Info);
-            EditorGUILayout.Space();
             bool processDeleteIsPassed = false;
             while (!processDeleteIsPassed)
             {
@@ -202,14 +202,18 @@ namespace online.kamishiro.alterdresser.editor
                 }
             }
 
-            ReorderableList.DoLayoutList();
+            using (new EditorGUILayout.VerticalScope(new GUIStyle(GUI.skin.box)))
+            {
+                EditorGUILayout.LabelField(new GUIContent("AD Switch Enhanced", L.ADSEDescription), EditorStyles.boldLabel);
+                EditorGUILayout.Space();
+                ReorderableList.DoLayoutList();
+            }
 
-            EditorGUILayout.Space();
             EditorGUILayout.BeginVertical(new GUIStyle(GUI.skin.box));
             using (new EditorGUI.DisabledGroupScope(!ADAvaterOptimizer.IsImported))
             {
-                EditorGUILayout.LabelField(new GUIContent("Auto Avatar Optimizer", "AvatarOptimizerが導入されたプロジェクトでのみ利用可能なオプションです"), EditorStyles.boldLabel);
-                EditorGUILayout.PropertyField(DoMergeMesh, new GUIContent("子のメッシュを統合する", "ビルド時に Merge Skinned Mesh を生成します。"));
+                EditorGUILayout.LabelField(new GUIContent(L.ADAOTitle, L.ADAODescription), EditorStyles.boldLabel);
+                EditorGUILayout.PropertyField(DoMergeMesh, new GUIContent(L.ADSE_AO_DoFreeze, L.ADSE_AO_DoMerge_Tips));
             }
             EditorGUILayout.EndVertical();
         }

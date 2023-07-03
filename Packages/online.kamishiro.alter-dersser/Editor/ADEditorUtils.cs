@@ -134,5 +134,32 @@ namespace online.kamishiro.alterdresser.editor
                 SetIconEnabled.Invoke(null, new object[] { 114, type.Name, false ? 1 : 0 });
             }
         }
+
+        [InitializeOnLoadMethod]
+        private static void MALangLoad()
+        {
+            string maLang = EditorPrefs.GetString("nadena.dev.modularavatar.lang");
+            if (maLang != string.Empty)
+            {
+                switch (maLang)
+                {
+                    case "en":
+                        EditorPrefs.SetInt("ADLocalizer.LangIdx", 0);
+                        break;
+                    case "ja":
+                        EditorPrefs.SetInt("ADLocalizer.LangIdx", 1);
+                        break;
+                    case "zh-hans":
+                        EditorPrefs.SetInt("ADLocalizer.LangIdx", 2);
+                        break;
+                    case "ko":
+                        EditorPrefs.SetInt("ADLocalizer.LangIdx", 3);
+                        break;
+                    default:
+                        EditorPrefs.SetInt("ADLocalizer.LangIdx", 0);
+                        break;
+                }
+            }
+        }
     }
 }

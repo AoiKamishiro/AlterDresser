@@ -2,6 +2,7 @@
 using UnityEditorInternal;
 using UnityEngine;
 using ADSConstraint = online.kamishiro.alterdresser.AlterDresserSwitchConstraint;
+using L = online.kamishiro.alterdresser.editor.ADLocalizer;
 
 namespace online.kamishiro.alterdresser.editor
 {
@@ -33,7 +34,7 @@ namespace online.kamishiro.alterdresser.editor
                         draggable = false,
                         drawHeaderCallback = (rect) =>
                         {
-                            EditorGUI.LabelField(rect, new GUIContent("Constraint Targets"));
+                            EditorGUI.LabelField(rect, new GUIContent(L.ADSC_RL_Title));
                         },
                         elementHeightCallback = (index) =>
                         {
@@ -54,9 +55,12 @@ namespace online.kamishiro.alterdresser.editor
         }
         protected override void OnInnerInspectorGUI()
         {
-            EditorGUILayout.HelpBox("ParentConstraintを使用してオブジェクト位置の切り替えをします。", MessageType.Info);
-            EditorGUILayout.Space();
-            ReorderableList.DoLayoutList();
+            using (new EditorGUILayout.VerticalScope(new GUIStyle(GUI.skin.box)))
+            {
+                EditorGUILayout.LabelField(new GUIContent("AD Switch Constraint", L.ADSCDescription), EditorStyles.boldLabel);
+                EditorGUILayout.Space();
+                ReorderableList.DoLayoutList();
+            }
         }
     }
 }

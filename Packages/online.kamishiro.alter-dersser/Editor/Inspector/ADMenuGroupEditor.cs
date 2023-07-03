@@ -6,6 +6,7 @@ using UnityEngine;
 using ADM = online.kamishiro.alterdresser.ADMenuBase;
 using ADMGroup = online.kamishiro.alterdresser.AlterDresserMenuGroup;
 using ADMItem = online.kamishiro.alterdresser.AlterDresserMenuItem;
+using L = online.kamishiro.alterdresser.editor.ADLocalizer;
 
 namespace online.kamishiro.alterdresser.editor
 {
@@ -78,7 +79,7 @@ namespace online.kamishiro.alterdresser.editor
                         displayRemove = false,
                         drawHeaderCallback = (rect) =>
                         {
-                            EditorGUI.LabelField(rect, new GUIContent("Sub Menu"));
+                            EditorGUI.LabelField(rect, new GUIContent(L.ADMG_RL_Title));
                         },
                         elementHeightCallback = (index) =>
                         {
@@ -107,23 +108,25 @@ namespace online.kamishiro.alterdresser.editor
 
         protected override void OnInnerInspectorGUI()
         {
-            EditorGUILayout.HelpBox("子のMenuItemをサブメニューとして登録します。最大８件までで、それ以上は無効化されます。", MessageType.Info);
-            EditorGUILayout.Space();
-            EditorGUILayout.PropertyField(MenuIcon, new GUIContent("メニューアイコン"));
-            if (_parentIsExclusive)
+            using (new EditorGUILayout.VerticalScope(new GUIStyle(GUI.skin.box)))
             {
-                EditorGUILayout.HelpBox("親グループが排他設定されている為、設定を変更できません。", MessageType.Info);
+                EditorGUILayout.LabelField(new GUIContent("AD Menu Group", L.ADMGDescription), EditorStyles.boldLabel);
+                EditorGUILayout.PropertyField(MenuIcon, new GUIContent(L.ADMG_PF_MenuIcon));
+                if (_parentIsExclusive)
+                {
+                    //EditorGUILayout.HelpBox(L.ADMG_MSG_ParentExclusive, MessageType.Info);
+                }
+                using (new EditorGUI.DisabledGroupScope(_parentIsExclusive))
+                {
+                    EditorGUILayout.PropertyField(ExclusivityGroup, new GUIContent(L.ADMG_PF_Exclusive));
+                }
+                if (ExclusivityGroup.boolValue && !_parentIsExclusive)
+                {
+                    List<ADMItem> menuItems = GetInternalMenuItems((ADMGroup)target);
+                    InitState.intValue = EditorGUILayout.Popup(L.ADMG_PF_InitValue, InitState.intValue > menuItems.Count - 1 ? 0 : InitState.intValue, menuItems.Select(x => $"{menuItems.IndexOf(x)}: {x.name}").ToArray());
+                }
+                ReordableList.DoLayoutList();
             }
-            using (new EditorGUI.DisabledGroupScope(_parentIsExclusive))
-            {
-                EditorGUILayout.PropertyField(ExclusivityGroup, new GUIContent("排他グループ"));
-            }
-            if (ExclusivityGroup.boolValue && !_parentIsExclusive)
-            {
-                List<ADMItem> menuItems = GetInternalMenuItems((ADMGroup)target);
-                InitState.intValue = EditorGUILayout.Popup("初期値", InitState.intValue > menuItems.Count - 1 ? 0 : InitState.intValue, menuItems.Select(x => $"{menuItems.IndexOf(x)}: {x.name}").ToArray());
-            }
-            ReordableList.DoLayoutList();
             /*
             if (GUILayout.Button("Proceed"))
             {
