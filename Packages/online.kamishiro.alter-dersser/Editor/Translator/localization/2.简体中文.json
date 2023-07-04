@@ -1,6 +1,6 @@
 {
   "Common": "通用设置",
-  "AD_ERROR": "处理过程中发生错误。将不使用Alter Dresser播放。\n头像",
+  "AD_ERROR": "处理过程中发生错误。将不使用Alter Dresser播放。\nAvatar",
   "ADEPDescription": "设置使用Enhanced Switch时的效果。",
   "ADSBDescription": "切换形态键。",
   "ADSCDescription": "使用父约束组件(ParentConstraint)切换对象位置。",
@@ -33,7 +33,7 @@
   "ADMI_PF_MenuName": "菜单名称",
   "ADMI_PF_MenuName_ToolTip": "这是在ExMenu上显示的名称。游戏对象的名称被使用。",
   "ADMI_PF_InitValue": "初始值",
-  "ADMI_PF_InitValue_ToolTip": "当加载头像时，首先选择启用的菜单。",
+  "ADMI_PF_InitValue_ToolTip": "当加载Avatar时，首先选择启用的菜单。",
   "ADSB_AO_DoFreeze": "固定不使用的形状键",
   "ADSB_AO_DoFreeze_Tips": "在构建时生成冻结的形态键。",
   "ADSB_AO_ListTitle": "使用的形态键（未勾选的项将以当前值固定。）",
