@@ -110,7 +110,7 @@ namespace online.kamishiro.alterdresser.editor
                 if (ADAvaterOptimizer.IsImported)
                 {
                     adsEnhanceds.ForEach(x => ADAvatarOptimizerProcessor.ProcessMergeMesh(x, buildContext));
-                    adsBlendshapes.ToList().ForEach(x => ADAvatarOptimizerProcessor.ProcessFreezeBlendshape(x.Key, buildContext));
+                    //adsBlendshapes.ToList().ForEach(x => ADAvatarOptimizerProcessor.ProcessFreezeBlendshape(x.Key, buildContext));
                 }
 
                 ADEParticle[] adePartilces = avatar.GetComponentsInChildren<ADEParticle>(true);

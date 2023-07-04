@@ -130,6 +130,8 @@ namespace online.kamishiro.alterdresser.editor
             }
             char[] bin = binaryNumber.ToCharArray();
 
+            /*
+            // 初回再生時のみAddComponentに失敗するので、一時的に無効化
             using (new EditorGUILayout.VerticalScope(new GUIStyle(GUI.skin.box)))
             {
                 using (new EditorGUI.DisabledGroupScope(!ADAvaterOptimizer.IsImported))
@@ -160,6 +162,7 @@ namespace online.kamishiro.alterdresser.editor
                     FleezeBlendshapeMask.intValue = Convert.ToInt32(new string(bin), 2);
                 }
             }
+            */
         }
         internal static IEnumerable<string> GetUsingBlendshapeNames(ADMElemtnt item)
         {
