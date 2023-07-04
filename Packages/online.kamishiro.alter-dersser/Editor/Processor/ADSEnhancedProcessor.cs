@@ -1,6 +1,5 @@
 ﻿using lilToon;
 using nadena.dev.modular_avatar.core;
-using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
 using UnityEditor.Animations;

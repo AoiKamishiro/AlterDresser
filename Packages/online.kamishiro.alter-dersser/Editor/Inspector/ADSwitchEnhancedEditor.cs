@@ -14,6 +14,11 @@ namespace online.kamishiro.alterdresser.editor
     internal class ADSwitchEnhancedEditor : ADBaseEditor
     {
         private bool[] _foldouts = Array.Empty<bool>();
+        private SerializedProperty _materialOverrides;
+        private ReorderableList _reorderable;
+        private Material[] _matList;
+        private SerializedProperty _doMergeMesh;
+
         private bool[] Foldouts
         {
             get
@@ -25,8 +30,6 @@ namespace online.kamishiro.alterdresser.editor
                 return _foldouts;
             }
         }
-
-        private SerializedProperty _materialOverrides;
         private SerializedProperty MaterialOverrides
         {
             get
@@ -38,8 +41,6 @@ namespace online.kamishiro.alterdresser.editor
                 return _materialOverrides;
             }
         }
-
-        private ReorderableList _reorderable;
         private ReorderableList ReorderableList
         {
             get
@@ -111,8 +112,6 @@ namespace online.kamishiro.alterdresser.editor
                 return _reorderable;
             }
         }
-
-        private Material[] _matList;
         private Material[] MatList
         {
             get
@@ -124,8 +123,6 @@ namespace online.kamishiro.alterdresser.editor
                 return _matList;
             }
         }
-
-        private SerializedProperty _doMergeMesh;
         private SerializedProperty DoMergeMesh
         {
             get

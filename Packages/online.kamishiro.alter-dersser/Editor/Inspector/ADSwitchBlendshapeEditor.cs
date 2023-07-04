@@ -13,7 +13,12 @@ namespace online.kamishiro.alterdresser.editor
     [CustomEditor(typeof(ADSBlendshape))]
     internal class ADSwitchBlendshapeEditor : ADBaseEditor
     {
+        private ADSBlendshape _item;
         private SerializedProperty _doFleezeBlendshape;
+        private SerializedProperty _fleezeBlendshapeMask;
+        private List<string> _blendShapeNames;
+        private List<string> _usingBlendshapeNames;
+
         private SerializedProperty DoFleezeBlendshape
         {
             get
@@ -25,8 +30,6 @@ namespace online.kamishiro.alterdresser.editor
                 return _doFleezeBlendshape;
             }
         }
-
-        private SerializedProperty _fleezeBlendshapeMask;
         private SerializedProperty FleezeBlendshapeMask
         {
             get
@@ -38,8 +41,6 @@ namespace online.kamishiro.alterdresser.editor
                 return _fleezeBlendshapeMask;
             }
         }
-
-        private List<string> _blendShapeNames;
         private List<string> BlendShapeNames
         {
             get
@@ -60,8 +61,6 @@ namespace online.kamishiro.alterdresser.editor
                 return _blendShapeNames;
             }
         }
-
-        private List<string> _usingBlendshapeNames;
         internal List<string> UsingBlendShapeNames
         {
             get
@@ -85,6 +84,14 @@ namespace online.kamishiro.alterdresser.editor
                 return _usingBlendshapeNames;
             }
         }
+        private ADSBlendshape Item
+        {
+            get
+            {
+                if (!_item) _item = (ADSBlendshape)target;
+                return _item;
+            }
+        }
 
         private void OnEnable()
         {
@@ -93,9 +100,7 @@ namespace online.kamishiro.alterdresser.editor
 
         protected override void OnInnerInspectorGUI()
         {
-            ADSBlendshape item = (ADSBlendshape)target;
-
-            if (!item.TryGetComponent(out SkinnedMeshRenderer smr))
+            if (!Item.TryGetComponent(out SkinnedMeshRenderer smr))
             {
                 EditorGUILayout.HelpBox("SkinnedMeshrendereが必要です。", MessageType.Error);
                 return;

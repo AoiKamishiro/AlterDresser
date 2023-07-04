@@ -8,7 +8,6 @@ namespace online.kamishiro.alterdresser
     {
         public GameObject fixed2world;
         public GameObject enhancedRootBone;
-        public GameObject initializer;
         public Object[] generatedObjects;
         public MeshRendererBuckup[] meshRendererBackup;
     }

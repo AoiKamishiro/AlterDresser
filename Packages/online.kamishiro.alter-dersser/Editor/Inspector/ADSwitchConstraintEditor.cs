@@ -10,6 +10,8 @@ namespace online.kamishiro.alterdresser.editor
     internal class ADSwitchConstraintEditor : ADBaseEditor
     {
         private SerializedProperty _targetTransforms;
+        private ReorderableList _reorderable;
+
         private SerializedProperty TargetTransforms
         {
             get
@@ -21,8 +23,6 @@ namespace online.kamishiro.alterdresser.editor
                 return _targetTransforms;
             }
         }
-
-        private ReorderableList _reorderable;
         private ReorderableList ReorderableList
         {
             get
