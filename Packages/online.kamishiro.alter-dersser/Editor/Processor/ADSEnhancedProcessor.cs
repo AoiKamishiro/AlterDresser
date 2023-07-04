@@ -137,7 +137,7 @@ namespace online.kamishiro.alterdresser.editor
                 skinnedMeshRenderer.sharedMesh.boneWeights = Enumerable.Repeat(new BoneWeight() { boneIndex0 = 0, weight0 = 1 }, newMesh.vertexCount).ToArray();
                 skinnedMeshRenderer.sharedMesh.bindposes = new Matrix4x4[] { bone.transform.worldToLocalMatrix * meshFilter.transform.localToWorldMatrix };
 
-                AssetDatabase.CreateAsset(newMesh, $"Assets/{ADSettings.tempDirPath}/{ADRuntimeUtils.GenerateID(newMesh)}.asset");
+                AssetDatabase.CreateAsset(newMesh, $"Assets/{ADSettings.tempDirPath}/ADSE_{ADRuntimeUtils.GenerateID(newMesh)}.asset");
 
                 ADEditorUtils.SaveGeneratedItem(bone, context);
                 ADEditorUtils.SaveGeneratedItem(renderer, context);
@@ -193,7 +193,7 @@ namespace online.kamishiro.alterdresser.editor
                     newMat.renderQueue = 2461;
                     newMat.SetFloat("_DissolveNoiseStrength", 0.0f);
                     newMat.SetVector("_DissolveParams", new Vector4(3, 1, -1, 0.01f));
-                    AssetDatabase.CreateAsset(newMat, $"Assets/{ADSettings.tempDirPath}/{ADRuntimeUtils.GenerateID(newMat)}.mat");
+                    AssetDatabase.CreateAsset(newMat, $"Assets/{ADSettings.tempDirPath}/ADSE_{ADRuntimeUtils.GenerateID(newMat)}.mat");
 
                     internalMat.objectReferenceValue = newMat;
                 }
