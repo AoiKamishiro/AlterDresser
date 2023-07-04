@@ -30,8 +30,11 @@ namespace online.kamishiro.alterdresser.editor
                 SerializedProperty renderersSet = so.FindProperty("renderersSet").FindPropertyRelative("mainSet");
                 foreach (SkinnedMeshRenderer i in renderer)
                 {
-                    renderersSet.InsertArrayElementAtIndex(renderersSet.arraySize);
-                    renderersSet.GetArrayElementAtIndex(renderersSet.arraySize - 1).objectReferenceValue = i;
+                    if(!i.TryGetComponent(out Cloth _))
+                    {
+                        renderersSet.InsertArrayElementAtIndex(renderersSet.arraySize);
+                        renderersSet.GetArrayElementAtIndex(renderersSet.arraySize - 1).objectReferenceValue = i;
+                    }
                 }
                 so.ApplyModifiedProperties();
 
