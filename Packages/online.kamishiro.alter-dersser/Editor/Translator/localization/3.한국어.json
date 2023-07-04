@@ -4,7 +4,7 @@
   "ADEPDescription": "Enhanced Switch를 사용할 때의 효과를 설정합니다.",
   "ADSBDescription": "BlendShape를 전환합니다.",
   "ADSCDescription": "ParentConstraint를 사용하여 객체 위치를 전환합니다.",
-  "ADSEDescription": "AlterDresser Enhanced를 중첩하면 제대로 작동하지 않을 수 있습니다.",
+  "ADSEDescription": "애니메이션 효과를 사용하여 객체를 전환합니다.",
   "ADSSDescription": "애니메이션 효과를 사용하지 않고 객체를 전환합니다.",
   "ADMIDescription": "이 메뉴에서 활성화하고 싶은 AlterDresserSwitch를 설정합니다.",
   "ADMGDescription": "자식의 MenuItem을 서브메뉴로 등록합니다. 최대 8개까지 가능하며, 그 이상은 무효화됩니다.",
