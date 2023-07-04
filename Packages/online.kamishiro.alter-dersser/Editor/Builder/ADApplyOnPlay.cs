@@ -27,6 +27,7 @@ namespace online.kamishiro.alterdresser.editor
 
         private static void OnPlayModeStateChanged(PlayModeStateChange obj)
         {
+            if (!ADSettings.ApplyOnPlay) return;
             if (obj == PlayModeStateChange.ExitingEditMode && !ADApplyOnBuild.OnBuildProcessing)
             {
                 InitializeOnEnterPlayMode();
@@ -72,6 +73,13 @@ namespace online.kamishiro.alterdresser.editor
                 if (i == 0) EditorSceneManager.OpenScene(scenes.ElementAt(i), OpenSceneMode.Single);
                 else EditorSceneManager.OpenScene(scenes.ElementAt(i), OpenSceneMode.Additive);
             }
+        }
+
+        [MenuItem("Tools/Alter Dresser/Apply On Play", false, 100)]
+        private static void ToggleApplyOnPlay()
+        {
+            ADSettings.ApplyOnPlay = !ADSettings.ApplyOnPlay;
+            Menu.SetChecked("Tools/Alter Dresser/Apply On Play", ADSettings.ApplyOnPlay);
         }
     }
 }

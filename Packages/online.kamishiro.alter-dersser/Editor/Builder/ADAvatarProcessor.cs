@@ -218,17 +218,7 @@ namespace online.kamishiro.alterdresser.editor
             }
         }
 
-        [MenuItem("Tools/Alter Dresser/Reset Avatar Manually", false, 100)]
-        public static void ResetAvatarManually()
-        {
-            for (int i = 0; i < SceneManager.sceneCount; i++)
-            {
-                Scene scene = SceneManager.GetSceneAt(i);
-                scene.GetRootGameObjects().Select(x => x.GetComponent<ADBuildContext>()).Where(x => x != null).Select(x => x.gameObject).ToList().ForEach(x => ResetAvatar(x));
-            }
-        }
-
-        [MenuItem("Tools/Alter Dresser/Manual Bake Avatar", false, 100)]
+        [MenuItem("Tools/Alter Dresser/Manual Bake Avatar", false, 101)]
         public static void ManualBakeAvatar()
         {
             GameObject cur = Selection.activeGameObject;
@@ -238,12 +228,22 @@ namespace online.kamishiro.alterdresser.editor
             }
         }
 
-        [MenuItem("Tools/Alter Dresser/Manual Bake Avatar", true, 100)]
+        [MenuItem("Tools/Alter Dresser/Manual Bake Avatar", true, 101)]
         private static bool ManualBakeAvatarAvlidater()
         {
             GameObject cur = Selection.activeGameObject;
             if (cur == null || cur.scene == null) return false;
             return ADRuntimeUtils.GetAvatar(cur.transform) != null;
+        }
+
+        [MenuItem("Tools/Alter Dresser/Reset Manual Bake", false, 102)]
+        public static void ResetAvatarManually()
+        {
+            for (int i = 0; i < SceneManager.sceneCount; i++)
+            {
+                Scene scene = SceneManager.GetSceneAt(i);
+                scene.GetRootGameObjects().Select(x => x.GetComponent<ADBuildContext>()).Where(x => x != null).Select(x => x.gameObject).ToList().ForEach(x => ResetAvatar(x));
+            }
         }
 
     }
