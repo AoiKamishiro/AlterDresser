@@ -17,6 +17,7 @@ namespace online.kamishiro.alterdresser.editor
     [CustomEditor(typeof(ADMItem))]
     internal class ADMenuItemEditor : ADBaseEditor
     {
+        private ADMItem _item;
         private SerializedProperty _menuIcon;
         private SerializedProperty _adElements;
         private SerializedProperty _initState;
@@ -176,13 +177,25 @@ namespace online.kamishiro.alterdresser.editor
                 return _list;
             }
         }
+        private ADMItem Item
+        {
+            get
+            {
+                if (!_item) _item = (ADMItem)target;
+                return _item;
+            }
+        }
 
         protected override void OnInnerInspectorGUI()
         {
             using (new EditorGUILayout.VerticalScope(new GUIStyle(GUI.skin.box)))
             {
                 EditorGUILayout.LabelField(new GUIContent("AD Menu Item", L.ADMIDescription), EditorStyles.boldLabel);
-                EditorGUILayout.PropertyField(MenuIcon, new GUIContent(L.ADMI_PF_MenuIcon));
+                EditorGUILayout.PropertyField(MenuIcon, new GUIContent(L.ADMI_PF_MenuIcon, L.ADMI_PF_MenuIcon_ToolTip));
+                using (new EditorGUI.DisabledGroupScope(true))
+                {
+                    EditorGUILayout.TextField(new GUIContent(L.ADMI_PF_MenuName, L.ADMI_PF_MenuName_ToolTip), Item.name);
+                }
                 if (ADMItemProcessor.IsRoot((ADMItem)target)) EditorGUILayout.PropertyField(InitState, new GUIContent(L.ADMI_PF_InitValue));
                 List.DoLayoutList();
             }

@@ -13,6 +13,7 @@ namespace online.kamishiro.alterdresser.editor
     [CustomEditor(typeof(ADMGroup))]
     internal class ADMenuGroupEditor : ADBaseEditor
     {
+        private ADMGroup _item;
         private SerializedProperty _exclusivityGroup;
         private SerializedProperty _menuIcon;
         private SerializedProperty _initState;
@@ -99,10 +100,18 @@ namespace online.kamishiro.alterdresser.editor
                 return _reorderableList;
             }
         }
+        private ADMGroup Item
+        {
+            get
+            {
+                if (!_item) _item = (ADMGroup)target;
+                return _item;
+            }
+        }
 
         private void OnEnable()
         {
-            _parentIsExclusive = ParentIsExclusive((ADMGroup)target);
+            _parentIsExclusive = ParentIsExclusive(Item);
             _alterDressorMenuItems = null;
         }
 
@@ -111,33 +120,19 @@ namespace online.kamishiro.alterdresser.editor
             using (new EditorGUILayout.VerticalScope(new GUIStyle(GUI.skin.box)))
             {
                 EditorGUILayout.LabelField(new GUIContent("AD Menu Group", L.ADMGDescription), EditorStyles.boldLabel);
-                EditorGUILayout.PropertyField(MenuIcon, new GUIContent(L.ADMG_PF_MenuIcon));
-                if (_parentIsExclusive)
+                EditorGUILayout.PropertyField(MenuIcon, new GUIContent(L.ADMG_PF_MenuIcon, L.ADMG_PF_MenuIcon_ToolTip));
+                using (new EditorGUI.DisabledGroupScope(true))
                 {
-                    //EditorGUILayout.HelpBox(L.ADMG_MSG_ParentExclusive, MessageType.Info);
-                }
-                using (new EditorGUI.DisabledGroupScope(_parentIsExclusive))
-                {
-                    EditorGUILayout.PropertyField(ExclusivityGroup, new GUIContent(L.ADMG_PF_Exclusive));
+                    EditorGUILayout.TextField(new GUIContent(L.ADMG_PF_MenuName, L.ADMG_PF_MenuName_ToolTip), Item.name);
                 }
                 if (ExclusivityGroup.boolValue && !_parentIsExclusive)
                 {
-                    List<ADMItem> menuItems = GetInternalMenuItems((ADMGroup)target);
-                    InitState.intValue = EditorGUILayout.Popup(L.ADMG_PF_InitValue, InitState.intValue > menuItems.Count - 1 ? 0 : InitState.intValue, menuItems.Select(x => $"{menuItems.IndexOf(x)}: {x.name}").ToArray());
+                    EditorGUILayout.PropertyField(ExclusivityGroup, new GUIContent(L.ADMG_PF_Exclusive, L.ADMG_PF_Exclusive_ToolTip));
+                    List<ADMItem> menuItems = GetInternalMenuItems(Item);
+                    InitState.intValue = EditorGUILayout.Popup(new GUIContent(L.ADMG_PF_InitValue, L.ADMG_PF_InitValue_ToolTip), InitState.intValue > menuItems.Count - 1 ? 0 : InitState.intValue, menuItems.Select(x => $"{menuItems.IndexOf(x)}: {x.name}").ToArray());
                 }
                 ReordableList.DoLayoutList();
             }
-            /*
-            if (GUILayout.Button("Proceed"))
-            {
-                ADApplyOnPlay.FinalizeOnExitPlayMode();
-                ADApplyOnPlay.InitializeOnEnterPlayMode();
-            }
-            if (GUILayout.Button("Reset"))
-            {
-                ADApplyOnPlay.FinalizeOnExitPlayMode();
-            }
-            */
         }
 
         private static bool ParentIsExclusive(ADMGroup item)
