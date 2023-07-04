@@ -1,5 +1,6 @@
 {
   "Common": "共通設定",
+  "AD_ERROR": "処理中にエラーが発生しました。Alter Dresser を適用せずに再生されます。\nアバター",
   "ADEPDescription": "Enhanced Switch を使用した際のエフェクトを設定します。",
   "ADSBDescription": "BlendShapeの切り替えをします。",
   "ADSCDescription": "ParentConstraintを使用してオブジェクト位置の切り替えをします。",

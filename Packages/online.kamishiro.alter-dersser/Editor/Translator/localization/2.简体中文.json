@@ -1,5 +1,6 @@
 {
   "Common": "通用设置",
+  "AD_ERROR": "处理过程中发生错误。将不使用Alter Dresser播放。\n头像",
   "ADEPDescription": "设置使用Enhanced Switch时的效果。",
   "ADSBDescription": "切换BlendShape。",
   "ADSCDescription": "使用ParentConstraint切换对象位置。",

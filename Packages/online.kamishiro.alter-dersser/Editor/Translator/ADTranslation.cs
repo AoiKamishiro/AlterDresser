@@ -3,6 +3,7 @@
     public class ADTranslation
     {
         public string Common;
+        public string AD_ERROR;
         public string ADEPDescription;
         public string ADSBDescription;
         public string ADSCDescription;

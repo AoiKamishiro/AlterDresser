@@ -14,6 +14,7 @@ using ADSBlendshape = online.kamishiro.alterdresser.AlterDresserSwitchBlendshape
 using ADSConstraint = online.kamishiro.alterdresser.AlterDresserSwitchConstraint;
 using ADSEnhanced = online.kamishiro.alterdresser.AlterDresserSwitchEnhanced;
 using ADSSimple = online.kamishiro.alterdresser.AlterDresserSwitchSimple;
+using L = online.kamishiro.alterdresser.editor.ADLocalizer;
 
 
 namespace online.kamishiro.alterdresser.editor
@@ -118,7 +119,7 @@ namespace online.kamishiro.alterdresser.editor
             }
             catch
             {
-                EditorUtility.DisplayDialog("Altert Dresser", $"処理中にエラーが発生しました。Alter Dresser を適用せずに再生されます。\nアバター: {avatar.name}", "OK");
+                EditorUtility.DisplayDialog("Altert Dresser", $"{L.AD_ERROR}: {avatar.name}", "OK");
                 ResetAvatar(avatar);
             }
             finally

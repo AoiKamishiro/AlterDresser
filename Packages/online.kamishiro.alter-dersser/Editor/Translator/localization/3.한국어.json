@@ -1,5 +1,6 @@
 {
   "Common": "공통 설정",
+  "AD_ERROR": "처리 중에 오류가 발생했습니다. Alter Dresser를 적용하지 않고 재생됩니다.\n아바타",
   "ADEPDescription": "Enhanced Switch를 사용할 때의 효과를 설정합니다.",
   "ADSBDescription": "BlendShape를 전환합니다.",
   "ADSCDescription": "ParentConstraint를 사용하여 객체 위치를 전환합니다.",

@@ -38,6 +38,7 @@ namespace online.kamishiro.alterdresser.editor
 
         internal static string LangSettings = "Language";
         internal static string Common;
+        internal static string AD_ERROR;
         internal static string ADEPDescription;
         internal static string ADSBDescription;
         internal static string ADSCDescription;
@@ -86,6 +87,7 @@ namespace online.kamishiro.alterdresser.editor
         private static void Update()
         {
             Common = TranslationData[LanguageIndex].Common;
+            AD_ERROR = TranslationData[LanguageIndex].AD_ERROR;
             ADEPDescription = TranslationData[LanguageIndex].ADEPDescription;
             ADSBDescription = TranslationData[LanguageIndex].ADSBDescription;
             ADSCDescription = TranslationData[LanguageIndex].ADSCDescription;
@@ -132,14 +134,16 @@ namespace online.kamishiro.alterdresser.editor
             ADSE_MO_None = TranslationData[LanguageIndex].ADSE_MO_None;
         }
 
+        [MenuItem("Tools/Alter Dresser/Reload Localization", false, 120)]
         private static void Load()
         {
-            AssetDatabase.FindAssets("*", new string[] { AssetDatabase.GUIDToAssetPath("0152b7957868a8d499247d3b14fd59b0") }).
-                Select(x => AssetDatabase.GUIDToAssetPath(x)).
-                Select(x => AssetDatabase.LoadAssetAtPath<TextAsset>(x)).
-                Where(x => x).
-                ToList().
-                ForEach(x =>
+            _translationData = Array.Empty<ADTranslation>();
+            AssetDatabase.FindAssets("*", new string[] { AssetDatabase.GUIDToAssetPath("0152b7957868a8d499247d3b14fd59b0") })
+                .Select(x => AssetDatabase.GUIDToAssetPath(x))
+                .Select(x => AssetDatabase.LoadAssetAtPath<TextAsset>(x))
+                .Where(x => x)
+                .ToList()
+                .ForEach(x =>
                 {
                     _langList = _langList.Append(x.name).ToArray();
                     _translationData = _translationData.Append(JsonUtility.FromJson<ADTranslation>(x.text)).ToArray();
@@ -151,6 +155,11 @@ namespace online.kamishiro.alterdresser.editor
                 _translationData = TranslationData.Append(default).ToArray();
             }
             Update();
+        }
+
+        internal static void ManualLoad()
+        {
+            Load();
         }
     }
 }

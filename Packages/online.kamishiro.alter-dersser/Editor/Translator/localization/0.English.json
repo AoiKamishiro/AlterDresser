@@ -1,5 +1,6 @@
 {
   "Common": "Common Settings",
+  "AD_ERROR": "An error occurred during processing. It will be played without applying the Alter Dresser.\nAvatar",
   "ADEPDescription": "Sets the effect when using the Enhanced Switch.",
   "ADSBDescription": "Switches BlendShape.",
   "ADSCDescription": "Switches object position using ParentConstraint.",
