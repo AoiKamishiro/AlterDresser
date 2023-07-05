@@ -205,7 +205,7 @@ namespace online.kamishiro.alterdresser.editor
                 if (PrefabUtility.IsPartOfPrefabInstance(backup.renderer))
                 {
                     PrefabUtility.RevertPropertyOverride(m_materials, InteractionMode.AutomatedAction);
-                    for (int i = 0; i < backup.materials.Length; i++)
+                    for (int i = 0; i < m_materials.arraySize; i++)
                     {
                         if (m_materials.GetArrayElementAtIndex(i).objectReferenceValue != backup.materials[i])
                         {
