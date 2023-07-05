@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
+using UnityEditorInternal;
 using UnityEngine;
 using ADMElemtnt = online.kamishiro.alterdresser.ADMItemElement;
 using ADSBlendshape = online.kamishiro.alterdresser.AlterDresserSwitchBlendshape;
@@ -18,6 +19,7 @@ namespace online.kamishiro.alterdresser.editor
         private SerializedProperty _fleezeBlendshapeMask;
         private List<string> _blendShapeNames;
         private List<string> _usingBlendshapeNames;
+        private ReorderableList _freezeBlendshaprRL;
 
         private SerializedProperty DoFleezeBlendshape
         {
@@ -92,6 +94,50 @@ namespace online.kamishiro.alterdresser.editor
                 return _item;
             }
         }
+        private ReorderableList MergeMeshRL
+        {
+            get
+            {
+                if (_freezeBlendshaprRL == null)
+                {
+                    _freezeBlendshaprRL = new ReorderableList(BlendShapeNames, typeof(string))
+                    {
+                        draggable = false,
+                        drawHeaderCallback = (rect) =>
+                        {
+                            EditorGUI.LabelField(rect, new GUIContent(L.ADSB_AO_ListTitle));
+                        },
+                        elementHeightCallback = (index) =>
+                        {
+                            return LineHeight + Margin;
+                        },
+                        drawElementCallback = (rect, index, isActive, isFocused) =>
+                        {
+                            char[] bin = Convert.ToString(FleezeBlendshapeMask.intValue, 2).PadLeft(BlendShapeNames.Count(), '0').ToCharArray();
+
+                            Rect r1 = new Rect(rect.x, rect.yMin + Margin, 20, LineHeight);
+                            Rect r2 = new Rect(rect.x + 20, rect.yMin + Margin, rect.width - Margin - 20, LineHeight);
+
+                            using (new EditorGUILayout.HorizontalScope())
+                            {
+                                bool isUsed = UsingBlendShapeNames.Contains(BlendShapeNames[index]);
+                                using (new EditorGUI.DisabledGroupScope(isUsed))
+                                {
+                                    bin[index] = EditorGUI.Toggle(r1, string.Empty, bin[index] == '1') || isUsed ? '1' : '0';
+                                }
+                                EditorGUI.LabelField(r2, new GUIContent(BlendShapeNames[index]));
+                            }
+
+                            FleezeBlendshapeMask.intValue = Convert.ToInt32(new string(bin), 2);
+                        },
+                        displayAdd = false,
+                        displayRemove = false,
+                        footerHeight = 0,
+                    };
+                }
+                return _freezeBlendshaprRL;
+            }
+        }
 
         private void OnEnable()
         {
@@ -123,15 +169,6 @@ namespace online.kamishiro.alterdresser.editor
                 EditorGUILayout.HelpBox(L.ADSB_MSG_NoSettings, MessageType.Info);
             }
 
-            string binaryNumber = Convert.ToString(FleezeBlendshapeMask.intValue, 2);
-            while (BlendShapeNames.Count() - binaryNumber.Length > 0)
-            {
-                binaryNumber = "0" + binaryNumber;
-            }
-            char[] bin = binaryNumber.ToCharArray();
-
-            /*
-            // 初回再生時のみAddComponentに失敗するので、一時的に無効化
             using (new EditorGUILayout.VerticalScope(new GUIStyle(GUI.skin.box)))
             {
                 using (new EditorGUI.DisabledGroupScope(!ADAvaterOptimizer.IsImported))
@@ -140,29 +177,9 @@ namespace online.kamishiro.alterdresser.editor
                     EditorGUILayout.PropertyField(DoFleezeBlendshape, new GUIContent(L.ADSB_AO_DoFreeze, L.ADSB_AO_DoFreeze_Tips));
                     EditorGUILayout.Space();
 
-                    EditorGUILayout.LabelField(L.ADSB_AO_ListTitle);
-                    EditorGUI.indentLevel++;
-                    for (int i = BlendShapeNames.Count() - 1; i >= 0; i--)
-                    {
-                        int num = BlendShapeNames.Count() - 1 - i;
-                        if (UsingBlendShapeNames.Contains(BlendShapeNames[num]))
-                        {
-                            using (new EditorGUI.DisabledGroupScope(true))
-                            {
-                                bin[num] = EditorGUILayout.Toggle(BlendShapeNames[num], true) ? '1' : '0';
-                            }
-                        }
-                        else
-                        {
-                            bin[num] = EditorGUILayout.Toggle(BlendShapeNames[num], bin[num] == '1') ? '1' : '0';
-                        }
-                    }
-                    EditorGUI.indentLevel--;
-
-                    FleezeBlendshapeMask.intValue = Convert.ToInt32(new string(bin), 2);
+                    MergeMeshRL.DoLayoutList();
                 }
             }
-            */
         }
         internal static IEnumerable<string> GetUsingBlendshapeNames(ADMElemtnt item)
         {
