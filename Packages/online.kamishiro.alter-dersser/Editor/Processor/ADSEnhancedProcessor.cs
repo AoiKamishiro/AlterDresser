@@ -57,7 +57,7 @@ namespace online.kamishiro.alterdresser.editor
                 ModularAvatarMeshSettings maMeshSettings = smr.gameObject.AddComponent<ModularAvatarMeshSettings>();
                 maMeshSettings.InheritBounds = ModularAvatarMeshSettings.InheritMode.Set;
                 maMeshSettings.RootBone = avatarObjectReference;
-                maMeshSettings.Bounds = new Bounds(ADRuntimeUtils.GetAvatar(item.transform).ViewPosition / 2, new Vector3(2.5f, 2.5f, 2.5f));
+                maMeshSettings.Bounds = new Bounds(Vector3.zero, new Vector3(2.5f, 2.5f, 2.5f));
                 ADEditorUtils.SaveGeneratedItem(maMeshSettings, context);
             }
 
