@@ -40,8 +40,9 @@
   "ADSC_RL_Title": "目标移动位置",
   "ADSE_RL_Title": "自动生成材质",
   "ADSE_RL_RefRenderer": "参考网格",
-  "ADSE_AO_DoFreeze": "合并子网格",
+  "ADSE_AO_DoMerge": "合并子网格",
   "ADSE_AO_DoMerge_Tips": "在构建时生成合并的蒙皮网格。",
+  "ADSE_AO_MergeMesh_List":"合并的网格",
   "ADSE_MO_Auto": "自动生成",
   "ADSE_MO_Manual": "手动分配",
   "ADSE_MO_None": "不覆盖"

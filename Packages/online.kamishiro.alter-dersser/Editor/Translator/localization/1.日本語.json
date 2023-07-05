@@ -40,8 +40,9 @@
   "ADSC_RL_Title": "移動先ターゲット",
   "ADSE_RL_Title": "マテリアル自動生成",
   "ADSE_RL_RefRenderer": "参照しているメッシュ",
-  "ADSE_AO_DoFreeze": "子のメッシュを統合する",
+  "ADSE_AO_DoMerge": "子のメッシュを統合する",
   "ADSE_AO_DoMerge_Tips": "ビルド時に Merge Skinned Mesh を生成します。",
+  "ADSE_AO_MergeMesh_List":"統合するメッシュ",
   "ADSE_MO_Auto": "自動生成",
   "ADSE_MO_Manual": "手動割り当て",
   "ADSE_MO_None": "上書きしない"

@@ -40,8 +40,9 @@
   "ADSC_RL_Title": "Destination Target",
   "ADSE_RL_Title": "Automatic Material Generation",
   "ADSE_RL_RefRenderer": "Mesh being referenced",
-  "ADSE_AO_DoFreeze": "Merge child meshes",
+  "ADSE_AO_DoMerge": "Merge child meshes",
   "ADSE_AO_DoMerge_Tips": "Generates Merge Skinned Mesh during build.",
+  "ADSE_AO_MergeMesh_List":"Mesh to merge",
   "ADSE_MO_Auto": "Auto Generate",
   "ADSE_MO_Manual": "Manual Assignment",
   "ADSE_MO_None": "Do Not Overwrite"

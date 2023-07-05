@@ -43,8 +43,9 @@
         public string ADSC_RL_Title;
         public string ADSE_RL_Title;
         public string ADSE_RL_RefRenderer;
-        public string ADSE_AO_DoFreeze;
+        public string ADSE_AO_DoMerge;
         public string ADSE_AO_DoMerge_Tips;
+        public string ADSE_AO_MergeMesh_List;
         public string ADSE_MO_Auto;
         public string ADSE_MO_Manual;
         public string ADSE_MO_None;

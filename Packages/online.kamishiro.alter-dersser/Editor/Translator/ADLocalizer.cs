@@ -78,8 +78,9 @@ namespace online.kamishiro.alterdresser.editor
         internal static string ADSC_RL_Title;
         internal static string ADSE_RL_Title;
         internal static string ADSE_RL_RefRenderer;
-        internal static string ADSE_AO_DoFreeze;
+        internal static string ADSE_AO_DoMerge;
         internal static string ADSE_AO_DoMerge_Tips;
+        internal static string ADSE_AO_MergeMesh_List;
         internal static string ADSE_MO_Auto;
         internal static string ADSE_MO_Manual;
         internal static string ADSE_MO_None;
@@ -127,8 +128,9 @@ namespace online.kamishiro.alterdresser.editor
             ADSC_RL_Title = TranslationData[LanguageIndex].ADSC_RL_Title;
             ADSE_RL_Title = TranslationData[LanguageIndex].ADSE_RL_Title;
             ADSE_RL_RefRenderer = TranslationData[LanguageIndex].ADSE_RL_RefRenderer;
-            ADSE_AO_DoFreeze = TranslationData[LanguageIndex].ADSE_AO_DoFreeze;
+            ADSE_AO_DoMerge = TranslationData[LanguageIndex].ADSE_AO_DoMerge;
             ADSE_AO_DoMerge_Tips = TranslationData[LanguageIndex].ADSE_AO_DoMerge_Tips;
+            ADSE_AO_MergeMesh_List = TranslationData[LanguageIndex].ADSE_AO_MergeMesh_List;
             ADSE_MO_Auto = TranslationData[LanguageIndex].ADSE_MO_Auto;
             ADSE_MO_Manual = TranslationData[LanguageIndex].ADSE_MO_Manual;
             ADSE_MO_None = TranslationData[LanguageIndex].ADSE_MO_None;
@@ -155,11 +157,6 @@ namespace online.kamishiro.alterdresser.editor
                 _translationData = TranslationData.Append(default).ToArray();
             }
             Update();
-        }
-
-        internal static void ManualLoad()
-        {
-            Load();
         }
     }
 }

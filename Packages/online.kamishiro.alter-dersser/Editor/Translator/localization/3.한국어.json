@@ -40,8 +40,9 @@
   "ADSC_RL_Title": "이동 시 대상",
   "ADSE_RL_Title": "마테리얼 자동 생성",
   "ADSE_RL_RefRenderer": "참조하는 Mesh",
-  "ADSE_AO_DoFreeze": "하위 Mesh를 통합합니다",
+  "ADSE_AO_DoMerge": "하위 Mesh를 통합합니다",
   "ADSE_AO_DoMerge_Tips": "빌드 시에 Merge Skinned Mesh를 생성합니다.",
+  "ADSE_AO_MergeMesh_List":"병합할 메시",
   "ADSE_MO_Auto": "자동 생성",
   "ADSE_MO_Manual": "수동 할당",
   "ADSE_MO_None": "덮어쓰지 않음"
