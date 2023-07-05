@@ -117,8 +117,9 @@ namespace online.kamishiro.alterdresser.editor
                 ADEParticle[] adePartilces = avatar.GetComponentsInChildren<ADEParticle>(true);
                 if (adePartilces.Length > 0) ADMEParticleProcessor.Process(adePartilces[0], buildContext);
             }
-            catch
+            catch(System.Exception ex)
             {
+                Debug.LogException(ex);
                 EditorUtility.DisplayDialog("Altert Dresser", $"{L.AD_ERROR}: {avatar.name}", "OK");
                 ResetAvatar(avatar);
             }

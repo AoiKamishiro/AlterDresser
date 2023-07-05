@@ -28,14 +28,26 @@ namespace online.kamishiro.alterdresser.editor
                 SerializedObject so = new SerializedObject(m);
                 so.Update();
                 SerializedProperty renderersSet = so.FindProperty("renderersSet").FindPropertyRelative("mainSet");
-                foreach (SkinnedMeshRenderer i in renderer)
-                {
-                    if(!i.TryGetComponent(out Cloth _))
+
+                IEnumerable<Renderer> childR = item.GetComponentsInChildren<Renderer>()
+                    .Where(x => (x is SkinnedMeshRenderer || x is MeshRenderer) && !context.meshRendererBackup.Select(y => y.smr).Contains(x))
+                    .Select(x =>
+                    {
+                        MeshRendererBuckup backup = context.meshRendererBackup.FirstOrDefault(y => y.renderer == x);
+                        return backup != null ? backup.smr : x;
+                    });
+
+                char[] bin = Convert.ToString(item.mergeMeshIgnoreMask, 2).PadLeft(childR.Count(), '0').ToCharArray();
+
+                Enumerable.Range(0, childR.Count())
+                    .Where(i => bin[i] == '0')
+                    .ToList()
+                    .ForEach(i =>
                     {
                         renderersSet.InsertArrayElementAtIndex(renderersSet.arraySize);
-                        renderersSet.GetArrayElementAtIndex(renderersSet.arraySize - 1).objectReferenceValue = i;
-                    }
-                }
+                        renderersSet.GetArrayElementAtIndex(renderersSet.arraySize - 1).objectReferenceValue = childR.ElementAt(i);
+                    });
+
                 so.ApplyModifiedProperties();
 
                 ModularAvatarMeshSettings maMeshSettings = mergedMesh.AddComponent<ModularAvatarMeshSettings>();

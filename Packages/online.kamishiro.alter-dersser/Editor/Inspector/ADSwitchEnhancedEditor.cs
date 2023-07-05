@@ -13,12 +13,27 @@ namespace online.kamishiro.alterdresser.editor
     [CustomEditor(typeof(ADSEnhanced))]
     internal class ADSwitchEnhancedEditor : ADBaseEditor
     {
+        private ADSEnhanced _item;
         private bool[] _foldouts = Array.Empty<bool>();
         private SerializedProperty _materialOverrides;
         private ReorderableList _reorderable;
         private Material[] _matList;
         private SerializedProperty _doMergeMesh;
+        private SerializedProperty _mergeMeshIgnoreMask;
+        private Renderer[] _childRenderers;
+        private ReorderableList _mergeMeshRL;
 
+        private ADSEnhanced Item
+        {
+            get
+            {
+                if (_item == null)
+                {
+                    _item = target as ADSEnhanced;
+                }
+                return _item;
+            }
+        }
         private bool[] Foldouts
         {
             get
@@ -107,6 +122,7 @@ namespace online.kamishiro.alterdresser.editor
                         },
                         displayAdd = false,
                         displayRemove = false,
+                        footerHeight = 0,
                     };
                 }
                 return _reorderable;
@@ -134,11 +150,75 @@ namespace online.kamishiro.alterdresser.editor
                 return _doMergeMesh;
             }
         }
+        private SerializedProperty MergeMeshIgnoreMask
+        {
+            get
+            {
+                if (_mergeMeshIgnoreMask == null)
+                {
+                    _mergeMeshIgnoreMask = SerializedObject.FindProperty(nameof(ADSEnhanced.mergeMeshIgnoreMask));
+                }
+                return _mergeMeshIgnoreMask;
+            }
+        }
+        private Renderer[] ChildRenderers
+        {
+            get
+            {
+                if (_childRenderers == null)
+                {
+                    _childRenderers = GetValidChildRenderers(Item).ToArray();
+                }
+                return _childRenderers;
+            }
+        }
+        private ReorderableList MergeMeshRL
+        {
+            get
+            {
+                if (_mergeMeshRL == null)
+                {
+                    _mergeMeshRL = new ReorderableList(ChildRenderers, typeof(Renderer))
+                    {
+                        draggable = false,
+                        drawHeaderCallback = (rect) =>
+                        {
+                            EditorGUI.LabelField(rect, new GUIContent(L.ADSE_AO_MergeMesh_List));
+                        },
+                        elementHeightCallback = (index) =>
+                        {
+                            return LineHeight + Margin;
+                        },
+                        drawElementCallback = (rect, index, isActive, isFocused) =>
+                        {
+                            char[] bin = Convert.ToString(MergeMeshIgnoreMask.intValue, 2).PadLeft(ChildRenderers.Count(), '0').ToCharArray();
+
+                            Rect r1 = new Rect(rect.x, rect.yMin + Margin, 20, LineHeight);
+                            Rect r2 = new Rect(rect.x + 20, rect.yMin + Margin, rect.width - Margin - 20, LineHeight);
+
+                            using (new EditorGUILayout.HorizontalScope())
+                            {
+                                bin[index] = EditorGUI.Toggle(r1, string.Empty, bin[index] == '0') ? '0' : '1';
+                                EditorGUI.ObjectField(r2, ChildRenderers[index], typeof(Renderer), true);
+                            }
+
+                            MergeMeshIgnoreMask.intValue = Convert.ToInt32(new string(bin), 2);
+                        },
+                        displayAdd = false,
+                        displayRemove = false,
+                        footerHeight = 0,
+                    };
+                }
+                return _mergeMeshRL;
+            }
+        }
 
         private void OnEnable()
         {
             _reorderable = null;
+            _mergeMeshRL = null;
             _matList = null;
+            _childRenderers = null;
         }
 
         protected override void OnInnerInspectorGUI()
@@ -211,6 +291,9 @@ namespace online.kamishiro.alterdresser.editor
             {
                 EditorGUILayout.LabelField(new GUIContent(L.ADAOTitle, L.ADAODescription), EditorStyles.boldLabel);
                 EditorGUILayout.PropertyField(DoMergeMesh, new GUIContent(L.ADSE_AO_DoMerge, L.ADSE_AO_DoMerge_Tips));
+                EditorGUILayout.Space();
+
+                MergeMeshRL.DoLayoutList();
             }
             EditorGUILayout.EndVertical();
         }

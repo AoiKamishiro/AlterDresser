@@ -8,6 +8,7 @@ namespace online.kamishiro.alterdresser
     public class AlterDresserSwitchEnhanced : ADSwitchBase
     {
         public bool doMergeMesh;
+        public int mergeMeshIgnoreMask;
         public ADSEnhancedMaterialOverride[] materialOverrides = Array.Empty<ADSEnhancedMaterialOverride>();
         public ADSEnhancedMeshOverride[] meshOverrides = Array.Empty<ADSEnhancedMeshOverride>();
     }

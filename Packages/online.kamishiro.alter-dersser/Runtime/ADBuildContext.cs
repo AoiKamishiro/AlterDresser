@@ -13,8 +13,9 @@ namespace online.kamishiro.alterdresser
     }
 
     [System.Serializable]
-    public class MeshRendererBuckup : Object
+    public class MeshRendererBuckup
     {
+        public SkinnedMeshRenderer smr;
         public MeshRenderer renderer;
         public MeshFilter filter;
         public Material[] materials;
