@@ -81,5 +81,11 @@ namespace online.kamishiro.alterdresser.editor
             ADSettings.ApplyOnPlay = !ADSettings.ApplyOnPlay;
             Menu.SetChecked("Tools/Alter Dresser/Apply On Play", ADSettings.ApplyOnPlay);
         }
+
+        [InitializeOnLoadMethod]
+        private static void InitializeApplyOnPlay()
+        {
+            Menu.SetChecked("Tools/Alter Dresser/Apply On Play", ADSettings.ApplyOnPlay);
+        }
     }
 }
