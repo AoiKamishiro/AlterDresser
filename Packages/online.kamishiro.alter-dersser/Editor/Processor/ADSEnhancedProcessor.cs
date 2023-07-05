@@ -1,5 +1,6 @@
 ﻿using lilToon;
 using nadena.dev.modular_avatar.core;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
 using UnityEditor.Animations;
@@ -101,7 +102,9 @@ namespace online.kamishiro.alterdresser.editor
         }
         internal static void MeshInstanciator(ADSEnhanced item, ADBuildContext context)
         {
-            foreach (MeshFilter meshFilter in item.GetComponentsInChildren<MeshFilter>().Where(x => !x.gameObject.CompareTag("EditorOnly")).Where(x => x.sharedMesh != null))
+            IEnumerable<MeshFilter> mf = ADSwitchEnhancedEditor.GetValidChildRenderers(item).Select(x => x.GetComponent<MeshFilter>()).Where(x => x);
+
+            foreach (MeshFilter meshFilter in mf)
             {
                 Undo.RecordObject(item, ADSettings.undoName);
 
@@ -122,46 +125,45 @@ namespace online.kamishiro.alterdresser.editor
                     elem2.GetArrayElementAtIndex(elem2.arraySize - 1).objectReferenceValue = meshRenderer.sharedMaterials[i];
                 }
 
-                GameObject bone = new GameObject("Bone");
-                GameObject renderer = new GameObject("Renderer");
-                bone.transform.SetParent(meshFilter.transform, false);
+                GameObject renderer = new GameObject(meshRenderer.name);
                 renderer.transform.SetParent(meshFilter.transform, false);
 
                 Mesh newMesh = Object.Instantiate(meshFilter.sharedMesh);
                 SkinnedMeshRenderer skinnedMeshRenderer = renderer.AddComponent<SkinnedMeshRenderer>();
                 skinnedMeshRenderer.sharedMesh = newMesh;
                 skinnedMeshRenderer.sharedMaterials = meshRenderer.sharedMaterials;
-                skinnedMeshRenderer.bones = new Transform[] { bone.transform };
+                skinnedMeshRenderer.bones = new Transform[] { renderer.transform };
                 skinnedMeshRenderer.rootBone = meshFilter.transform;
                 skinnedMeshRenderer.sharedMesh.boneWeights = Enumerable.Repeat(new BoneWeight() { boneIndex0 = 0, weight0 = 1 }, newMesh.vertexCount).ToArray();
-                skinnedMeshRenderer.sharedMesh.bindposes = new Matrix4x4[] { bone.transform.worldToLocalMatrix * meshFilter.transform.localToWorldMatrix };
+                skinnedMeshRenderer.sharedMesh.bindposes = new Matrix4x4[] { renderer.transform.worldToLocalMatrix * meshFilter.transform.localToWorldMatrix };
 
                 AssetDatabase.CreateAsset(newMesh, $"Assets/{ADSettings.tempDirPath}/ADSE_{ADRuntimeUtils.GenerateID(newMesh)}.asset");
 
-                ADEditorUtils.SaveGeneratedItem(bone, context);
                 ADEditorUtils.SaveGeneratedItem(renderer, context);
-
 
                 so.ApplyModifiedProperties();
 
-
-                if (item.transform.TryGetComponent(out MeshFilter m_meshFilter))
+                Mesh mesh = null;
+                Material[] materials = null;
+                if (meshFilter.transform.TryGetComponent(out MeshFilter m_meshFilter))
                 {
+                    mesh = m_meshFilter.sharedMesh;
                     SerializedObject m = new SerializedObject(m_meshFilter);
                     SerializedProperty m_mesh = m.FindProperty("m_Mesh");
                     m.Update();
                     m_mesh.objectReferenceValue = null;
                     m.ApplyModifiedProperties();
                 }
-                if (item.transform.TryGetComponent(out MeshRenderer m_meshrenderer))
+                if (meshFilter.transform.TryGetComponent(out MeshRenderer m_meshrenderer))
                 {
+                    materials = m_meshrenderer.sharedMaterials;
                     SerializedObject m = new SerializedObject(m_meshrenderer);
                     SerializedProperty m_materials = m.FindProperty("m_Materials");
                     m.Update();
                     m_materials.arraySize = 0;
                     m.ApplyModifiedProperties();
                 }
-                Undo.RegisterCreatedObjectUndo(bone, ADSettings.undoName);
+                ADEditorUtils.SaveMeshRendererBackup(m_meshFilter, mesh, m_meshrenderer, materials, skinnedMeshRenderer, context);
                 Undo.RegisterCreatedObjectUndo(renderer, ADSettings.undoName);
             }
         }

@@ -210,7 +210,7 @@ namespace online.kamishiro.alterdresser.editor
             using (new EditorGUI.DisabledGroupScope(!ADAvaterOptimizer.IsImported))
             {
                 EditorGUILayout.LabelField(new GUIContent(L.ADAOTitle, L.ADAODescription), EditorStyles.boldLabel);
-                EditorGUILayout.PropertyField(DoMergeMesh, new GUIContent(L.ADSE_AO_DoFreeze, L.ADSE_AO_DoMerge_Tips));
+                EditorGUILayout.PropertyField(DoMergeMesh, new GUIContent(L.ADSE_AO_DoMerge, L.ADSE_AO_DoMerge_Tips));
             }
             EditorGUILayout.EndVertical();
         }
@@ -240,6 +240,19 @@ namespace online.kamishiro.alterdresser.editor
                 if (r.sharedMaterials.Contains(mat)) rs = rs.Append(r);
             }
             return rs.Distinct().ToArray();
+        }
+        internal static IEnumerable<Renderer> GetValidChildRenderers(ADSEnhanced Item)
+        {
+            return Item.GetComponentsInChildren<Renderer>(true)
+                .Where(x => !x.gameObject.CompareTag("EditorOnly"))
+                .Where(x => x is SkinnedMeshRenderer || x is MeshRenderer)
+                .Where(x => !x.TryGetComponent(out Cloth _))
+                .Where(x =>
+                {
+                    if (x is SkinnedMeshRenderer smr) return smr.sharedMaterials.Length != 0 && smr.sharedMesh != null;
+                    if (x is MeshRenderer mr) return mr.sharedMaterials.Length != 0 && mr.TryGetComponent(out MeshFilter f) && f.sharedMesh != null;
+                    return false;
+                });
         }
     }
 }

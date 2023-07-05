@@ -115,6 +115,26 @@ namespace online.kamishiro.alterdresser.editor
             sp.GetArrayElementAtIndex(sp.arraySize - 1).objectReferenceValue = generatedObject;
             so.ApplyModifiedProperties();
         }
+        internal static void SaveMeshRendererBackup(MeshFilter filter, Mesh mesh, MeshRenderer meshRenderer, Material[] materials, SkinnedMeshRenderer skinnedMeshRenderer, ADBuildContext context)
+        {
+            SerializedObject so = new SerializedObject(context);
+            SerializedProperty sp = so.FindProperty(nameof(ADBuildContext.meshRendererBackup));
+            so.Update();
+            sp.InsertArrayElementAtIndex(sp.arraySize);
+            SerializedProperty backup = sp.GetArrayElementAtIndex(sp.arraySize - 1);
+            backup.FindPropertyRelative(nameof(MeshRendererBuckup.filter)).objectReferenceValue = filter;
+            backup.FindPropertyRelative(nameof(MeshRendererBuckup.mesh)).objectReferenceValue = mesh;
+            backup.FindPropertyRelative(nameof(MeshRendererBuckup.renderer)).objectReferenceValue = meshRenderer;
+            backup.FindPropertyRelative(nameof(MeshRendererBuckup.smr)).objectReferenceValue = skinnedMeshRenderer;
+            SerializedProperty mats = backup.FindPropertyRelative(nameof(MeshRendererBuckup.materials));
+            foreach (Material material in materials)
+            {
+                mats.InsertArrayElementAtIndex(mats.arraySize);
+                mats.GetArrayElementAtIndex(mats.arraySize - 1).objectReferenceValue = material;
+            }
+            Undo.RecordObject(context, ADSettings.undoName);
+            so.ApplyModifiedProperties();
+        }
 
         [InitializeOnLoadMethod]
         private static void DisableGizmoIcon()
