@@ -286,6 +286,7 @@ namespace online.kamishiro.alterdresser.editor
                 ReorderableList.DoLayoutList();
             }
 
+            /*
             EditorGUILayout.BeginVertical(new GUIStyle(GUI.skin.box));
             using (new EditorGUI.DisabledGroupScope(!ADAvaterOptimizer.IsImported))
             {
@@ -296,6 +297,7 @@ namespace online.kamishiro.alterdresser.editor
                 MergeMeshRL.DoLayoutList();
             }
             EditorGUILayout.EndVertical();
+            */
         }
 
         private Material[] GetMaterials()
