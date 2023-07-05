@@ -149,12 +149,12 @@ namespace online.kamishiro.alterdresser.editor
                         {
                             using (new EditorGUI.DisabledGroupScope(true))
                             {
-                                bin[BlendShapeNames.Count() - 1 - i] = EditorGUILayout.Toggle(BlendShapeNames[num], true) ? '1' : '0';
+                                bin[num] = EditorGUILayout.Toggle(BlendShapeNames[num], true) ? '1' : '0';
                             }
                         }
                         else
                         {
-                            bin[BlendShapeNames.Count() - 1 - i] = EditorGUILayout.Toggle(BlendShapeNames[num], bin[BlendShapeNames.Count() - 1 - i] == '1') ? '1' : '0';
+                            bin[num] = EditorGUILayout.Toggle(BlendShapeNames[num], bin[num] == '1') ? '1' : '0';
                         }
                     }
                     EditorGUI.indentLevel--;
