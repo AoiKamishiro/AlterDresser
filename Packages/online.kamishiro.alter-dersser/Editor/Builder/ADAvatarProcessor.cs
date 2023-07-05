@@ -117,7 +117,7 @@ namespace online.kamishiro.alterdresser.editor
                 ADEParticle[] adePartilces = avatar.GetComponentsInChildren<ADEParticle>(true);
                 if (adePartilces.Length > 0) ADMEParticleProcessor.Process(adePartilces[0], buildContext);
             }
-            catch(System.Exception ex)
+            catch (System.Exception ex)
             {
                 Debug.LogException(ex);
                 EditorUtility.DisplayDialog("Altert Dresser", $"{L.AD_ERROR}: {avatar.name}", "OK");
@@ -205,13 +205,21 @@ namespace online.kamishiro.alterdresser.editor
                 if (PrefabUtility.IsPartOfPrefabInstance(backup.renderer))
                 {
                     PrefabUtility.RevertPropertyOverride(m_materials, InteractionMode.AutomatedAction);
+                    for (int i = 0; i < backup.materials.Length; i++)
+                    {
+                        if (m_materials.GetArrayElementAtIndex(i).objectReferenceValue != backup.materials[i])
+                        {
+                            m_materials.GetArrayElementAtIndex(i).objectReferenceValue = backup.materials[i];
+                        }
+                    }
                 }
                 else
                 {
-                    m_materials.arraySize = backup.materials.Length;
-                    for (int k = 0; k < backup.materials.Length; k++)
+                    m_materials.arraySize = 0;
+                    for (int i = 0; i < backup.materials.Length; i++)
                     {
-                        m_materials.GetArrayElementAtIndex(k).objectReferenceValue = backup.materials[k];
+                        m_materials.InsertArrayElementAtIndex(m_materials.arraySize);
+                        m_materials.GetArrayElementAtIndex(m_materials.arraySize - 1).objectReferenceValue = backup.materials[i];
                     }
                 }
                 m.ApplyModifiedProperties();

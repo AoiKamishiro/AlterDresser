@@ -143,27 +143,21 @@ namespace online.kamishiro.alterdresser.editor
 
                 so.ApplyModifiedProperties();
 
-                Mesh mesh = null;
-                Material[] materials = null;
-                if (meshFilter.transform.TryGetComponent(out MeshFilter m_meshFilter))
-                {
-                    mesh = m_meshFilter.sharedMesh;
-                    SerializedObject m = new SerializedObject(m_meshFilter);
-                    SerializedProperty m_mesh = m.FindProperty("m_Mesh");
-                    m.Update();
-                    m_mesh.objectReferenceValue = null;
-                    m.ApplyModifiedProperties();
-                }
-                if (meshFilter.transform.TryGetComponent(out MeshRenderer m_meshrenderer))
-                {
-                    materials = m_meshrenderer.sharedMaterials;
-                    SerializedObject m = new SerializedObject(m_meshrenderer);
-                    SerializedProperty m_materials = m.FindProperty("m_Materials");
-                    m.Update();
-                    m_materials.arraySize = 0;
-                    m.ApplyModifiedProperties();
-                }
-                ADEditorUtils.SaveMeshRendererBackup(m_meshFilter, mesh, m_meshrenderer, materials, skinnedMeshRenderer, context);
+                Mesh mesh = meshFilter.sharedMesh;
+                SerializedObject meshFilterSO = new SerializedObject(meshFilter);
+                SerializedProperty meshFilter_mesh = meshFilterSO.FindProperty("m_Mesh");
+                meshFilterSO.Update();
+                meshFilter_mesh.objectReferenceValue = null;
+                meshFilterSO.ApplyModifiedProperties();
+
+                Material[] materials = meshRenderer.sharedMaterials;
+                SerializedObject meshRendererSO = new SerializedObject(meshRenderer);
+                SerializedProperty meshRenderer_materials = meshRendererSO.FindProperty("m_Materials");
+                meshRendererSO.Update();
+                meshRenderer_materials.arraySize = 0;
+                meshRendererSO.ApplyModifiedProperties();
+
+                ADEditorUtils.SaveMeshRendererBackup(meshFilter, mesh, meshRenderer, materials, skinnedMeshRenderer, context);
                 Undo.RegisterCreatedObjectUndo(renderer, ADSettings.undoName);
             }
         }

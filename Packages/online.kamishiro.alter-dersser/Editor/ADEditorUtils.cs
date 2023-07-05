@@ -117,24 +117,31 @@ namespace online.kamishiro.alterdresser.editor
         }
         internal static void SaveMeshRendererBackup(MeshFilter filter, Mesh mesh, MeshRenderer meshRenderer, Material[] materials, SkinnedMeshRenderer skinnedMeshRenderer, ADBuildContext context)
         {
-            SerializedObject so = new SerializedObject(context);
-            SerializedProperty sp = so.FindProperty(nameof(ADBuildContext.meshRendererBackup));
-            so.Update();
-            sp.InsertArrayElementAtIndex(sp.arraySize);
-            SerializedProperty backup = sp.GetArrayElementAtIndex(sp.arraySize - 1);
-            backup.FindPropertyRelative(nameof(MeshRendererBuckup.filter)).objectReferenceValue = filter;
-            backup.FindPropertyRelative(nameof(MeshRendererBuckup.mesh)).objectReferenceValue = mesh;
-            backup.FindPropertyRelative(nameof(MeshRendererBuckup.renderer)).objectReferenceValue = meshRenderer;
-            backup.FindPropertyRelative(nameof(MeshRendererBuckup.smr)).objectReferenceValue = skinnedMeshRenderer;
-            SerializedProperty mats = backup.FindPropertyRelative(nameof(MeshRendererBuckup.materials));
+            SerializedObject serializedContext = new SerializedObject(context);
+
+            SerializedProperty meshRendererBackupProperty = serializedContext.FindProperty(nameof(ADBuildContext.meshRendererBackup));
+            serializedContext.Update();
+
+            meshRendererBackupProperty.InsertArrayElementAtIndex(meshRendererBackupProperty.arraySize);
+            SerializedProperty newBackupObject = meshRendererBackupProperty.GetArrayElementAtIndex(meshRendererBackupProperty.arraySize - 1);
+
+            newBackupObject.FindPropertyRelative(nameof(MeshRendererBuckup.filter)).objectReferenceValue = filter;
+            newBackupObject.FindPropertyRelative(nameof(MeshRendererBuckup.mesh)).objectReferenceValue = mesh;
+            newBackupObject.FindPropertyRelative(nameof(MeshRendererBuckup.renderer)).objectReferenceValue = meshRenderer;
+            newBackupObject.FindPropertyRelative(nameof(MeshRendererBuckup.smr)).objectReferenceValue = skinnedMeshRenderer;
+
+            SerializedProperty materialsProperty = newBackupObject.FindPropertyRelative(nameof(MeshRendererBuckup.materials));
+            materialsProperty.arraySize = 0;
             foreach (Material material in materials)
             {
-                mats.InsertArrayElementAtIndex(mats.arraySize);
-                mats.GetArrayElementAtIndex(mats.arraySize - 1).objectReferenceValue = material;
+                materialsProperty.InsertArrayElementAtIndex(materialsProperty.arraySize);
+                materialsProperty.GetArrayElementAtIndex(materialsProperty.arraySize - 1).objectReferenceValue = material;
             }
+
             Undo.RecordObject(context, ADSettings.undoName);
-            so.ApplyModifiedProperties();
+            serializedContext.ApplyModifiedProperties();
         }
+
 
         [InitializeOnLoadMethod]
         private static void DisableGizmoIcon()
