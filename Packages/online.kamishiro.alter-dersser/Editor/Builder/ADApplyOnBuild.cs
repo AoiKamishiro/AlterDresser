@@ -1,10 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using UnityEditor;
-using UnityEditor.SceneManagement;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 using VRC.SDKBase.Editor.BuildPipeline;
 
 namespace online.kamishiro.alterdresser.editor
@@ -52,21 +48,6 @@ namespace online.kamishiro.alterdresser.editor
         }
         public void OnPostprocessAvatar()
         {
-        }
-        public void ResetAvatar()
-        {
-            IEnumerable<string> scenes = Enumerable.Empty<string>();
-            for (int i = 0; i < SceneManager.sceneCount; i++)
-            {
-                Scene scene = SceneManager.GetSceneAt(i);
-                scenes = scenes.Append(scene.path);
-            }
-            for (int i = 0; i < scenes.Count(); i++)
-            {
-                if (i == 0) EditorSceneManager.OpenScene(scenes.ElementAt(i), OpenSceneMode.Single);
-                else EditorSceneManager.OpenScene(scenes.ElementAt(i), OpenSceneMode.Additive);
-            }
-            ADEditorUtils.DeleteTempDir();
         }
     }
 }

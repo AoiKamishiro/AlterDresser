@@ -62,17 +62,7 @@ namespace online.kamishiro.alterdresser.editor
         }
         internal static void FinalizeOnExitPlayMode()
         {
-            IEnumerable<string> scenes = Enumerable.Empty<string>();
-            for (int i = 0; i < SceneManager.sceneCount; i++)
-            {
-                Scene scene = SceneManager.GetSceneAt(i);
-                scenes = scenes.Append(scene.path);
-            }
-            for (int i = 0; i < scenes.Count(); i++)
-            {
-                if (i == 0) EditorSceneManager.OpenScene(scenes.ElementAt(i), OpenSceneMode.Single);
-                else EditorSceneManager.OpenScene(scenes.ElementAt(i), OpenSceneMode.Additive);
-            }
+            ADAvatarProcessor.ResetAvatarManually();
         }
 
         [MenuItem("Tools/Alter Dresser/Apply On Play", false, 100)]

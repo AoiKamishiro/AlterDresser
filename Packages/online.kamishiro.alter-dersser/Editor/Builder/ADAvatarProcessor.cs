@@ -254,6 +254,7 @@ namespace online.kamishiro.alterdresser.editor
                 Scene scene = SceneManager.GetSceneAt(i);
                 scene.GetRootGameObjects().Select(x => x.GetComponent<ADBuildContext>()).Where(x => x != null).Select(x => x.gameObject).ToList().ForEach(x => ResetAvatar(x));
             }
+            ADEditorUtils.DeleteTempDir();
         }
 
     }
