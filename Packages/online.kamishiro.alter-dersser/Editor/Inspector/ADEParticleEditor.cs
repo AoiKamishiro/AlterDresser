@@ -1,4 +1,5 @@
 ﻿using UnityEditor;
+using UnityEngine;
 using L = online.kamishiro.alterdresser.editor.ADLocalizer;
 
 namespace online.kamishiro.alterdresser.editor
@@ -18,9 +19,11 @@ namespace online.kamishiro.alterdresser.editor
         }
         protected override void OnInnerInspectorGUI()
         {
-            EditorGUILayout.HelpBox(L.ADEPDescription, MessageType.Info);
-            EditorGUILayout.Space();
-            EditorGUILayout.PropertyField(ParticleType);
+            using (new EditorGUILayout.VerticalScope(new GUIStyle(GUI.skin.box)))
+            {
+                EditorGUILayout.LabelField(new GUIContent("AD Effect Particle", L.ADEPDescription), EditorStyles.boldLabel);
+                EditorGUILayout.PropertyField(ParticleType);
+            }
         }
     }
 }
