@@ -11,7 +11,7 @@ namespace online.kamishiro.alterdresser.editor
     [InitializeOnLoad]
     internal static class ADApplyOnPlay
     {
-        private static readonly string PREFS_KEY_ON_PLAY = "ADOnPlayProcessing";
+        private static readonly string PREFS_KEY_ON_PLAY = "online.kamishiro.alterdresser.onplayprocessing";
         private static bool OnPlayProcessing
         {
             get => EditorPrefs.GetBool(PREFS_KEY_ON_PLAY);

@@ -12,8 +12,8 @@ namespace online.kamishiro.alterdresser.editor
         internal static readonly float AD_MotionTime = 4.0f;
         internal static bool ApplyOnPlay
         {
-            get => EditorPrefs.GetBool("ADApplyOnPlay", true);
-            set => EditorPrefs.SetBool("ADApplyOnPlay", value);
+            get => EditorPrefs.GetBool("online.kamishiro.alterdresser.applyonplay", true);
+            set => EditorPrefs.SetBool("online.kamishiro.alterdresser.applyonplay", value);
         }
     }
 }

@@ -7,7 +7,7 @@ namespace online.kamishiro.alterdresser.editor
 {
     public class ADApplyOnBuild : IVRCSDKPreprocessAvatarCallback, IVRCSDKPostprocessAvatarCallback
     {
-        private static readonly string PREFS_KEY_ON_BUILD = "ADOnBuildProcessing";
+        private static readonly string PREFS_KEY_ON_BUILD = "online.kamishiro.alterdresser.onbuildprocessing";
         internal static bool OnBuildProcessing
         {
             get => EditorPrefs.GetBool(PREFS_KEY_ON_BUILD);
