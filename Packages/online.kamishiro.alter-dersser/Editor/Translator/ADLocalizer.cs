@@ -80,6 +80,8 @@ namespace online.kamishiro.alterdresser.editor
         internal static string ADSE_RL_RefRenderer;
         internal static string ADSE_AO_DoMerge;
         internal static string ADSE_AO_DoMerge_Tips;
+        internal static string ADSE_AO_UNITY_WARNING;
+        internal static string ADSE_AO_MA_ERROR;
         internal static string ADSE_AO_MergeMesh_List;
         internal static string ADSE_MO_Auto;
         internal static string ADSE_MO_Manual;
@@ -130,6 +132,8 @@ namespace online.kamishiro.alterdresser.editor
             ADSE_RL_RefRenderer = TranslationData[LanguageIndex].ADSE_RL_RefRenderer;
             ADSE_AO_DoMerge = TranslationData[LanguageIndex].ADSE_AO_DoMerge;
             ADSE_AO_DoMerge_Tips = TranslationData[LanguageIndex].ADSE_AO_DoMerge_Tips;
+            ADSE_AO_UNITY_WARNING = TranslationData[LanguageIndex].ADSE_AO_UNITY_WARNING;
+            ADSE_AO_MA_ERROR = TranslationData[LanguageIndex].ADSE_AO_MA_ERROR;
             ADSE_AO_MergeMesh_List = TranslationData[LanguageIndex].ADSE_AO_MergeMesh_List;
             ADSE_MO_Auto = TranslationData[LanguageIndex].ADSE_MO_Auto;
             ADSE_MO_Manual = TranslationData[LanguageIndex].ADSE_MO_Manual;

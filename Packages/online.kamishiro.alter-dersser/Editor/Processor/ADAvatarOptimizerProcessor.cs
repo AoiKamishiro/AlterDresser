@@ -20,12 +20,14 @@ namespace online.kamishiro.alterdresser.editor
                 referencePath = ADRuntimeUtils.GetRelativePath(ADRuntimeUtils.GetAvatar(item.transform).transform, context.enhancedRootBone.transform)
             };
 
-            GameObject mergedMesh = new GameObject("MergedMesh");
+            GameObject mergedMesh = new GameObject($"{ADRuntimeUtils.GenerateID(item)}_MergedMesh");
             mergedMesh.transform.SetParent(item.transform);
 
             Component mergeMeshComponent = mergedMesh.AddComponent(ADAvaterOptimizer.MergeMeshType);
             SerializedObject serializedMergeMesh = new SerializedObject(mergeMeshComponent);
             serializedMergeMesh.Update();
+
+            List<ModularAvatarBlendshapeSync> existedSync = new List<ModularAvatarBlendshapeSync>();
 
             SerializedProperty renderersSet = serializedMergeMesh.FindProperty("renderersSet").FindPropertyRelative("mainSet");
 
@@ -48,6 +50,10 @@ namespace online.kamishiro.alterdresser.editor
                 {
                     renderersSet.InsertArrayElementAtIndex(renderersSet.arraySize);
                     renderersSet.GetArrayElementAtIndex(renderersSet.arraySize - 1).objectReferenceValue = validChildRenderers[i];
+                    if (validChildRenderers[i].TryGetComponent(out ModularAvatarBlendshapeSync mabs))
+                    {
+                        existedSync.Add(mabs);
+                    }
                 });
 
             serializedMergeMesh.ApplyModifiedProperties();
@@ -56,6 +62,21 @@ namespace online.kamishiro.alterdresser.editor
             maMeshSettings.InheritBounds = ModularAvatarMeshSettings.InheritMode.Set;
             maMeshSettings.RootBone = avatarObjectReference;
             maMeshSettings.Bounds = new Bounds(ADRuntimeUtils.GetAvatar(item.transform).ViewPosition / 2, new Vector3(2.5f, 2.5f, 2.5f));
+
+            if (existedSync.Count > 0)
+            {
+                ModularAvatarBlendshapeSync maBlendshapeSync = mergedMesh.AddComponent<ModularAvatarBlendshapeSync>();
+
+                foreach (BlendshapeBinding b in existedSync.SelectMany(x => x.Bindings))
+                {
+                    IEnumerable<string> local = maBlendshapeSync.Bindings.Select(x => x.LocalBlendshape == string.Empty ? x.Blendshape : x.LocalBlendshape);
+                    if (!local.Contains(b.LocalBlendshape == string.Empty ? b.Blendshape : b.LocalBlendshape))
+                    {
+                        maBlendshapeSync.Bindings.Add(b);
+                    }
+                }
+                ADEditorUtils.SaveGeneratedItem(maBlendshapeSync, context);
+            }
 
             ADEditorUtils.SaveGeneratedItem(mergedMesh, context);
             ADEditorUtils.SaveGeneratedItem(maMeshSettings, context);

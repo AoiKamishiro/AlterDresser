@@ -1,4 +1,7 @@
-﻿using lilToon;
+﻿//既知の不具合：Rendererのマテリアル配列サイズが5以上でインデックスが2と4のマテリアルをアニメーションから同時に変更しようとすると2番に4番が入り、4番が処理されない問題がある。
+//Unity側の不具合であり、後続のバージョンでは修正されている事を確認済み。
+
+using lilToon;
 using nadena.dev.modular_avatar.core;
 using System.Collections.Generic;
 using System.Linq;
@@ -67,10 +70,10 @@ namespace online.kamishiro.alterdresser.editor
                 ToArray();
             string paramName = $"ADSE_{item.Id}";
 
-            AnimationClip enabledAnimationClip = CreateEnhancedEnabledAnimationClip(targetPathes, item.transform, item.materialOverrides);
-            AnimationClip disabledAnimationClip = CreateEnhancedDisabledAnimationClip(targetPathes, item.transform, item.materialOverrides);
-            AnimationClip enablingAnimationClip = CreateEnhancedEnablingAnimationClip(targetPathes, item.transform, item.materialOverrides, ADSettings.AD_MotionTime);
-            AnimationClip disablingAnimationClip = CreateEnhancedDisablingAnimationClip(targetPathes, item.transform, item.materialOverrides, ADSettings.AD_MotionTime);
+            AnimationClip enabledAnimationClip = CreateEnhancedEnabledAnimationClip(targetPathes, item.transform, item, context);
+            AnimationClip disabledAnimationClip = CreateEnhancedDisabledAnimationClip(targetPathes, item.transform, item, context);
+            AnimationClip enablingAnimationClip = CreateEnhancedEnablingAnimationClip(targetPathes, item.transform, item, context, ADSettings.AD_MotionTime);
+            AnimationClip disablingAnimationClip = CreateEnhancedDisablingAnimationClip(targetPathes, item.transform, item, context, ADSettings.AD_MotionTime);
 
             ADAnimationUtils.AddParameter(animator, paramName, ACPT.Int);
             ADAnimationUtils.AddParameter(animator, ADSettings.paramIsReady, ACPT.Bool);
@@ -186,8 +189,8 @@ namespace online.kamishiro.alterdresser.editor
                     newMat.EnableKeyword("GEOM_TYPE_BRANCH_DETAIL");
                     newMat.EnableKeyword("UNITY_UI_CLIP_RECT ");
                     newMat.renderQueue = 2461;
-                    newMat.SetFloat("_DissolveNoiseStrength", 0.0f);
                     newMat.SetVector("_DissolveParams", new Vector4(3, 1, -1, 0.01f));
+                    newMat.SetFloat("_DissolveNoiseStrength", 0.0f);
                     AssetDatabase.CreateAsset(newMat, $"Assets/{ADSettings.tempDirPath}/ADSE_{ADRuntimeUtils.GenerateID(newMat)}.mat");
 
                     internalMat.objectReferenceValue = newMat;
@@ -199,14 +202,14 @@ namespace online.kamishiro.alterdresser.editor
             }
             so.ApplyModifiedProperties();
         }
-        internal static AnimationClip CreateEnhancedDisabledAnimationClip(string[] relativePaths, Transform t, ADSEnhancedMaterialOverride[] replaceItems)
+        internal static AnimationClip CreateEnhancedDisabledAnimationClip(string[] relativePaths, Transform t, ADSEnhanced item, ADBuildContext context)
         {
             AnimationClip animationClip = new AnimationClip
             {
                 name = $"ADSEnhanced_{t.name}_Disabled"
             };
 
-            foreach (string relativePath in relativePaths)
+            foreach (string relativePath in relativePaths.Append($"{ADRuntimeUtils.GenerateID(item)}_MergedMesh"))
             {
                 AnimationCurve enabledCurve = new AnimationCurve(new Keyframe[] { new Keyframe(0, 0) });
                 AnimationCurve dissolveParamXCurve = new AnimationCurve(new Keyframe[] { new Keyframe(0, 3) });
@@ -227,39 +230,64 @@ namespace online.kamishiro.alterdresser.editor
                 animationClip.SetCurve(relativePath, typeof(SkinnedMeshRenderer), "material._DissolvePos.z", dissolvePosZCurve);
                 animationClip.SetCurve(relativePath, typeof(SkinnedMeshRenderer), "material._DissolvePos.w", dissolvePosWCurve);
 
-                foreach (ADSEnhancedMaterialOverride replace in replaceItems.Where(x => x.overrideInternalMaterial != null))
+                if (relativePath != $"{ADRuntimeUtils.GenerateID(item)}_MergedMesh")
                 {
-                    Renderer r = (relativePath == string.Empty) ? t.GetComponent<Renderer>() : t.Find(relativePath).GetComponent<Renderer>();
-                    int matIdx = 0;
-                    foreach (Material m in r.sharedMaterials)
+                    foreach (ADSEnhancedMaterialOverride replace in item.materialOverrides.Where(x => x.overrideInternalMaterial != null))
                     {
-                        if (replace.baseMaterial == m)
+                        Renderer r = (relativePath == string.Empty) ? t.GetComponent<Renderer>() : t.Find(relativePath).GetComponent<Renderer>();
+                        int matIdx = 0;
+                        foreach (Material m in r.sharedMaterials)
                         {
-                            ObjectReferenceKeyframe[] keyframes = new ObjectReferenceKeyframe[1];
-                            keyframes[0] = new ObjectReferenceKeyframe
+                            if (replace.baseMaterial == m)
                             {
-                                time = 0.0f,
-                                value = replace.overrideInternalMaterial
-                            };
+                                ObjectReferenceKeyframe[] keyframes = new ObjectReferenceKeyframe[1];
+                                keyframes[0] = new ObjectReferenceKeyframe
+                                {
+                                    time = 0.0f,
+                                    value = replace.overrideInternalMaterial
+                                };
 
-                            EditorCurveBinding binding = EditorCurveBinding.PPtrCurve(relativePath, typeof(SkinnedMeshRenderer), $"m_Materials.Array.data[{matIdx}]");
-                            AnimationUtility.SetObjectReferenceCurve(animationClip, binding, keyframes);
+                                EditorCurveBinding binding = EditorCurveBinding.PPtrCurve(relativePath, typeof(SkinnedMeshRenderer), $"m_Materials.Array.data[{matIdx}]");
+                                AnimationUtility.SetObjectReferenceCurve(animationClip, binding, keyframes);
+                            }
+                            matIdx++;
                         }
-                        matIdx++;
+                    }
+                }
+                else
+                {
+                    List<Material> mergedMeshMaterials = GetMergedMaterials(item, context).ToList();
+                    foreach (ADSEnhancedMaterialOverride replace in item.materialOverrides.Where(x => x.overrideInternalMaterial != null))
+                    {
+                        foreach (Material m in mergedMeshMaterials)
+                        {
+                            if (replace.baseMaterial == m)
+                            {
+                                ObjectReferenceKeyframe[] keyframes = new ObjectReferenceKeyframe[1];
+                                keyframes[0] = new ObjectReferenceKeyframe
+                                {
+                                    time = 0.0f,
+                                    value = replace.overrideInternalMaterial
+                                };
+
+                                EditorCurveBinding binding = EditorCurveBinding.PPtrCurve(relativePath, typeof(SkinnedMeshRenderer), $"m_Materials.Array.data[{mergedMeshMaterials.IndexOf(m)}]");
+                                AnimationUtility.SetObjectReferenceCurve(animationClip, binding, keyframes);
+                            }
+                        }
                     }
                 }
             }
 
             return animationClip;
         }
-        internal static AnimationClip CreateEnhancedEnabledAnimationClip(string[] relativePaths, Transform t, ADSEnhancedMaterialOverride[] replaceItems)
+        internal static AnimationClip CreateEnhancedEnabledAnimationClip(string[] relativePaths, Transform t, ADSEnhanced item, ADBuildContext context)
         {
             AnimationClip animationClip = new AnimationClip
             {
                 name = $"ADSEnhanced_{t.name}_Enabled"
             };
 
-            foreach (string relativePath in relativePaths)
+            foreach (string relativePath in relativePaths.Append($"{ADRuntimeUtils.GenerateID(item)}_MergedMesh"))
             {
                 AnimationCurve enabledCurve = new AnimationCurve(new Keyframe[] { new Keyframe(0, 1) });
                 AnimationCurve dissolveParamXCurve = new AnimationCurve(new Keyframe[] { new Keyframe(0, 3) });
@@ -280,39 +308,64 @@ namespace online.kamishiro.alterdresser.editor
                 animationClip.SetCurve(relativePath, typeof(SkinnedMeshRenderer), "material._DissolvePos.z", dissolvePosZCurve);
                 animationClip.SetCurve(relativePath, typeof(SkinnedMeshRenderer), "material._DissolvePos.w", dissolvePosWCurve);
 
-                foreach (ADSEnhancedMaterialOverride replace in replaceItems.Where(x => x.overrideInternalMaterial != null))
+                if (relativePath != $"{ADRuntimeUtils.GenerateID(item)}_MergedMesh")
                 {
-                    Renderer r = (relativePath == string.Empty) ? t.GetComponent<Renderer>() : t.Find(relativePath).GetComponent<Renderer>();
-                    int matIdx = 0;
-                    foreach (Material m in r.sharedMaterials)
+                    foreach (ADSEnhancedMaterialOverride replace in item.materialOverrides.Where(x => x.overrideInternalMaterial != null))
                     {
-                        if (replace.baseMaterial == m)
+                        Renderer r = (relativePath == string.Empty) ? t.GetComponent<Renderer>() : t.Find(relativePath).GetComponent<Renderer>();
+                        int matIdx = 0;
+                        foreach (Material m in r.sharedMaterials)
                         {
-                            ObjectReferenceKeyframe[] keyframes = new ObjectReferenceKeyframe[1];
-                            keyframes[0] = new ObjectReferenceKeyframe
+                            if (replace.baseMaterial == m)
                             {
-                                time = 0.0f,
-                                value = replace.baseMaterial
-                            };
+                                ObjectReferenceKeyframe[] keyframes = new ObjectReferenceKeyframe[1];
+                                keyframes[0] = new ObjectReferenceKeyframe
+                                {
+                                    time = 0.0f,
+                                    value = replace.baseMaterial
+                                };
 
-                            EditorCurveBinding binding = EditorCurveBinding.PPtrCurve(relativePath, typeof(SkinnedMeshRenderer), $"m_Materials.Array.data[{matIdx}]");
-                            AnimationUtility.SetObjectReferenceCurve(animationClip, binding, keyframes);
+                                EditorCurveBinding binding = EditorCurveBinding.PPtrCurve(relativePath, typeof(SkinnedMeshRenderer), $"m_Materials.Array.data[{matIdx}]");
+                                AnimationUtility.SetObjectReferenceCurve(animationClip, binding, keyframes);
+                            }
+                            matIdx++;
                         }
-                        matIdx++;
+                    }
+                }
+                else
+                {
+                    List<Material> mergedMeshMaterials = GetMergedMaterials(item, context).ToList();
+                    foreach (ADSEnhancedMaterialOverride replace in item.materialOverrides.Where(x => x.overrideInternalMaterial != null))
+                    {
+                        foreach (Material m in mergedMeshMaterials)
+                        {
+                            if (replace.baseMaterial == m)
+                            {
+                                ObjectReferenceKeyframe[] keyframes = new ObjectReferenceKeyframe[1];
+                                keyframes[0] = new ObjectReferenceKeyframe
+                                {
+                                    time = 0.0f,
+                                    value = replace.baseMaterial
+                                };
+
+                                EditorCurveBinding binding = EditorCurveBinding.PPtrCurve(relativePath, typeof(SkinnedMeshRenderer), $"m_Materials.Array.data[{mergedMeshMaterials.IndexOf(m)}]");
+                                AnimationUtility.SetObjectReferenceCurve(animationClip, binding, keyframes);
+                            }
+                        }
                     }
                 }
             }
 
             return animationClip;
         }
-        internal static AnimationClip CreateEnhancedEnablingAnimationClip(string[] relativePaths, Transform t, ADSEnhancedMaterialOverride[] replaceItems, float motionTime)
+        internal static AnimationClip CreateEnhancedEnablingAnimationClip(string[] relativePaths, Transform t, ADSEnhanced item, ADBuildContext context, float motionTime)
         {
             AnimationClip animationClip = new AnimationClip
             {
                 name = $"ADSEnhanced_{t.name}_Enabling"
             };
 
-            foreach (string relativePath in relativePaths)
+            foreach (string relativePath in relativePaths.Append($"{ADRuntimeUtils.GenerateID(item)}_MergedMesh"))
             {
                 AnimationCurve enabledCurve = new AnimationCurve(new Keyframe[] { new Keyframe(0, 1), new Keyframe(motionTime, 1) });
                 AnimationCurve dissolveParamXCurve = new AnimationCurve(new Keyframe[] { new Keyframe(0, 3), new Keyframe(motionTime, 3) });
@@ -333,44 +386,75 @@ namespace online.kamishiro.alterdresser.editor
                 animationClip.SetCurve(relativePath, typeof(SkinnedMeshRenderer), "material._DissolvePos.z", dissolvePosZCurve);
                 animationClip.SetCurve(relativePath, typeof(SkinnedMeshRenderer), "material._DissolvePos.w", dissolvePosWCurve);
 
-                foreach (ADSEnhancedMaterialOverride replace in replaceItems.Where(x => x.overrideInternalMaterial != null))
+                if (relativePath != $"{ADRuntimeUtils.GenerateID(item)}_MergedMesh")
                 {
-                    Renderer r = (relativePath == string.Empty) ? t.GetComponent<Renderer>() : t.Find(relativePath).GetComponent<Renderer>();
-                    int matIdx = 0;
-                    foreach (Material m in r.sharedMaterials)
+                    foreach (ADSEnhancedMaterialOverride replace in item.materialOverrides.Where(x => x.overrideInternalMaterial != null))
                     {
-                        if (replace.baseMaterial == m)
+                        Renderer r = (relativePath == string.Empty) ? t.GetComponent<Renderer>() : t.Find(relativePath).GetComponent<Renderer>();
+                        int matIdx = 0;
+                        foreach (Material m in r.sharedMaterials)
                         {
-                            ObjectReferenceKeyframe[] keyframes = new ObjectReferenceKeyframe[2];
-                            keyframes[0] = new ObjectReferenceKeyframe
+                            if (replace.baseMaterial == m)
                             {
-                                time = 0.0f,
-                                value = replace.overrideInternalMaterial
-                            };
-                            keyframes[1] = new ObjectReferenceKeyframe
-                            {
-                                time = motionTime,
-                                value = replace.baseMaterial
-                            };
+                                ObjectReferenceKeyframe[] keyframes = new ObjectReferenceKeyframe[2];
+                                keyframes[0] = new ObjectReferenceKeyframe
+                                {
+                                    time = 0.0f,
+                                    value = replace.overrideInternalMaterial
+                                };
+                                keyframes[1] = new ObjectReferenceKeyframe
+                                {
+                                    time = motionTime,
+                                    value = replace.baseMaterial
+                                };
 
-                            EditorCurveBinding binding = EditorCurveBinding.PPtrCurve(relativePath, typeof(SkinnedMeshRenderer), $"m_Materials.Array.data[{matIdx}]");
-                            AnimationUtility.SetObjectReferenceCurve(animationClip, binding, keyframes);
+                                EditorCurveBinding binding = EditorCurveBinding.PPtrCurve(relativePath, typeof(SkinnedMeshRenderer), $"m_Materials.Array.data[{matIdx}]");
+                                AnimationUtility.SetObjectReferenceCurve(animationClip, binding, keyframes);
+                            }
+                            matIdx++;
                         }
-                        matIdx++;
                     }
                 }
+                else
+                {
+                    List<Material> mergedMeshMaterials = GetMergedMaterials(item, context).ToList();
+                    foreach (ADSEnhancedMaterialOverride replace in item.materialOverrides.Where(x => x.overrideInternalMaterial != null))
+                    {
+                        foreach (Material m in mergedMeshMaterials)
+                        {
+                            if (replace.baseMaterial == m)
+                            {
+                                ObjectReferenceKeyframe[] keyframes = new ObjectReferenceKeyframe[2];
+                                keyframes[0] = new ObjectReferenceKeyframe
+                                {
+                                    time = 0.0f,
+                                    value = replace.overrideInternalMaterial
+                                };
+                                keyframes[1] = new ObjectReferenceKeyframe
+                                {
+                                    time = motionTime,
+                                    value = replace.baseMaterial
+                                };
+
+                                EditorCurveBinding binding = EditorCurveBinding.PPtrCurve(relativePath, typeof(SkinnedMeshRenderer), $"m_Materials.Array.data[{mergedMeshMaterials.IndexOf(m)}]");
+                                AnimationUtility.SetObjectReferenceCurve(animationClip, binding, keyframes);
+                            }
+                        }
+                    }
+                }
+
             }
 
             return animationClip;
         }
-        internal static AnimationClip CreateEnhancedDisablingAnimationClip(string[] relativePaths, Transform t, ADSEnhancedMaterialOverride[] replaceItems, float motiomTime)
+        internal static AnimationClip CreateEnhancedDisablingAnimationClip(string[] relativePaths, Transform t, ADSEnhanced item, ADBuildContext context, float motiomTime)
         {
             AnimationClip animationClip = new AnimationClip
             {
                 name = $"ADSEnhanced_{t.name}_Disabling"
             };
 
-            foreach (string relativePath in relativePaths)
+            foreach (string relativePath in relativePaths.Append($"{ADRuntimeUtils.GenerateID(item)}_MergedMesh"))
             {
                 AnimationCurve enabledCurve = new AnimationCurve(new Keyframe[] { new Keyframe(0, 1), new Keyframe((motiomTime * 60 - 2) / 60.0f, 1), new Keyframe(motiomTime, 0) });
                 AnimationCurve dissolveParamXCurve = new AnimationCurve(new Keyframe[] { new Keyframe(0, 3), new Keyframe(motiomTime, 3) });
@@ -391,30 +475,75 @@ namespace online.kamishiro.alterdresser.editor
                 animationClip.SetCurve(relativePath, typeof(SkinnedMeshRenderer), "material._DissolvePos.z", dissolvePosZCurve);
                 animationClip.SetCurve(relativePath, typeof(SkinnedMeshRenderer), "material._DissolvePos.w", dissolvePosWCurve);
 
-                foreach (ADSEnhancedMaterialOverride replace in replaceItems.Where(x => x.overrideInternalMaterial != null))
+                if (relativePath != $"{ADRuntimeUtils.GenerateID(item)}_MergedMesh")
                 {
-                    Renderer r = (relativePath == string.Empty) ? t.GetComponent<Renderer>() : t.Find(relativePath).GetComponent<Renderer>();
-                    int matIdx = 0;
-                    foreach (Material m in r.sharedMaterials)
+                    foreach (ADSEnhancedMaterialOverride replace in item.materialOverrides.Where(x => x.overrideInternalMaterial != null))
                     {
-                        if (replace.baseMaterial == m)
+                        Renderer r = (relativePath == string.Empty) ? t.GetComponent<Renderer>() : t.Find(relativePath).GetComponent<Renderer>();
+                        int matIdx = 0;
+                        foreach (Material m in r.sharedMaterials)
                         {
-                            ObjectReferenceKeyframe[] keyframes = new ObjectReferenceKeyframe[1];
-                            keyframes[0] = new ObjectReferenceKeyframe
+                            if (replace.baseMaterial == m)
                             {
-                                time = 0.0f,
-                                value = replace.overrideInternalMaterial
-                            };
+                                ObjectReferenceKeyframe[] keyframes = new ObjectReferenceKeyframe[1];
+                                keyframes[0] = new ObjectReferenceKeyframe
+                                {
+                                    time = 0.0f,
+                                    value = replace.overrideInternalMaterial
+                                };
 
-                            EditorCurveBinding binding = EditorCurveBinding.PPtrCurve(relativePath, typeof(SkinnedMeshRenderer), $"m_Materials.Array.data[{matIdx}]");
-                            AnimationUtility.SetObjectReferenceCurve(animationClip, binding, keyframes);
+                                EditorCurveBinding binding = EditorCurveBinding.PPtrCurve(relativePath, typeof(SkinnedMeshRenderer), $"m_Materials.Array.data[{matIdx}]");
+                                AnimationUtility.SetObjectReferenceCurve(animationClip, binding, keyframes);
+                            }
+                            matIdx++;
                         }
-                        matIdx++;
+                    }
+                }
+                else
+                {
+                    List<Material> mergedMeshMaterials = GetMergedMaterials(item, context).ToList();
+                    foreach (ADSEnhancedMaterialOverride replace in item.materialOverrides.Where(x => x.overrideInternalMaterial != null))
+                    {
+                        foreach (Material m in mergedMeshMaterials)
+                        {
+                            if (replace.baseMaterial == m)
+                            {
+                                ObjectReferenceKeyframe[] keyframes = new ObjectReferenceKeyframe[1];
+                                keyframes[0] = new ObjectReferenceKeyframe
+                                {
+                                    time = 0.0f,
+                                    value = replace.overrideInternalMaterial
+                                };
+
+                                EditorCurveBinding binding = EditorCurveBinding.PPtrCurve(relativePath, typeof(SkinnedMeshRenderer), $"m_Materials.Array.data[{mergedMeshMaterials.IndexOf(m)}]");
+                                AnimationUtility.SetObjectReferenceCurve(animationClip, binding, keyframes);
+                            }
+                        }
                     }
                 }
             }
 
             return animationClip;
+        }
+        internal static Material[] GetMergedMaterials(ADSEnhanced item, ADBuildContext context)
+        {
+            List<Renderer> validChildRenderers = item.GetComponentsInChildren<Renderer>()
+                .Where(x => (x is SkinnedMeshRenderer || x is MeshRenderer) && !context.meshRendererBackup.Select(y => y.smr).Contains(x))
+                .Select(x =>
+                {
+                    MeshRendererBuckup backup = context.meshRendererBackup.FirstOrDefault(y => y.renderer == x);
+                    return backup != null ? backup.smr : x;
+                })
+                .ToList();
+
+            char[] bin = System.Convert.ToString(item.mergeMeshIgnoreMask, 2).PadLeft(validChildRenderers.Count, '0').ToCharArray();
+
+            return Enumerable.Range(0, validChildRenderers.Count)
+                  .Where(i => bin[i] == '0')
+                  .Select(x => validChildRenderers[x])
+                  .SelectMany(x => x.sharedMaterials)
+                  .Distinct()
+                  .ToArray();
         }
     }
 }

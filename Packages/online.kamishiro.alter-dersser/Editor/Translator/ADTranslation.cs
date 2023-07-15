@@ -45,6 +45,8 @@
         public string ADSE_RL_RefRenderer;
         public string ADSE_AO_DoMerge;
         public string ADSE_AO_DoMerge_Tips;
+        public string ADSE_AO_UNITY_WARNING;
+        public string ADSE_AO_MA_ERROR;
         public string ADSE_AO_MergeMesh_List;
         public string ADSE_MO_Auto;
         public string ADSE_MO_Manual;
