@@ -125,7 +125,7 @@ namespace online.kamishiro.alterdresser.editor
                 {
                     EditorGUILayout.TextField(new GUIContent(L.ADMG_PF_MenuName, L.ADMG_PF_MenuName_ToolTip), Item.name);
                 }
-                if (ExclusivityGroup.boolValue && !_parentIsExclusive)
+                if (!_parentIsExclusive)
                 {
                     EditorGUILayout.PropertyField(ExclusivityGroup, new GUIContent(L.ADMG_PF_Exclusive, L.ADMG_PF_Exclusive_ToolTip));
                     List<ADMItem> menuItems = GetInternalMenuItems(Item);
