@@ -22,7 +22,11 @@ namespace online.kamishiro.alterdresser.editor
         {
             EditorApplication.playModeStateChanged += OnPlayModeStateChanged;
             ADEditorUtils.OnEditorApplicationQuit += () => EditorPrefs.DeleteKey(PREFS_KEY_ON_PLAY);
-            ADEditorUtils.OnProjectLoaded += () => EditorPrefs.SetBool(PREFS_KEY_ON_PLAY, false);
+            ADEditorUtils.OnProjectLoaded += () =>
+            {
+                EditorPrefs.SetBool(PREFS_KEY_ON_PLAY, false);
+                Menu.SetChecked("Tools/Alter Dresser/Apply On Play", ADSettings.ApplyOnPlay);
+            };
         }
 
         private static void OnPlayModeStateChanged(PlayModeStateChange obj)
@@ -69,12 +73,6 @@ namespace online.kamishiro.alterdresser.editor
         private static void ToggleApplyOnPlay()
         {
             ADSettings.ApplyOnPlay = !ADSettings.ApplyOnPlay;
-            Menu.SetChecked("Tools/Alter Dresser/Apply On Play", ADSettings.ApplyOnPlay);
-        }
-
-        [InitializeOnLoadMethod]
-        private static void InitializeApplyOnPlay()
-        {
             Menu.SetChecked("Tools/Alter Dresser/Apply On Play", ADSettings.ApplyOnPlay);
         }
     }
