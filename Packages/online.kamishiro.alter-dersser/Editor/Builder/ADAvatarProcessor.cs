@@ -176,6 +176,26 @@ namespace online.kamishiro.alterdresser.editor
             {
                 RevertMesh(t);
             }
+            foreach (ADSEnhanced mov in avatar.GetComponentsInChildren<ADSEnhanced>(true))
+            {
+                SerializedObject so = new SerializedObject(mov);
+                SerializedProperty sp = so.FindProperty(nameof(ADSEnhanced.materialOverrides));
+                so.Update();
+
+                for (int i = 0; i < sp.arraySize; i++)
+                {
+                    SerializedProperty item = sp.GetArrayElementAtIndex(i).FindPropertyRelative(nameof(ADSEnhancedMaterialOverride.overrideInternalMaterial));
+
+                    if (PrefabUtility.IsPartOfPrefabInstance(mov))
+                    {
+                        PrefabUtility.RevertPropertyOverride(item, InteractionMode.AutomatedAction);
+                    }
+                    else
+                    {
+                        item.objectReferenceValue = null;
+                    }
+                }
+            }
 
             Object.DestroyImmediate(target);
         }
