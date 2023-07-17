@@ -42,7 +42,7 @@
   "ADSE_RL_RefRenderer": "Mesh being referenced",
   "ADSE_AO_DoMerge": "Merge child meshes",
   "ADSE_AO_DoMerge_Tips": "Generates Merge Skinned Mesh during build.",
-  "ADSE_AO_UNITY_WARNING": "When the number of combined materials is more than 5 and you are using automatic material generation, there may be instances where materials are not correctly assigned due to known bugs in Unity2019.",
+  "ADSE_AO_UNITY_WARNING": "If the number of materials after the combination is more than five and you are using the \"Automatic Generation\" or \"Manual Assignment\" of materials, you may not be able to correctly assign the materials due to a known issue in Unity 2019.",
   "ADSE_AO_MA_ERROR": "When combining meshes that include MA Blendshape Sync, an error is reported stating that the mesh does not exist in the MergedMesh renderer from ModularAvatar. However, this is by design.",
   "ADSE_AO_MergeMesh_List":"Mesh to merge",
   "ADSE_MO_Auto": "Auto Generate",

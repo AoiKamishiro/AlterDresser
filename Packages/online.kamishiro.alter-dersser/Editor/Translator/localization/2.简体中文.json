@@ -42,7 +42,7 @@
   "ADSE_RL_RefRenderer": "参考网格",
   "ADSE_AO_DoMerge": "合并子网格",
   "ADSE_AO_DoMerge_Tips": "在构建时生成合并的蒙皮网格。",
-  "ADSE_AO_UNITY_WARNING": "当组合后的材料数量超过5个且您正在使用自动生成材料时，由于Unity2019已知的问题，可能会出现材料未正确分配的情况。",
+  "ADSE_AO_UNITY_WARNING": "如果组合后的材质数量超过五个，并且你正在使用材质的“自动生成”或“手动分配”，那么由于Unity 2019的已知问题，你可能无法正确分配材质。",
   "ADSE_AO_MA_ERROR": "当合并包含MA Blendshape Sync的网格时，会报告一个错误，说明在ModularAvatar的MergedMesh渲染器中不存在网格。但是，这是设计的一部分。",
   "ADSE_AO_MergeMesh_List":"合并的网格",
   "ADSE_MO_Auto": "自动生成",
