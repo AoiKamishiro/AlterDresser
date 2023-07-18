@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using UnityEditor;
 using UnityEngine;
 
@@ -9,6 +10,7 @@ namespace online.kamishiro.alterdresser.editor
         public readonly Renderer renderer;
         public readonly SerializedObject serializedObject;
         public readonly SerializedProperty m_Enabled;
+        public readonly SerializedProperty m_Materials;
 
         public SerializedRenderer(Renderer renderer)
         {
@@ -17,6 +19,7 @@ namespace online.kamishiro.alterdresser.editor
 
             serializedObject = new SerializedObject(renderer);
             m_Enabled = serializedObject.FindProperty("m_Enabled");
+            m_Materials = serializedObject.FindProperty("m_Materials");
         }
 
         public bool Enabled
@@ -26,6 +29,23 @@ namespace online.kamishiro.alterdresser.editor
             {
                 serializedObject.Update();
                 m_Enabled.boolValue = value;
+                serializedObject.ApplyModifiedProperties();
+            }
+        }
+        public Material[] Materials
+        {
+            get
+            {
+                return Enumerable.Range(0, m_Materials.arraySize).Select(x => m_Materials.GetArrayElementAtIndex(x).objectReferenceValue as Material).ToArray();
+            }
+            set
+            {
+                serializedObject.Update();
+                m_Materials.arraySize = value.Length;
+                Enumerable.Range(0, m_Materials.arraySize).ToList().ForEach(x =>
+                {
+                    m_Materials.GetArrayElementAtIndex(x).objectReferenceValue = value[x];
+                });
                 serializedObject.ApplyModifiedProperties();
             }
         }

@@ -265,48 +265,22 @@ namespace online.kamishiro.alterdresser.editor
         {
             if (backup.filter)
             {
-                SerializedObject m = new SerializedObject(backup.filter);
-                SerializedProperty m_mesh = m.FindProperty("m_Mesh");
-                m.Update();
+                SerializedMeshFilter serializedMeshFilter = new SerializedMeshFilter(backup.filter);
                 if (PrefabUtility.IsPartOfPrefabInstance(backup.filter))
                 {
-                    PrefabUtility.RevertPropertyOverride(m_mesh, InteractionMode.AutomatedAction);
-                    if (m_mesh.objectReferenceValue != backup.mesh) m_mesh.objectReferenceValue = backup.mesh;
+                    PrefabUtility.RevertPropertyOverride(serializedMeshFilter.m_Mesh, InteractionMode.AutomatedAction);
                 }
-                else
-                {
-                    m_mesh.objectReferenceValue = backup.mesh;
-                }
-                m.ApplyModifiedProperties();
+                serializedMeshFilter.Mesh = backup.mesh;
             }
             if (backup.renderer)
             {
-                SerializedObject m = new SerializedObject(backup.renderer);
-                m.Update();
-                SerializedProperty m_materials = m.FindProperty("m_Materials");
+                SerializedRenderer serializedRenderer = new SerializedRenderer(backup.renderer);
+
                 if (PrefabUtility.IsPartOfPrefabInstance(backup.renderer))
                 {
-                    PrefabUtility.RevertPropertyOverride(m_materials, InteractionMode.AutomatedAction);
-                    for (int i = 0; i < m_materials.arraySize; i++)
-                    {
-                        if (m_materials.GetArrayElementAtIndex(i).objectReferenceValue != backup.materials[i])
-                        {
-                            m_materials.GetArrayElementAtIndex(i).objectReferenceValue = backup.materials[i];
-                        }
-                    }
+                    PrefabUtility.RevertPropertyOverride(serializedRenderer.m_Materials, InteractionMode.AutomatedAction);
                 }
-                else
-                {
-                    m_materials.arraySize = 0;
-                    for (int i = 0; i < backup.materials.Length; i++)
-                    {
-                        m_materials.InsertArrayElementAtIndex(m_materials.arraySize);
-                        m_materials.GetArrayElementAtIndex(m_materials.arraySize - 1).objectReferenceValue = backup.materials[i];
-                    }
-                }
-                m.ApplyModifiedProperties();
-
-                backup.renderer.sharedMaterials = backup.materials.ToArray();
+                serializedRenderer.Materials = backup.materials.ToArray();
             }
         }
 
