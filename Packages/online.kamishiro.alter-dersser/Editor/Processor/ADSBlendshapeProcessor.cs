@@ -87,36 +87,6 @@ namespace online.kamishiro.alterdresser.editor
             animationClip.SetCurve(string.Empty, typeof(SkinnedMeshRenderer), "blendShape." + blendShapeName, curve);
             return animationClip;
         }
-        internal static AnimationClip CreateBlendshapeEnablingAnimationClip(string name, string blendShapeName, float motionTime)
-        {
-            AnimationClip animationClip = new AnimationClip
-            {
-                name = $"ADSBlendShape_{name}_{blendShapeName}_Enabling"
-            };
-            AnimationCurve curve = new AnimationCurve(new Keyframe[] { new Keyframe(0, 0), new Keyframe((motionTime * 60 - 2) / 60.0f, 0), new Keyframe(motionTime, 100) });
-            for (int i = 0; i < curve.keys.Count(); i++)
-            {
-                AnimationUtility.SetKeyLeftTangentMode(curve, i, AnimationUtility.TangentMode.Linear);
-                AnimationUtility.SetKeyRightTangentMode(curve, i, AnimationUtility.TangentMode.Linear);
-            }
-            animationClip.SetCurve(string.Empty, typeof(SkinnedMeshRenderer), "blendShape." + blendShapeName, curve);
-            return animationClip;
-        }
-        internal static AnimationClip CreateBlendshapeDisablingAnimationClip(string name, string blendShapeName, float motionTime)
-        {
-            AnimationClip animationClip = new AnimationClip
-            {
-                name = $"ADSBlendShape_{name}_{blendShapeName}_Disabling"
-            };
-            AnimationCurve curve = new AnimationCurve(new Keyframe[] { new Keyframe(0, 0), new Keyframe(motionTime, 0) });
-            for (int i = 0; i < curve.keys.Count(); i++)
-            {
-                AnimationUtility.SetKeyLeftTangentMode(curve, i, AnimationUtility.TangentMode.Linear);
-                AnimationUtility.SetKeyRightTangentMode(curve, i, AnimationUtility.TangentMode.Linear);
-            }
-            animationClip.SetCurve(string.Empty, typeof(SkinnedMeshRenderer), "blendShape." + blendShapeName, curve);
-            return animationClip;
-        }
         private static int GetBlendShapeIndex(ADSBlendshape item, string blendshape)
         {
             Mesh m = item.GetComponent<SkinnedMeshRenderer>().sharedMesh;
