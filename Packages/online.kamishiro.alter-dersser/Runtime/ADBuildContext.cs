@@ -10,6 +10,10 @@ namespace online.kamishiro.alterdresser
         public GameObject enhancedRootBone;
         public Object[] generatedObjects;
         public MeshRendererBuckup[] meshRendererBackup;
+        public BlendshapeOriginState[] blendshapeOriginStates;
+        public ConstraintOriginState[] constraintOriginStates;
+        public SimpleOriginState[] simpleOriginStates;
+        public EnhancedOriginState[] enhancedOriginStates;
     }
 
     [System.Serializable]
@@ -20,5 +24,30 @@ namespace online.kamishiro.alterdresser
         public MeshFilter filter;
         public Material[] materials;
         public Mesh mesh;
+    }
+    [System.Serializable]
+    public class BlendshapeOriginState
+    {
+        public AlterDresserSwitchBlendshape adsb;
+        public float[] weights;
+    }
+    [System.Serializable]
+    public class ConstraintOriginState
+    {
+        public AlterDresserSwitchConstraint adsc;
+        public Vector3 pos;
+        public Quaternion rot;
+    }
+    [System.Serializable]
+    public class SimpleOriginState
+    {
+        public AlterDresserSwitchSimple adss;
+        public bool isActive;
+    }
+    [System.Serializable]
+    public class EnhancedOriginState
+    {
+        public AlterDresserSwitchEnhanced adse;
+        public bool[] enableds;
     }
 }

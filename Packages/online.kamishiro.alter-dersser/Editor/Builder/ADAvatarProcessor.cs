@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using nadena.dev.modular_avatar.core;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
 using UnityEngine;
@@ -116,6 +117,8 @@ namespace online.kamishiro.alterdresser.editor
 
                 ADEParticle[] adePartilces = avatar.GetComponentsInChildren<ADEParticle>(true);
                 if (adePartilces.Length > 0) ADMEParticleProcessor.Process(adePartilces[0], buildContext);
+
+                admItems.ForEach(x => ADInitialStateApplyer.Process(x, buildContext));
             }
             catch (System.Exception ex)
             {
@@ -195,6 +198,65 @@ namespace online.kamishiro.alterdresser.editor
                         item.objectReferenceValue = null;
                     }
                 }
+            }
+
+            foreach (SimpleOriginState state in target.simpleOriginStates)
+            {
+                SerializedGameObject go = new SerializedGameObject(state.adss.gameObject);
+
+                if (PrefabUtility.IsPartOfPrefabInstance(state.adss)) PrefabUtility.RevertPropertyOverride(go.m_Enabled, InteractionMode.AutomatedAction);
+                go.Enabled = state.isActive;
+            }
+            foreach (EnhancedOriginState state in target.enhancedOriginStates)
+            {
+                IEnumerable<Renderer> renderers = ADSwitchEnhancedEditor.GetValidChildRenderers(state.adse);
+                for (int i = 0; i < renderers.Count(); i++)
+                {
+                    if (renderers.ElementAt(i) is MeshRenderer) continue;
+
+                    SerializedRenderer renderer = new SerializedRenderer(renderers.ElementAt(i));
+
+                    if (PrefabUtility.IsPartOfPrefabInstance(state.adse)) PrefabUtility.RevertPropertyOverride(renderer.m_Enabled, InteractionMode.AutomatedAction);
+                    renderer.Enabled = state.enableds[i];
+                }
+            }
+            foreach (BlendshapeOriginState state in target.blendshapeOriginStates)
+            {
+                SerializedSkinnedMeshRenderer smr = new SerializedSkinnedMeshRenderer(state.adsb.GetComponent<SkinnedMeshRenderer>());
+                for (int i = 0; i < state.weights.Length; i++)
+                {
+                    if (PrefabUtility.IsPartOfPrefabInstance(smr.skinnedMeshRenderer)) PrefabUtility.RevertPropertyOverride(smr.m_BlendShapeWeights.GetArrayElementAtIndex(i), InteractionMode.AutomatedAction);
+                }
+                smr.BlendShapeWeights = state.weights;
+
+                string relative = ADRuntimeUtils.GetRelativePath(avatar.transform, smr.skinnedMeshRenderer.transform);
+                foreach (ModularAvatarBlendshapeSync mabs in avatar.GetComponentsInChildren<ModularAvatarBlendshapeSync>(true))
+                {
+                    SerializedSkinnedMeshRenderer smr2 = new SerializedSkinnedMeshRenderer(mabs.GetComponent<SkinnedMeshRenderer>());
+
+                    foreach (BlendshapeBinding bind in mabs.Bindings.Where(x => x.ReferenceMesh.referencePath == relative))
+                    {
+                        string localBlendshapeName = bind.LocalBlendshape != string.Empty ? bind.LocalBlendshape : bind.Blendshape;
+                        float originWeight = smr.skinnedMeshRenderer.GetBlendShapeWeight(smr.skinnedMeshRenderer.sharedMesh.GetBlendShapeIndex(bind.Blendshape));
+
+                        int index = smr2.skinnedMeshRenderer.sharedMesh.GetBlendShapeIndex(localBlendshapeName);
+                        if (PrefabUtility.IsPartOfPrefabInstance(smr2.skinnedMeshRenderer)) PrefabUtility.RevertPropertyOverride(smr2.m_BlendShapeWeights.GetArrayElementAtIndex(index), InteractionMode.AutomatedAction);
+                        smr2.BlendShapeWeights = Enumerable.Range(0, smr2.BlendShapeWeights.Length).Select(x => x == index ? originWeight : smr2.BlendShapeWeights[x]).ToArray();
+                    }
+                }
+            }
+            foreach (ConstraintOriginState state in target.constraintOriginStates)
+            {
+                SerializedTransform t = new SerializedTransform(state.adsc.transform);
+
+                if (PrefabUtility.IsPartOfPrefabInstance(t.transform))
+                {
+                    PrefabUtility.RevertPropertyOverride(t.m_LocalPosition, InteractionMode.AutomatedAction);
+                    PrefabUtility.RevertPropertyOverride(t.m_LocalRotation, InteractionMode.AutomatedAction);
+                }
+
+                if (t.LocalPosision.x != state.pos.x || t.LocalPosision.y != state.pos.y || t.LocalPosision.z != state.pos.z) t.LocalPosision = state.pos;
+                if (t.LocalRotation.x != state.rot.x || t.LocalRotation.y != state.rot.y || t.LocalRotation.z != state.rot.z || t.LocalRotation.w != state.rot.w) t.LocalRotation = state.rot;
             }
 
             Object.DestroyImmediate(target);
