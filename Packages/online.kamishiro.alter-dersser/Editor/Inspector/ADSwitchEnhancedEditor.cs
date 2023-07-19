@@ -305,15 +305,7 @@ namespace online.kamishiro.alterdresser.editor
         private Material[] GetMaterials()
         {
             IEnumerable<Material> mats = Enumerable.Empty<Material>();
-            foreach (SkinnedMeshRenderer r in ((ADS)target).GetComponentsInChildren<SkinnedMeshRenderer>())
-            {
-                mats = mats.Concat(r.sharedMaterials);
-            }
-            foreach (MeshRenderer r in ((ADS)target).GetComponentsInChildren<MeshRenderer>())
-            {
-                mats = mats.Concat(r.sharedMaterials);
-            }
-            return mats.Where(x => x != null).Distinct().ToArray();
+            return GetValidChildRenderers((ADSEnhanced)target).SelectMany(x => x.sharedMaterials).Distinct().ToArray();
         }
         private Renderer[] GetRelatedRenderers(Material mat)
         {
