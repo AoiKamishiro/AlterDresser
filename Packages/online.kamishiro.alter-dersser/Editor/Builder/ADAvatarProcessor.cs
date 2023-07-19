@@ -255,8 +255,8 @@ namespace online.kamishiro.alterdresser.editor
                     PrefabUtility.RevertPropertyOverride(t.m_LocalRotation, InteractionMode.AutomatedAction);
                 }
 
-                if (t.LocalPosision.x != state.pos.x || t.LocalPosision.y != state.pos.y || t.LocalPosision.z != state.pos.z) t.LocalPosision = state.pos;
-                if (t.LocalRotation.x != state.rot.x || t.LocalRotation.y != state.rot.y || t.LocalRotation.z != state.rot.z || t.LocalRotation.w != state.rot.w) t.LocalRotation = state.rot;
+                t.LocalPosision = state.pos;
+                t.LocalRotation = state.rot;
             }
 
             Object.DestroyImmediate(target);
