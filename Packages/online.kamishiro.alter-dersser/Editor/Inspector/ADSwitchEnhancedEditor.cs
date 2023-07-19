@@ -323,7 +323,7 @@ namespace online.kamishiro.alterdresser.editor
         internal static IEnumerable<Renderer> GetValidChildRenderers(ADSEnhanced Item)
         {
             return Item.GetComponentsInChildren<Renderer>(true)
-                .Where(x => !x.gameObject.CompareTag("EditorOnly"))
+                .Where(x => !ADEditorUtils.IsEditorOnly(x.transform))
                 .Where(x => x is SkinnedMeshRenderer || x is MeshRenderer)
                 .Where(x => !x.TryGetComponent(out Cloth _))
                 .Where(x =>
