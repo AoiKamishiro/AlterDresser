@@ -128,6 +128,9 @@ namespace online.kamishiro.alterdresser.editor
                 if (!_parentIsExclusive)
                 {
                     EditorGUILayout.PropertyField(ExclusivityGroup, new GUIContent(L.ADMG_PF_Exclusive, L.ADMG_PF_Exclusive_ToolTip));
+                }
+                if (ExclusivityGroup.boolValue && !_parentIsExclusive)
+                {
                     List<ADMItem> menuItems = GetInternalMenuItems(Item);
                     InitState.intValue = EditorGUILayout.Popup(new GUIContent(L.ADMG_PF_InitValue, L.ADMG_PF_InitValue_ToolTip), InitState.intValue > menuItems.Count - 1 ? 0 : InitState.intValue, menuItems.Select(x => $"{menuItems.IndexOf(x)}: {x.name}").ToArray());
                 }
