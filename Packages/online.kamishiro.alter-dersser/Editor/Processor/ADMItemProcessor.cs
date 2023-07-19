@@ -53,8 +53,9 @@ namespace online.kamishiro.alterdresser.editor
                     ADEditorUtils.SaveGeneratedItem(maMenuItem, context);
 
                     //Animator
-                    string path = $"Assets/{ADSettings.tempDirPath}/ADMI_{item.Id}.controller";
-                    AnimatorController animatorController = ADAnimationUtils.CreateController(path);
+                    AnimatorController animatorController = ADAnimationUtils.CreateController();
+                    animatorController.name = $"ADMI_{item.Id}";
+                    context.SaveAsset(animatorController);
 
                     ModularAvatarMergeAnimator maMargeAnimator = item.gameObject.AddComponent<ModularAvatarMergeAnimator>();
                     maMargeAnimator.animator = animatorController;
@@ -112,8 +113,8 @@ namespace online.kamishiro.alterdresser.editor
                     ADAnimationUtils.AddTransisionWithCondition(disableState, enableState, new (ACM, float, string)[] { (ACM.Equals, GetIdx(item), paramAppliedID) });
                     ADAnimationUtils.AddTransisionWithExitTime(revertState, disableState);
 
-                    AssetDatabase.AddObjectToAsset(enableParameter, animatorController);
-                    AssetDatabase.AddObjectToAsset(disableParameter, animatorController);
+                    context.SaveAsset(enableParameter);
+                    context.SaveAsset(disableParameter);
 
                     Undo.RegisterCreatedObjectUndo(maMargeAnimator, ADSettings.undoName);
                 }
@@ -136,8 +137,9 @@ namespace online.kamishiro.alterdresser.editor
                     ADEditorUtils.SaveGeneratedItem(maMenuItem, context);
 
                     //Animator
-                    string path = $"Assets/{ADSettings.tempDirPath}/ADMI_{item.Id}.controller";
-                    AnimatorController animatorController = ADAnimationUtils.CreateController(path);
+                    AnimatorController animatorController = ADAnimationUtils.CreateController();
+                    animatorController.name = $"ADMI_{item.Id}";
+                    context.SaveAsset(animatorController);
 
                     ModularAvatarMergeAnimator maMargeAnimator = item.gameObject.AddComponent<ModularAvatarMergeAnimator>();
                     maMargeAnimator.animator = animatorController;
@@ -195,8 +197,8 @@ namespace online.kamishiro.alterdresser.editor
                     ADAnimationUtils.AddTransisionWithCondition(disableState, enableState, new (ACM, float, string)[] { (ACM.If, GetIdx(item), paramAppliedID) });
                     ADAnimationUtils.AddTransisionWithExitTime(revertState, disableState);
 
-                    AssetDatabase.AddObjectToAsset(enableParameter, animatorController);
-                    AssetDatabase.AddObjectToAsset(disableParameter, animatorController);
+                    context.SaveAsset(enableParameter);
+                    context.SaveAsset(disableParameter);
 
                     Undo.RegisterCreatedObjectUndo(maMargeAnimator, ADSettings.undoName);
                 }

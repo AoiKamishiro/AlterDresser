@@ -40,8 +40,9 @@ namespace online.kamishiro.alterdresser.editor
 
             if (item.GetType() == typeof(ADMGroup) && WillAddAnimation(item))
             {
-                string path = $"Assets/{ADSettings.tempDirPath}/ADMIG_{item.Id}.controller";
-                AnimatorController animatorController = ADAnimationUtils.CreateController(path);
+                AnimatorController animatorController = ADAnimationUtils.CreateController();
+                animatorController.name = $"ADMIG_{item.Id}";
+                context.SaveAsset(animatorController);
 
                 ModularAvatarMergeAnimator maMargeAnimator = item.gameObject.AddComponent<ModularAvatarMergeAnimator>();
                 maMargeAnimator.animator = animatorController;
@@ -206,20 +207,21 @@ namespace online.kamishiro.alterdresser.editor
                     }
                 }
 
-                AssetDatabase.AddObjectToAsset(enableFixupDriver, animatorController);
-                AssetDatabase.AddObjectToAsset(disableFixupDriver, animatorController);
-                AssetDatabase.AddObjectToAsset(managerInitDriver, animatorController);
-                AssetDatabase.AddObjectToAsset(managerClothChangeDriver, animatorController);
-                AssetDatabase.AddObjectToAsset(managerCopyDriver, animatorController);
-                AssetDatabase.AddObjectToAsset(managerEffectEnabelDriver, animatorController);
-                AssetDatabase.AddObjectToAsset(managerEffectDisableDriver, animatorController);
-                AssetDatabase.AddObjectToAsset(menuItemApplyDriver, animatorController);
+                context.SaveAsset(enableFixupDriver);
+                context.SaveAsset(disableFixupDriver);
+                context.SaveAsset(managerInitDriver);
+                context.SaveAsset(managerClothChangeDriver);
+                context.SaveAsset(managerCopyDriver);
+                context.SaveAsset(managerEffectEnabelDriver);
+                context.SaveAsset(managerEffectDisableDriver);
+                context.SaveAsset(menuItemApplyDriver);
             }
 
             if (item.GetType() == typeof(ADMItem) && WillAddAnimation(item))
             {
-                string path = $"Assets/{ADSettings.tempDirPath}/ADMII_{item.Id}.controller";
-                AnimatorController animatorController = ADAnimationUtils.CreateController(path);
+                AnimatorController animatorController = ADAnimationUtils.CreateController();
+                animatorController.name = $"ADMII_{item.Id}";
+                context.SaveAsset(animatorController);
 
                 ModularAvatarMergeAnimator maMargeAnimator = item.gameObject.AddComponent<ModularAvatarMergeAnimator>();
                 maMargeAnimator.animator = animatorController;
@@ -387,14 +389,14 @@ namespace online.kamishiro.alterdresser.editor
                     }
                 }
 
-                AssetDatabase.AddObjectToAsset(enableFixupDriver, animatorController);
-                AssetDatabase.AddObjectToAsset(disableFixupDriver, animatorController);
-                AssetDatabase.AddObjectToAsset(managerInitDriver, animatorController);
-                AssetDatabase.AddObjectToAsset(managerClothChangeDriver, animatorController);
-                AssetDatabase.AddObjectToAsset(managerCopyDriver, animatorController);
-                AssetDatabase.AddObjectToAsset(managerEffectEnabelDriver, animatorController);
-                AssetDatabase.AddObjectToAsset(managerEffectDisableDriver, animatorController);
-                AssetDatabase.AddObjectToAsset(menuItemApplyDriver, animatorController);
+                context.SaveAsset(enableFixupDriver);
+                context.SaveAsset(disableFixupDriver);
+                context.SaveAsset(managerInitDriver);
+                context.SaveAsset(managerClothChangeDriver);
+                context.SaveAsset(managerCopyDriver);
+                context.SaveAsset(managerEffectEnabelDriver);
+                context.SaveAsset(managerEffectDisableDriver);
+                context.SaveAsset(menuItemApplyDriver);
             }
 
             so.ApplyModifiedProperties();

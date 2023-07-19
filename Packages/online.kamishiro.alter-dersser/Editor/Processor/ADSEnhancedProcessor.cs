@@ -23,7 +23,7 @@ namespace online.kamishiro.alterdresser.editor
             ADEditorUtils.CreateTempDir();
 
             MeshInstanciator(item, context);
-            MaterialInstanciator(item);
+            MaterialInstanciator(item, context);
 
             SerializedObject so = new SerializedObject(item);
             so.Update();
@@ -38,8 +38,9 @@ namespace online.kamishiro.alterdresser.editor
                 ADEditorUtils.SaveGeneratedItem(rootBone, context);
             }
 
-            string path = $"Assets/{ADSettings.tempDirPath}/ADSE_{item.Id}.controller";
-            AnimatorController animator = ADAnimationUtils.CreateController(path);
+            AnimatorController animator = ADAnimationUtils.CreateController();
+            animator.name = $"ADSE_{item.Id}";
+            context.SaveAsset(animator);
 
             ModularAvatarMergeAnimator maMargeAnimator = item.gameObject.AddComponent<ModularAvatarMergeAnimator>();
             maMargeAnimator.deleteAttachedAnimator = true;
@@ -80,7 +81,7 @@ namespace online.kamishiro.alterdresser.editor
 
             AnimatorControllerLayer layer = ADAnimationUtils.AddLayer(animator, $"ADSEnhanced_{item.name}");
 
-            AnimatorState initState = ADAnimationUtils.AddState(layer, disabledAnimationClip, "Initi", new StateMachineBehaviour[] { });
+            AnimatorState initState = ADAnimationUtils.AddState(layer, disabledAnimationClip, "Init", new StateMachineBehaviour[] { });
             AnimatorState disabledState = ADAnimationUtils.AddState(layer, disabledAnimationClip, "Disabled", new StateMachineBehaviour[] { });
             AnimatorState enabledState = ADAnimationUtils.AddState(layer, enabledAnimationClip, "Enabled", new StateMachineBehaviour[] { });
             AnimatorState disablingState = ADAnimationUtils.AddState(layer, disablingAnimationClip, "Disableing", new StateMachineBehaviour[] { });
@@ -96,10 +97,10 @@ namespace online.kamishiro.alterdresser.editor
             ADAnimationUtils.AddTransisionWithCondition(enabledState, disablingState, new (ACM, float, string)[] { (ACM.Equals, 0, paramName), (ACM.If, 1, ADSettings.paramIsReady) });
             ADAnimationUtils.AddTransisionWithCondition(enabledState, disablingState, new (ACM, float, string)[] { (ACM.Less, 0, paramName), (ACM.If, 1, ADSettings.paramIsReady) });
 
-            AssetDatabase.AddObjectToAsset(enabledAnimationClip, animator);
-            AssetDatabase.AddObjectToAsset(disabledAnimationClip, animator);
-            AssetDatabase.AddObjectToAsset(enablingAnimationClip, animator);
-            AssetDatabase.AddObjectToAsset(disablingAnimationClip, animator);
+            context.SaveAsset(enabledAnimationClip);
+            context.SaveAsset(disabledAnimationClip);
+            context.SaveAsset(enablingAnimationClip);
+            context.SaveAsset(disablingAnimationClip);
 
             so.ApplyModifiedProperties();
         }
@@ -139,8 +140,7 @@ namespace online.kamishiro.alterdresser.editor
                 skinnedMeshRenderer.rootBone = meshFilter.transform;
                 skinnedMeshRenderer.sharedMesh.boneWeights = Enumerable.Repeat(new BoneWeight() { boneIndex0 = 0, weight0 = 1 }, newMesh.vertexCount).ToArray();
                 skinnedMeshRenderer.sharedMesh.bindposes = new Matrix4x4[] { renderer.transform.worldToLocalMatrix * meshFilter.transform.localToWorldMatrix };
-
-                AssetDatabase.CreateAsset(newMesh, $"Assets/{ADSettings.tempDirPath}/ADSE_{ADRuntimeUtils.GenerateID(newMesh)}.asset");
+                context.SaveAsset(newMesh);
 
                 ADEditorUtils.SaveGeneratedItem(renderer, context);
 
@@ -164,7 +164,7 @@ namespace online.kamishiro.alterdresser.editor
                 Undo.RegisterCreatedObjectUndo(renderer, ADSettings.undoName);
             }
         }
-        internal static void MaterialInstanciator(ADSEnhanced item)
+        internal static void MaterialInstanciator(ADSEnhanced item, ADBuildContext context)
         {
             Undo.RecordObject(item, ADSettings.undoName);
             SerializedObject so = new SerializedObject(item);
@@ -191,7 +191,7 @@ namespace online.kamishiro.alterdresser.editor
                     newMat.renderQueue = 2461;
                     newMat.SetVector("_DissolveParams", new Vector4(3, 1, -1, 0.01f));
                     newMat.SetFloat("_DissolveNoiseStrength", 0.0f);
-                    AssetDatabase.CreateAsset(newMat, $"Assets/{ADSettings.tempDirPath}/ADSE_{ADRuntimeUtils.GenerateID(newMat)}.mat");
+                    context.SaveAsset(newMat);
 
                     internalMat.objectReferenceValue = newMat;
                 }

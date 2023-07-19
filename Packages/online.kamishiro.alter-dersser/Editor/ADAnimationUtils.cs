@@ -17,9 +17,9 @@ namespace online.kamishiro.alterdresser.editor
                 return _emptyClip;
             }
         }
-        internal static AnimatorController CreateController(string path)
+        internal static AnimatorController CreateController()
         {
-            AnimatorController animatorController = AnimatorController.CreateAnimatorControllerAtPath(path);
+            AnimatorController animatorController = new AnimatorController();
             InitializeAnimatorController(animatorController);
             return animatorController;
         }

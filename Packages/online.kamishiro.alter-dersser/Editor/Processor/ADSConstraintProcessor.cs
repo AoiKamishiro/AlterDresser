@@ -25,8 +25,9 @@ namespace online.kamishiro.alterdresser.editor
             SerializedObject so = new SerializedObject(item);
             so.Update();
 
-            string path = $"Assets/{ADSettings.tempDirPath}/ADSC_{item.Id}.controller";
-            AnimatorController animator = ADAnimationUtils.CreateController(path);
+            AnimatorController animator = ADAnimationUtils.CreateController();
+            animator.name = $"ADSC_{item.Id}";
+            context.SaveAsset(animator);
 
             ModularAvatarMergeAnimator maMargeAnimator = item.gameObject.AddComponent<ModularAvatarMergeAnimator>();
             maMargeAnimator.deleteAttachedAnimator = true;
@@ -92,11 +93,11 @@ namespace online.kamishiro.alterdresser.editor
                 AnimatorState constraintState = ADAnimationUtils.AddState(layer, constraintAnimatinClip, $"Source_{i}", new StateMachineBehaviour[] { });
                 ADAnimationUtils.AddAnyStateTransisionWithCondition(layer.stateMachine, constraintState, new (ACM, float, string)[] { (ACM.Greater, 0, paramName) });
 
-                AssetDatabase.AddObjectToAsset(constraintAnimatinClip, animator);
+                context.SaveAsset(constraintAnimatinClip);
                 states = states.Append(constraintState);
             }
 
-            AssetDatabase.AddObjectToAsset(constraintIntClip, animator);
+            context.SaveAsset(constraintIntClip);
             so.ApplyModifiedProperties();
         }
 

@@ -20,8 +20,9 @@ namespace online.kamishiro.alterdresser.editor
             SerializedObject so = new SerializedObject(item);
             so.Update();
 
-            string path = $"Assets/{ADSettings.tempDirPath}/ADSS_{item.Id}.controller";
-            AnimatorController animator = ADAnimationUtils.CreateController(path);
+            AnimatorController animator = ADAnimationUtils.CreateController();
+            animator.name = $"ADSS_{item.Id}";
+            context.SaveAsset(animator);
 
             ModularAvatarMergeAnimator maMargeAnimator = item.gameObject.AddComponent<ModularAvatarMergeAnimator>();
             maMargeAnimator.deleteAttachedAnimator = true;
@@ -51,8 +52,8 @@ namespace online.kamishiro.alterdresser.editor
 
             so.ApplyModifiedProperties();
 
-            AssetDatabase.AddObjectToAsset(enableAnimationClip, animator);
-            AssetDatabase.AddObjectToAsset(disableAnimationClip, animator);
+            context.SaveAsset(enableAnimationClip);
+            context.SaveAsset(disableAnimationClip);
         }
         internal static AnimationClip CreateDissolveGroupEnableAnimationClip(Transform t)
         {

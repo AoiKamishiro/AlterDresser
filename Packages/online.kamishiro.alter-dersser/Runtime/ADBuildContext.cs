@@ -1,11 +1,17 @@
 ﻿using UnityEngine;
 using VRC.SDKBase;
 
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
+
 namespace online.kamishiro.alterdresser
 {
     [AddComponentMenu("")]
     public class ADBuildContext : MonoBehaviour, IEditorOnly
     {
+        internal static readonly string tempDirPath = "999_Alter_Dresser_Generated";
+
         public GameObject fixed2world;
         public GameObject enhancedRootBone;
         public Object[] generatedObjects;
@@ -14,6 +20,22 @@ namespace online.kamishiro.alterdresser
         public ConstraintOriginState[] constraintOriginStates;
         public SimpleOriginState[] simpleOriginStates;
         public EnhancedOriginState[] enhancedOriginStates;
+        public Object savedObject;
+
+#if UNITY_EDITOR
+        public void SaveAsset(Object asset)
+        {
+            if (!savedObject)
+            {
+                AssetDatabase.CreateAsset(asset, $"Assets/{tempDirPath}/{ADRuntimeUtils.GenerateID(gameObject)}.asset");
+                savedObject = asset;
+            }
+            else
+            {
+                AssetDatabase.AddObjectToAsset(asset, savedObject);
+            }
+        }
+#endif
     }
 
     [System.Serializable]

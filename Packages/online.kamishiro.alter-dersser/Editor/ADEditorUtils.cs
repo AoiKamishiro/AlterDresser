@@ -20,7 +20,7 @@ namespace online.kamishiro.alterdresser.editor
     {
         private static readonly string lilmltGUID = "9294844b15dca184d914a632279b24e1";
         private static readonly string emptyPrefGUID = "b70e7b4f759f5d1408c5eb72ef1c1b65";
-        internal static readonly string tmpDir = $"{Application.dataPath}/{ADSettings.tempDirPath}";
+        internal static readonly string tmpDir = $"{Application.dataPath}/{ADBuildContext.tempDirPath}";
 
         private static Shader _liltoonMulti;
         private static FieldInfo _editorAppQuit;
@@ -49,7 +49,7 @@ namespace online.kamishiro.alterdresser.editor
         {
             if (!System.IO.Directory.Exists(tmpDir))
             {
-                AssetDatabase.CreateFolder("Assets", ADSettings.tempDirPath);
+                AssetDatabase.CreateFolder("Assets", ADBuildContext.tempDirPath);
                 AssetDatabase.SaveAssets();
             }
         }
