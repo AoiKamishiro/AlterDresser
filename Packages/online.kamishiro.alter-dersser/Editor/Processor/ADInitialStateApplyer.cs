@@ -112,14 +112,13 @@ namespace online.kamishiro.alterdresser.editor
                             char[] bin = Convert.ToString(ads.intValue, 2).PadLeft(smr.sharedMesh.blendShapeCount, '0').ToCharArray();
                             serializedSkinnedMeshRenderer.BlendShapeWeights = Enumerable.Range(0, bin.Length).Select(x =>
                             {
-                                int ib = smr.sharedMesh.blendShapeCount - 1 - x;
-                                if (bin[ib] == '1')
+                                if (bin[x] == '1')
                                 {
                                     return 100.0f;
                                 }
                                 else
                                 {
-                                    return smr.GetBlendShapeWeight(ib);
+                                    return smr.GetBlendShapeWeight(x);
                                 }
                             }).ToArray();
                         }
