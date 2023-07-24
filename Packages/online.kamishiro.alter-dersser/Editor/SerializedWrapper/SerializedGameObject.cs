@@ -9,6 +9,7 @@ namespace online.kamishiro.alterdresser.editor
         public readonly GameObject gameObject;
         public readonly SerializedObject serializedObject;
         public readonly SerializedProperty m_Enabled;
+        public readonly SerializedProperty m_TagString;
 
         public SerializedGameObject(GameObject gameObject)
         {
@@ -17,6 +18,7 @@ namespace online.kamishiro.alterdresser.editor
 
             serializedObject = new SerializedObject(gameObject);
             m_Enabled = serializedObject.FindProperty("m_IsActive");
+            m_TagString = serializedObject.FindProperty("m_TagString");
         }
 
         public bool Enabled
@@ -26,6 +28,17 @@ namespace online.kamishiro.alterdresser.editor
             {
                 serializedObject.Update();
                 m_Enabled.boolValue = value;
+                serializedObject.ApplyModifiedProperties();
+            }
+        }
+
+        public string TagString
+        {
+            get => m_TagString.stringValue;
+            set
+            {
+                serializedObject.Update();
+                m_TagString.stringValue = value;
                 serializedObject.ApplyModifiedProperties();
             }
         }
