@@ -131,7 +131,7 @@ namespace online.kamishiro.alterdresser.editor
             };
             for (int i = 0; i < max; i++)
             {
-                animationClip.SetCurve(path, typeof(ParentConstraint), $"m_Sources.Array.data[{i}].weight", i == 0 ? kf0 : i == idx ? kf1 : kf0);
+                animationClip.SetCurve(path, typeof(ParentConstraint), $"m_Sources.Array.data[{i}].weight", i == idx ? kf1 : kf0);
             }
             animationClip.SetCurve(path, typeof(ParentConstraint), $"m_Enabled", kf1);
 
