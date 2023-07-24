@@ -10,8 +10,8 @@ namespace online.kamishiro.alterdresser.editor
         private static readonly string PREFS_KEY_ON_BUILD = "online.kamishiro.alterdresser.onbuildprocessing";
         internal static bool OnBuildProcessing
         {
-            get => EditorPrefs.GetBool(PREFS_KEY_ON_BUILD);
-            set => EditorPrefs.SetBool(PREFS_KEY_ON_BUILD, value);
+            get => SessionState.GetBool(PREFS_KEY_ON_BUILD, false);
+            set => SessionState.SetBool(PREFS_KEY_ON_BUILD, value);
         }
 
         public int callbackOrder => -30;
@@ -20,8 +20,6 @@ namespace online.kamishiro.alterdresser.editor
         private static void Initialize()
         {
             EditorApplication.playModeStateChanged += OnPlayModeStateChanged;
-            ADEditorUtils.OnEditorApplicationQuit += () => EditorPrefs.DeleteKey(PREFS_KEY_ON_BUILD);
-            ADEditorUtils.OnProjectLoaded += () => EditorPrefs.SetBool(PREFS_KEY_ON_BUILD, false);
         }
         private static void OnPlayModeStateChanged(PlayModeStateChange obj)
         {

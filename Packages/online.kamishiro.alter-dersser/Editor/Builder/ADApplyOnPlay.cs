@@ -14,17 +14,15 @@ namespace online.kamishiro.alterdresser.editor
         private static readonly string PREFS_KEY_ON_PLAY = "online.kamishiro.alterdresser.onplayprocessing";
         private static bool OnPlayProcessing
         {
-            get => EditorPrefs.GetBool(PREFS_KEY_ON_PLAY);
-            set => EditorPrefs.SetBool(PREFS_KEY_ON_PLAY, value);
+            get => SessionState.GetBool(PREFS_KEY_ON_PLAY, false);
+            set => SessionState.SetBool(PREFS_KEY_ON_PLAY, value);
         }
 
         static ADApplyOnPlay()
         {
             EditorApplication.playModeStateChanged += OnPlayModeStateChanged;
-            ADEditorUtils.OnEditorApplicationQuit += () => EditorPrefs.DeleteKey(PREFS_KEY_ON_PLAY);
             ADEditorUtils.OnProjectLoaded += () =>
             {
-                EditorPrefs.SetBool(PREFS_KEY_ON_PLAY, false);
                 Menu.SetChecked("Tools/Alter Dresser/Apply On Play", ADSettings.ApplyOnPlay);
             };
         }
