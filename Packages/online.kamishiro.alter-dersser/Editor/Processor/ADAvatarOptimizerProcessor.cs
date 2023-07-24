@@ -39,6 +39,7 @@ namespace online.kamishiro.alterdresser.editor
                     return backup != null ? backup.smr : x;
                 })
                 .Where(x => x != mergedMesh.GetComponent<SkinnedMeshRenderer>())
+                .Where(x => !x.TryGetComponent(out Cloth _))
                 .ToList();
 
             char[] bin = Convert.ToString(item.mergeMeshIgnoreMask, 2).PadLeft(validChildRenderers.Count, '0').ToCharArray();
