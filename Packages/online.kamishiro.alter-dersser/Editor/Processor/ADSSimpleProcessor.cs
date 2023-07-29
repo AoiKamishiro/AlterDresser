@@ -1,5 +1,4 @@
 ﻿using nadena.dev.modular_avatar.core;
-using System.Linq;
 using UnityEditor;
 using UnityEditor.Animations;
 using UnityEngine;
@@ -29,10 +28,6 @@ namespace online.kamishiro.alterdresser.editor
             maMargeAnimator.animator = animator;
             ADEditorUtils.SaveGeneratedItem(maMargeAnimator, context);
 
-            string[] targetPathes = item.GetComponentsInChildren<SkinnedMeshRenderer>(true).
-                Where(x => !x.gameObject.CompareTag("EditorOnly")).
-                Select(x => ADRuntimeUtils.GetRelativePath(item.transform, x.transform)).
-                ToArray();
             string paramName = $"ADSS_{item.Id}";
 
             AnimationClip enableAnimationClip = CreateDissolveGroupEnableAnimationClip(item.transform);

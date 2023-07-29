@@ -28,16 +28,6 @@ namespace online.kamishiro.alterdresser.editor
             SerializedObject so = new SerializedObject(item);
             so.Update();
 
-            if (!context.enhancedRootBone)
-            {
-                GameObject rootBone = new GameObject("ADSE_RootBone");
-                rootBone.transform.SetParent(context.transform, false);
-                rootBone.transform.SetPositionAndRotation(Vector3.up, Quaternion.identity);
-
-                context.enhancedRootBone = rootBone;
-                ADEditorUtils.SaveGeneratedItem(rootBone, context);
-            }
-
             AnimatorController animator = ADAnimationUtils.CreateController();
             animator.name = $"ADSE_{item.Id}";
             context.SaveAsset(animator);
@@ -123,10 +113,10 @@ namespace online.kamishiro.alterdresser.editor
                 elem.FindPropertyRelative(nameof(ADSEnhancedMeshOverride.mesh)).objectReferenceValue = meshFilter.sharedMesh;
 
                 SerializedProperty elem2 = elem.FindPropertyRelative(nameof(ADSEnhancedMeshOverride.materials));
+                elem2.arraySize = meshRenderer.sharedMaterials.Length;
                 for (int i = 0; i < meshRenderer.sharedMaterials.Length; i++)
                 {
-                    elem2.InsertArrayElementAtIndex(elem2.arraySize);
-                    elem2.GetArrayElementAtIndex(elem2.arraySize - 1).objectReferenceValue = meshRenderer.sharedMaterials[i];
+                    elem2.GetArrayElementAtIndex(i).objectReferenceValue = meshRenderer.sharedMaterials[i];
                 }
 
                 GameObject renderer = new GameObject(meshRenderer.name);
@@ -147,18 +137,17 @@ namespace online.kamishiro.alterdresser.editor
                 so.ApplyModifiedProperties();
 
                 Mesh mesh = meshFilter.sharedMesh;
-                SerializedObject meshFilterSO = new SerializedObject(meshFilter);
-                SerializedProperty meshFilter_mesh = meshFilterSO.FindProperty("m_Mesh");
-                meshFilterSO.Update();
-                meshFilter_mesh.objectReferenceValue = null;
-                meshFilterSO.ApplyModifiedProperties();
-
                 Material[] materials = meshRenderer.sharedMaterials;
-                SerializedObject meshRendererSO = new SerializedObject(meshRenderer);
-                SerializedProperty meshRenderer_materials = meshRendererSO.FindProperty("m_Materials");
-                meshRendererSO.Update();
-                meshRenderer_materials.arraySize = 0;
-                meshRendererSO.ApplyModifiedProperties();
+
+                SerializedMeshFilter serializedMeshFilter = new SerializedMeshFilter(meshFilter)
+                {
+                    Mesh = null
+                };
+
+                SerializedMeshRenderer serializedMeshRenderer = new SerializedMeshRenderer(meshRenderer)
+                {
+                    Materials = new Material[] { }
+                };
 
                 ADEditorUtils.SaveMeshRendererBackup(meshFilter, mesh, meshRenderer, materials, skinnedMeshRenderer, context);
                 Undo.RegisterCreatedObjectUndo(renderer, ADSettings.undoName);

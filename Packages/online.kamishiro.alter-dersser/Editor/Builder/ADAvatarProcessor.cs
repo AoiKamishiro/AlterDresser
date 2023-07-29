@@ -4,7 +4,6 @@ using System.Linq;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using VRC.SDK3.Avatars.Components;
 using ADB = online.kamishiro.alterdresser.ADBase;
 using ADEParticle = online.kamishiro.alterdresser.AlterDresserEffectParticel;
 using ADM = online.kamishiro.alterdresser.ADMenuBase;
@@ -25,8 +24,7 @@ namespace online.kamishiro.alterdresser.editor
         internal static bool nowProcessing = false;
         internal static void ProcessAvatar(GameObject avatar)
         {
-            if (nowProcessing) return;
-            if (avatar == null) return;
+            if (nowProcessing || avatar == null) return;
             Debug.Log($"AD ProcessAvatar Processng:{avatar.name}");
 
             Vector3 position = avatar.transform.position;
@@ -36,7 +34,14 @@ namespace online.kamishiro.alterdresser.editor
             ADBuildContext buildContext = avatar.AddComponent<ADBuildContext>();
             avatar.transform.SetPositionAndRotation(Vector3.zero, Quaternion.identity);
             avatar.transform.localScale = Vector3.one;
-            GameObject initilaizer = Object.Instantiate(AssetDatabase.LoadAssetAtPath<GameObject>(AssetDatabase.GUIDToAssetPath("58a6979cd308b904a9575d1dc1fbeaec")));
+
+            GameObject rootBone = new GameObject("ADSE_RootBone");
+            rootBone.transform.SetParent(buildContext.transform, false);
+            rootBone.transform.SetPositionAndRotation(Vector3.up, Quaternion.identity);
+            buildContext.enhancedRootBone = rootBone;
+            ADEditorUtils.SaveGeneratedItem(rootBone, buildContext);
+
+            GameObject initilaizer = Object.Instantiate(ADEditorUtils.ADInitializer);
             initilaizer.transform.SetParent(avatar.transform, false);
             ADEditorUtils.SaveGeneratedItem(initilaizer, buildContext);
 
@@ -45,86 +50,83 @@ namespace online.kamishiro.alterdresser.editor
                 AssetDatabase.StartAssetEditing();
                 nowProcessing = true;
 
-                foreach (Transform directChild in avatar.transform)
-                {
-                    foreach (VRCAvatarDescriptor component in directChild.GetComponentsInChildren<VRCAvatarDescriptor>(true))
-                    {
-                        Object.DestroyImmediate(component);
-                    }
+                List<ADB> targets = avatar.GetComponentsInChildren<ADB>(true).ToList();
+                targets.RemoveAll(x => ADRuntimeUtils.GetAvatar(x.transform).transform != avatar.transform);
+                targets.Sort((x, y) => GetDepth(y.transform).CompareTo(GetDepth(x.transform)));
 
-                    foreach (PipelineSaver component in directChild.GetComponentsInChildren<PipelineSaver>(true))
-                    {
-                        Object.DestroyImmediate(component);
-                    }
-                }
-                IOrderedEnumerable<ADB> targets = avatar.GetComponentsInChildren<ADB>(true)
-                    .Where(x => ADRuntimeUtils.GetAvatar(x.transform).transform == avatar.transform)
-                    .OrderByDescending(x => GetDepth(x.transform));
-
-                Dictionary<ADSBlendshape, string[]> adsBlendshapes = new Dictionary<ADSBlendshape, string[]>();
-                List<ADSConstraint> adsConstraints = new List<ADSConstraint>();
-                List<ADSSimple> adsSimples = new List<ADSSimple>();
-                List<ADSEnhanced> adsEnhanceds = new List<ADSEnhanced>();
-                List<ADMItem> admItems = new List<ADMItem>();
-                List<ADMGroup> admGroups = new List<ADMGroup>();
+                Dictionary<ADSBlendshape, HashSet<string>> adsBlendshapes = new Dictionary<ADSBlendshape, HashSet<string>>();
+                HashSet<ADSConstraint> adsConstraints = new HashSet<ADSConstraint>();
+                HashSet<ADSSimple> adsSimples = new HashSet<ADSSimple>();
+                HashSet<ADSEnhanced> adsEnhanceds = new HashSet<ADSEnhanced>();
+                HashSet<ADMItem> admItems = new HashSet<ADMItem>();
+                HashSet<ADMGroup> admGroups = new HashSet<ADMGroup>();
 
                 foreach (ADB item in targets)
                 {
-                    if (item.GetType() == typeof(ADMItem))
+                    if (item is ADMItem admItem)
                     {
-                        foreach (ADMElemtnt elem in (item as ADMItem).adElements.Where(x => x.mode == SwitchMode.Blendshape).Where(x => x.objRefValue != null))
+                        foreach (ADMElemtnt elem in admItem.adElements)
                         {
-                            bool isNew = true;
-                            IEnumerable<string> addBlendShapeNames = ADSwitchBlendshapeEditor.GetUsingBlendshapeNames(elem);
-                            for (int i = 0; i < adsBlendshapes.Count(); i++)
+                            switch (elem.mode)
                             {
-                                if (adsBlendshapes.Keys.ElementAt(i).Id == elem.objRefValue.Id)
-                                {
-                                    adsBlendshapes[adsBlendshapes.Keys.ElementAt(i)] = adsBlendshapes[adsBlendshapes.Keys.ElementAt(i)].Concat(addBlendShapeNames).Distinct().ToArray();
-                                    isNew = false;
-                                }
-                            }
+                                case SwitchMode.Blendshape when elem.objRefValue is ADSBlendshape adsBlendshape:
+                                    if (!adsBlendshapes.TryGetValue(adsBlendshape, out HashSet<string> existingBlendShapeNames))
+                                    {
+                                        existingBlendShapeNames = new HashSet<string>();
+                                        adsBlendshapes.Add(adsBlendshape, existingBlendShapeNames);
+                                    }
+                                    foreach (string blendShapeName in ADSwitchBlendshapeEditor.GetUsingBlendshapeNames(elem))
+                                    {
+                                        existingBlendShapeNames.Add(blendShapeName);
+                                    }
+                                    break;
 
-                            if (isNew)
-                            {
-                                adsBlendshapes.Add(elem.objRefValue as ADSBlendshape, addBlendShapeNames.ToArray());
+                                case SwitchMode.Constraint when elem.objRefValue is ADSConstraint adsConstraint:
+                                    if (!adsConstraints.Contains(adsConstraint)) adsConstraints.Add(adsConstraint);
+                                    break;
+
+                                case SwitchMode.Simple when elem.objRefValue is ADSSimple adsSimple:
+                                    adsSimples.Add(adsSimple);
+                                    break;
+
+                                case SwitchMode.Enhanced when elem.objRefValue is ADSEnhanced adsEnhanced:
+                                    adsEnhanceds.Add(adsEnhanced);
+                                    break;
                             }
                         }
-
-                        adsConstraints = adsConstraints.Concat((item as ADMItem).adElements.Where(x => x.mode == SwitchMode.Constraint).Where(x => x.objRefValue != null).Select(x => x.objRefValue as ADSConstraint)).Distinct().ToList();
-                        adsSimples = adsSimples.Concat((item as ADMItem).adElements.Where(x => x.mode == SwitchMode.Simple).Where(x => x.objRefValue != null).Select(x => x.objRefValue as ADSSimple)).Distinct().ToList();
-                        adsEnhanceds = adsEnhanceds.Concat((item as ADMItem).adElements.Where(x => x.mode == SwitchMode.Enhanced).Where(x => x.objRefValue != null).Select(x => x.objRefValue as ADSEnhanced)).Distinct().ToList();
-                        admItems = admItems.Append(item as ADMItem).Distinct().ToList();
+                        admItems.Add(admItem);
                     }
-                    if (item.GetType() == typeof(ADMGroup))
+                    else if (item is ADMGroup admGroup)
                     {
-                        admGroups = admGroups.Append(item as ADMGroup).Distinct().ToList();
+                        admGroups.Add(admGroup);
                     }
                 }
 
-                adsBlendshapes.ToList().ForEach(x => { ADSBlendshapeProcessor.Process(x.Key, x.Value, buildContext); });
-                adsConstraints.ForEach(x => ADSConstraintProcessor.Process(x, buildContext));
-                adsSimples.ForEach(x => ADSSimpleProcessor.Process(x, buildContext));
-                adsEnhanceds.ForEach(x => ADSEnhancedProcessor.Process(x, buildContext));
-                admItems.ForEach(x => ADMItemProcessor.Process(x, buildContext));
-                admGroups.ForEach(x => ADMGroupProcessor.Process(x, buildContext));
-                admItems.Select(x => x as ADM).Concat(admGroups.Select(x => x as ADM)).ToList().ForEach(x => ADMInstallerProcessor.Process(x, buildContext));
+                adsBlendshapes.ToList().ForEach(x => { ADSBlendshapeProcessor.Process(x.Key, x.Value.ToArray(), buildContext); });
+                adsConstraints.ToList().ForEach(x => ADSConstraintProcessor.Process(x, buildContext));
+                adsSimples.ToList().ForEach(x => ADSSimpleProcessor.Process(x, buildContext));
+                adsEnhanceds.ToList().ForEach(x => ADSEnhancedProcessor.Process(x, buildContext));
+                admItems.ToList().ForEach(x => ADMItemProcessor.Process(x, buildContext));
+                admGroups.ToList().ForEach(x => ADMGroupProcessor.Process(x, buildContext));
+
                 if (ADAvaterOptimizer.IsImported)
                 {
-                    adsEnhanceds.ForEach(x => ADAvatarOptimizerProcessor.ProcessMergeMesh(x, buildContext));
                     adsBlendshapes.ToList().ForEach(x => ADAvatarOptimizerProcessor.ProcessFreezeBlendshape(x.Key, buildContext));
+                    adsEnhanceds.ToList().ForEach(x => ADAvatarOptimizerProcessor.ProcessMergeMesh(x, buildContext));
                 }
+
+                admItems.Select(x => x as ADM).Concat(admGroups.Select(x => x as ADM)).ToList().ForEach(x => ADMInstallerProcessor.Process(x, buildContext));
 
                 ADEParticle[] adePartilces = avatar.GetComponentsInChildren<ADEParticle>(true);
                 if (adePartilces.Length > 0) ADMEParticleProcessor.Process(adePartilces[0], buildContext);
 
-                admItems.ForEach(x => ADInitialStateApplyer.Process(x, buildContext));
+                admItems.ToList().ForEach(x => ADInitialStateApplyer.Process(x, buildContext));
             }
             catch (System.Exception ex)
             {
                 Debug.LogException(ex);
                 EditorUtility.DisplayDialog("Altert Dresser", $"{L.AD_ERROR}: {avatar.name}", "OK");
-                ResetAvatar(avatar);
+                //ResetAvatar(avatar);
             }
             finally
             {

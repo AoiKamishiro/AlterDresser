@@ -16,7 +16,6 @@ namespace online.kamishiro.alterdresser.editor
         internal static void Process(ADSConstraint item, ADBuildContext context)
         {
             if (ADEditorUtils.IsEditorOnly(item.transform)) return;
-
             ADEditorUtils.CreateTempDir();
 
             if (item.targets.Length == 0) return;

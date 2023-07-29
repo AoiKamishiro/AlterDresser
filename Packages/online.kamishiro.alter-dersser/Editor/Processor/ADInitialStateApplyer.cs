@@ -21,12 +21,17 @@ namespace online.kamishiro.alterdresser.editor
 
             bool init = ADMItemProcessor.IsRoot(item) ? item.initState : (ADMItemProcessor.GetIdx(item) == GetRootInit(item));
 
+            HashSet<object> simpleOriginStatesSet = new HashSet<object>(context.simpleOriginStates.Select(x => x.adss));
+            HashSet<object> enhancedOriginStatesSet = new HashSet<object>(context.enhancedOriginStates.Select(x => x.adse));
+            HashSet<object> blendshapeOriginStatesSet = new HashSet<object>(context.blendshapeOriginStates.Select(x => x.adsb));
+            HashSet<object> constraintOriginStatesSet = new HashSet<object>(context.constraintOriginStates.Select(x => x.adsc));
+
             foreach (ADMElemtnt ads in item.adElements)
             {
                 switch (ads.mode)
                 {
                     case SwitchMode.Simple:
-                        if (!context.simpleOriginStates.Select(x => x.adss).Contains(ads.objRefValue))
+                        if (!simpleOriginStatesSet.Contains(ads.objRefValue))
                         {
                             ADSSimple adss = ads.objRefValue as ADSSimple;
                             bool isActive = item.gameObject.activeSelf;
@@ -47,7 +52,7 @@ namespace online.kamishiro.alterdresser.editor
                         }
                         break;
                     case SwitchMode.Enhanced:
-                        if (!context.enhancedOriginStates.Select(x => x.adse).Contains(ads.objRefValue))
+                        if (!enhancedOriginStatesSet.Contains(ads.objRefValue))
                         {
                             ADSEnhanced adse = ads.objRefValue as ADSEnhanced;
                             bool[] enableds = ADSwitchEnhancedEditor.GetValidChildRenderers(ads.objRefValue as ADSEnhanced).Select(x => x.enabled).ToArray();
@@ -84,7 +89,7 @@ namespace online.kamishiro.alterdresser.editor
                         }
                         break;
                     case SwitchMode.Blendshape:
-                        if (!context.blendshapeOriginStates.Select(x => x.adsb).Contains(ads.objRefValue))
+                        if (!blendshapeOriginStatesSet.Contains(ads.objRefValue))
                         {
                             if (!init) continue;
 
@@ -124,7 +129,7 @@ namespace online.kamishiro.alterdresser.editor
                         }
                         break;
                     case SwitchMode.Constraint:
-                        if (!context.constraintOriginStates.Select(x => x.adsc).Contains(ads.objRefValue))
+                        if (!constraintOriginStatesSet.Contains(ads.objRefValue))
                         {
                             if (!init) continue;
 

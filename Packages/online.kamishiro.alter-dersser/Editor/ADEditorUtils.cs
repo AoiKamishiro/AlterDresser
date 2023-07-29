@@ -20,6 +20,7 @@ namespace online.kamishiro.alterdresser.editor
     {
         private static readonly string lilmltGUID = "9294844b15dca184d914a632279b24e1";
         private static readonly string emptyPrefGUID = "b70e7b4f759f5d1408c5eb72ef1c1b65";
+        private static readonly string initializerGUID = "58a6979cd308b904a9575d1dc1fbeaec";
         internal static readonly string tmpDir = $"{Application.dataPath}/{ADBuildContext.tempDirPath}";
 
         private static Shader _liltoonMulti;
@@ -27,9 +28,11 @@ namespace online.kamishiro.alterdresser.editor
         private static FieldInfo _plojectLoaded;
         private static MethodInfo _setGizmoEnabled;
         private static Transform _emptyPrefab;
+        private static GameObject _adInitializer;
 
         internal static Transform FixedToWorld => _emptyPrefab = _emptyPrefab != null ? _emptyPrefab : AssetDatabase.LoadAssetAtPath<Transform>(AssetDatabase.GUIDToAssetPath(emptyPrefGUID));
         internal static Shader LiltoonMulti => _liltoonMulti = _liltoonMulti != null ? _liltoonMulti : AssetDatabase.LoadAssetAtPath<Shader>(AssetDatabase.GUIDToAssetPath(lilmltGUID));
+        internal static GameObject ADInitializer => _adInitializer = _adInitializer != null ? _adInitializer : AssetDatabase.LoadAssetAtPath<GameObject>(AssetDatabase.GUIDToAssetPath(initializerGUID));
         internal static FieldInfo EditorAppQuit => _editorAppQuit = _editorAppQuit ?? typeof(EditorApplication).GetField("editorApplicationQuit", BindingFlags.Static | BindingFlags.Instance | BindingFlags.NonPublic);
         internal static FieldInfo ProjectLoaded => _plojectLoaded = _plojectLoaded ?? typeof(EditorApplication).GetField("projectWasLoaded", BindingFlags.Static | BindingFlags.Instance | BindingFlags.NonPublic);
         private static MethodInfo SetIconEnabled => _setGizmoEnabled = _setGizmoEnabled ?? typeof(Editor).Assembly?.GetType("UnityEditor.AnnotationUtility")?.GetMethod("SetIconEnabled", BindingFlags.Static | BindingFlags.NonPublic);
