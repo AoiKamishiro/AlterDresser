@@ -12,7 +12,11 @@ namespace online.kamishiro.alterdresser.editor
         internal static bool ApplyOnPlay
         {
             get => EditorPrefs.GetBool("online.kamishiro.alterdresser.applyonplay", true);
-            set => EditorPrefs.SetBool("online.kamishiro.alterdresser.applyonplay", value);
+            set
+            {
+                EditorPrefs.SetBool("online.kamishiro.alterdresser.applyonplay", value);
+                Menu.SetChecked("Tools/Alter Dresser/Apply On Play", ApplyOnPlay);
+            }
         }
     }
 }

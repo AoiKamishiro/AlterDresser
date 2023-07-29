@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using UnityEditor;
+﻿using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -29,8 +27,9 @@ namespace online.kamishiro.alterdresser.editor
 
         private static void OnPlayModeStateChanged(PlayModeStateChange obj)
         {
-            if (!ADSettings.ApplyOnPlay) return;
-            if (obj == PlayModeStateChange.ExitingEditMode && !ADApplyOnBuild.OnBuildProcessing)
+            if (!ADSettings.ApplyOnPlay || ADApplyOnBuild.OnBuildProcessing) return;
+
+            if (obj == PlayModeStateChange.ExitingEditMode)
             {
                 InitializeOnEnterPlayMode();
                 OnPlayProcessing = true;
@@ -51,14 +50,12 @@ namespace online.kamishiro.alterdresser.editor
                 Scene scene = SceneManager.GetSceneAt(i);
                 EditorSceneManager.SaveScene(scene);
 
-                IEnumerable<GameObject> targets = scene.GetRootGameObjects().
-                    Where(x => !PrefabUtility.IsPartOfPrefabAsset(x)).
-                    Where(x => x.activeInHierarchy).
-                    Where(x => x.TryGetComponent(out VRCAvatarDescriptor _));
-
-                foreach (GameObject target in targets)
+                foreach (GameObject rootGameObject in scene.GetRootGameObjects())
                 {
-                    ADAvatarProcessor.ProcessAvatar(target);
+                    if (!PrefabUtility.IsPartOfPrefabAsset(rootGameObject) && rootGameObject.activeInHierarchy && rootGameObject.TryGetComponent(out VRCAvatarDescriptor avatarDescriptor))
+                    {
+                        ADAvatarProcessor.ProcessAvatar(rootGameObject);
+                    }
                 }
             }
         }
