@@ -10,7 +10,6 @@ namespace online.kamishiro.alterdresser
         public bool doMergeMesh;
         public int mergeMeshIgnoreMask;
         public ADSEnhancedMaterialOverride[] materialOverrides = Array.Empty<ADSEnhancedMaterialOverride>();
-        public ADSEnhancedMeshOverride[] meshOverrides = Array.Empty<ADSEnhancedMeshOverride>();
     }
     public enum ADSEnhancedMaterialOverrideType
     {
@@ -25,11 +24,5 @@ namespace online.kamishiro.alterdresser
         public Material baseMaterial;
         public Material overrideMaterial;
         public Material overrideInternalMaterial;
-    }
-    [Serializable]
-    public class ADSEnhancedMeshOverride
-    {
-        public Mesh mesh;
-        public Material[] materials;
     }
 }

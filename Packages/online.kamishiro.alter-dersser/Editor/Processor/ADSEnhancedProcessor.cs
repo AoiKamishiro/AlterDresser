@@ -104,21 +104,6 @@ namespace online.kamishiro.alterdresser.editor
 
                 MeshRenderer meshRenderer = meshFilter.GetComponent<MeshRenderer>();
 
-                SerializedObject so = new SerializedObject(item);
-                so.Update();
-                SerializedProperty sp = so.FindProperty(nameof(ADSEnhanced.meshOverrides));
-                sp.InsertArrayElementAtIndex(sp.arraySize);
-                SerializedProperty elem = sp.GetArrayElementAtIndex(sp.arraySize - 1);
-
-                elem.FindPropertyRelative(nameof(ADSEnhancedMeshOverride.mesh)).objectReferenceValue = meshFilter.sharedMesh;
-
-                SerializedProperty elem2 = elem.FindPropertyRelative(nameof(ADSEnhancedMeshOverride.materials));
-                elem2.arraySize = meshRenderer.sharedMaterials.Length;
-                for (int i = 0; i < meshRenderer.sharedMaterials.Length; i++)
-                {
-                    elem2.GetArrayElementAtIndex(i).objectReferenceValue = meshRenderer.sharedMaterials[i];
-                }
-
                 GameObject renderer = new GameObject(meshRenderer.name);
                 renderer.transform.SetParent(meshFilter.transform, false);
 
@@ -133,8 +118,6 @@ namespace online.kamishiro.alterdresser.editor
                 context.SaveAsset(newMesh);
 
                 ADEditorUtils.SaveGeneratedItem(renderer, context);
-
-                so.ApplyModifiedProperties();
 
                 Mesh mesh = meshFilter.sharedMesh;
                 Material[] materials = meshRenderer.sharedMaterials;
