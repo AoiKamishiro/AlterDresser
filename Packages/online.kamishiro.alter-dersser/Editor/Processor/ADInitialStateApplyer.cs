@@ -47,7 +47,7 @@ namespace online.kamishiro.alterdresser.editor
 
                             SerializedGameObject serializedGameObject = new SerializedGameObject(adss.gameObject)
                             {
-                                Enabled = init
+                                IsActive = init
                             };
                         }
                         break;
@@ -55,7 +55,9 @@ namespace online.kamishiro.alterdresser.editor
                         if (!enhancedOriginStatesSet.Contains(ads.objRefValue))
                         {
                             ADSEnhanced adse = ads.objRefValue as ADSEnhanced;
-                            bool[] enableds = ADSwitchEnhancedEditor.GetValidChildRenderers(ads.objRefValue as ADSEnhanced).Select(x => x.enabled).ToArray();
+                            GameObject adseGO = ads.gameObject;
+                            bool[] enableds = ADSwitchEnhancedEditor.GetValidChildRenderers(ads.gameObject.transform).Select(x => x.enabled).ToArray();
+                            bool[] isActives = ADSwitchEnhancedEditor.GetValidChildRenderers(ads.gameObject.transform).Select(x => x.gameObject.activeSelf).ToArray();
 
                             SerializedObject o = new SerializedObject(context);
                             o.Update();
@@ -64,16 +66,27 @@ namespace online.kamishiro.alterdresser.editor
                             SerializedProperty i = p.GetArrayElementAtIndex(p.arraySize - 1);
                             i.FindPropertyRelative(nameof(EnhancedOriginState.adse)).objectReferenceValue = adse;
                             SerializedProperty a = i.FindPropertyRelative(nameof(EnhancedOriginState.enableds));
-                            a.arraySize = 0;
+                            a.arraySize = enableds.Length;
                             for (int j = 0; j < enableds.Length; j++)
                             {
-                                a.InsertArrayElementAtIndex(a.arraySize);
-                                a.GetArrayElementAtIndex(a.arraySize - 1).boolValue = enableds[j];
+                                a.GetArrayElementAtIndex(j).boolValue = enableds[j];
                             }
+
+                            SerializedProperty a1 = i.FindPropertyRelative(nameof(EnhancedOriginState.isActives));
+                            a1.arraySize = isActives.Length;
+                            for (int j = 0; j < isActives.Length; j++)
+                            {
+                                a1.GetArrayElementAtIndex(j).boolValue = isActives[j];
+                            }
+
+                            SerializedProperty a2 = i.FindPropertyRelative(nameof(EnhancedOriginState.isActive));
+                            a2.boolValue = ads.gameObject.activeSelf;
+
+
                             o.ApplyModifiedProperties();
 
-                            IEnumerable<Renderer> targets = ADSwitchEnhancedEditor.GetValidChildRenderers(ads.objRefValue as ADSEnhanced);
-                            Transform mergedMesh = adse.transform.Find($"{ADRuntimeUtils.GenerateID(adse)}_MergedMesh");
+                            IEnumerable<Renderer> targets = ADSwitchEnhancedEditor.GetValidChildRenderers(ads.gameObject.transform);
+                            Transform mergedMesh = adse.transform.Find($"{ADRuntimeUtils.GenerateID(ads.gameObject.transform)}_MergedMesh");
                             if (mergedMesh)
                             {
                                 targets = targets.Append(mergedMesh.GetComponent<SkinnedMeshRenderer>());
@@ -85,7 +98,16 @@ namespace online.kamishiro.alterdresser.editor
                                 {
                                     Enabled = init
                                 };
+                                SerializedGameObject serializedGameObject = new SerializedGameObject(x.gameObject)
+                                {
+                                    IsActive = true
+                                };
                             });
+
+                            SerializedGameObject itemGO = new SerializedGameObject(adseGO)
+                            {
+                                IsActive = init
+                            };
                         }
                         break;
                     case SwitchMode.Blendshape:

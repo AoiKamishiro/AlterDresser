@@ -320,7 +320,7 @@ namespace online.kamishiro.alterdresser.editor
             }
             return rs.Distinct().ToArray();
         }
-        internal static IEnumerable<Renderer> GetValidChildRenderers(ADSEnhanced Item)
+        internal static IEnumerable<Renderer> GetValidChildRenderers(Component Item)
         {
             return Item.GetComponentsInChildren<Renderer>(true)
                 .Where(x => !ADEditorUtils.IsEditorOnly(x.transform))

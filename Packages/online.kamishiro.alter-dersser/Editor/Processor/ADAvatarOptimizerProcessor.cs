@@ -25,7 +25,7 @@ namespace online.kamishiro.alterdresser.editor
                 referencePath = ADRuntimeUtils.GetRelativePath(avatarTransform, context.enhancedRootBone.transform)
             };
 
-            GameObject mergedMesh = new GameObject($"{ADRuntimeUtils.GenerateID(item)}_MergedMesh");
+            GameObject mergedMesh = new GameObject($"{ADRuntimeUtils.GenerateID(item.gameObject)}_MergedMesh");
             mergedMesh.SetActive(false);
             mergedMesh.transform.SetParent(itemTransform);
             ADEditorUtils.SaveGeneratedItem(mergedMesh, context);

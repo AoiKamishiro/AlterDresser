@@ -177,9 +177,41 @@ namespace online.kamishiro.alterdresser.editor
                 }
                 Undo.DestroyObjectImmediate(t);
             }
-            foreach (MeshRendererBuckup t in target.meshRendererBackup)
+            foreach (MeshRendererBuckup backup in target.meshRendererBackup)
             {
-                RevertMesh(t);
+                if (backup.filter)
+                {
+                    SerializedMeshFilter serializedMeshFilter = new SerializedMeshFilter(backup.filter);
+                    if (PrefabUtility.IsPartOfPrefabInstance(backup.filter))
+                    {
+                        PrefabUtility.RevertPropertyOverride(serializedMeshFilter.m_Mesh, InteractionMode.AutomatedAction);
+                    }
+                    serializedMeshFilter.Mesh = backup.mesh;
+                }
+                if (backup.renderer)
+                {
+                    SerializedRenderer serializedRenderer = new SerializedRenderer(backup.renderer);
+
+                    if (PrefabUtility.IsPartOfPrefabInstance(backup.renderer))
+                    {
+                        PrefabUtility.RevertPropertyOverride(serializedRenderer.m_Materials, InteractionMode.AutomatedAction);
+                    }
+                    serializedRenderer.Materials = backup.materials.ToArray();
+                }
+            }
+            foreach (SkinnedMeshRendererBackup backup in target.skinnedMeshRendererBackups)
+            {
+                if (backup.smr)
+                {
+                    SerializedSkinnedMeshRenderer serializedSkinnedMeshRenderer = new SerializedSkinnedMeshRenderer(backup.smr);
+                    if (PrefabUtility.IsPartOfPrefabInstance(backup.smr))
+                    {
+                        PrefabUtility.RevertPropertyOverride(serializedSkinnedMeshRenderer.m_Bones, InteractionMode.AutomatedAction);
+                        PrefabUtility.RevertPropertyOverride(serializedSkinnedMeshRenderer.m_Mesh, InteractionMode.AutomatedAction);
+                    }
+                    serializedSkinnedMeshRenderer.Bones = backup.bones;
+                    serializedSkinnedMeshRenderer.Mesh = backup.mesh;
+                }
             }
             foreach (ADSEnhanced mov in avatar.GetComponentsInChildren<ADSEnhanced>(true))
             {
@@ -206,8 +238,8 @@ namespace online.kamishiro.alterdresser.editor
             {
                 SerializedGameObject go = new SerializedGameObject(state.adss.gameObject);
 
-                if (PrefabUtility.IsPartOfPrefabInstance(state.adss)) PrefabUtility.RevertPropertyOverride(go.m_Enabled, InteractionMode.AutomatedAction);
-                go.Enabled = state.isActive;
+                if (PrefabUtility.IsPartOfPrefabInstance(state.adss)) PrefabUtility.RevertPropertyOverride(go.m_IsActive, InteractionMode.AutomatedAction);
+                go.IsActive = state.isActive;
             }
             foreach (EnhancedOriginState state in target.enhancedOriginStates)
             {
@@ -217,10 +249,18 @@ namespace online.kamishiro.alterdresser.editor
                     if (renderers.ElementAt(i) is MeshRenderer) continue;
 
                     SerializedRenderer renderer = new SerializedRenderer(renderers.ElementAt(i));
+                    SerializedGameObject gameObject = new SerializedGameObject(renderer.renderer.gameObject);
 
-                    if (PrefabUtility.IsPartOfPrefabInstance(state.adse)) PrefabUtility.RevertPropertyOverride(renderer.m_Enabled, InteractionMode.AutomatedAction);
+                    if (PrefabUtility.IsPartOfPrefabInstance(renderer.renderer)) PrefabUtility.RevertPropertyOverride(renderer.m_Enabled, InteractionMode.AutomatedAction);
+                    if (PrefabUtility.IsPartOfPrefabInstance(gameObject.gameObject)) PrefabUtility.RevertPropertyOverride(gameObject.m_IsActive, InteractionMode.AutomatedAction);
                     renderer.Enabled = state.enableds[i];
+                    gameObject.IsActive = state.isActives[i];
                 }
+
+                SerializedGameObject adseGameObject = new SerializedGameObject(state.adse.gameObject);
+                if (PrefabUtility.IsPartOfPrefabInstance(state.adse.gameObject)) PrefabUtility.RevertPropertyOverride(adseGameObject.m_IsActive, InteractionMode.AutomatedAction);
+                adseGameObject.IsActive = state.isActive;
+
             }
             foreach (BlendshapeOriginState state in target.blendshapeOriginStates)
             {
@@ -262,28 +302,6 @@ namespace online.kamishiro.alterdresser.editor
             }
 
             Object.DestroyImmediate(target);
-        }
-        private static void RevertMesh(MeshRendererBuckup backup)
-        {
-            if (backup.filter)
-            {
-                SerializedMeshFilter serializedMeshFilter = new SerializedMeshFilter(backup.filter);
-                if (PrefabUtility.IsPartOfPrefabInstance(backup.filter))
-                {
-                    PrefabUtility.RevertPropertyOverride(serializedMeshFilter.m_Mesh, InteractionMode.AutomatedAction);
-                }
-                serializedMeshFilter.Mesh = backup.mesh;
-            }
-            if (backup.renderer)
-            {
-                SerializedRenderer serializedRenderer = new SerializedRenderer(backup.renderer);
-
-                if (PrefabUtility.IsPartOfPrefabInstance(backup.renderer))
-                {
-                    PrefabUtility.RevertPropertyOverride(serializedRenderer.m_Materials, InteractionMode.AutomatedAction);
-                }
-                serializedRenderer.Materials = backup.materials.ToArray();
-            }
         }
 
         [MenuItem("Tools/Alter Dresser/Manual Bake Avatar", false, 101)]

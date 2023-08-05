@@ -16,6 +16,7 @@ namespace online.kamishiro.alterdresser
         public GameObject enhancedRootBone;
         public Object[] generatedObjects;
         public MeshRendererBuckup[] meshRendererBackup;
+        public SkinnedMeshRendererBackup[] skinnedMeshRendererBackups;
         public BlendshapeOriginState[] blendshapeOriginStates;
         public ConstraintOriginState[] constraintOriginStates;
         public SimpleOriginState[] simpleOriginStates;
@@ -48,6 +49,14 @@ namespace online.kamishiro.alterdresser
         public Mesh mesh;
     }
     [System.Serializable]
+    public class SkinnedMeshRendererBackup
+    {
+        public SkinnedMeshRenderer smr;
+        public Material[] materials;
+        public Mesh mesh;
+        public Transform[] bones;
+    }
+    [System.Serializable]
     public class BlendshapeOriginState
     {
         public AlterDresserSwitchBlendshape adsb;
@@ -71,5 +80,7 @@ namespace online.kamishiro.alterdresser
     {
         public AlterDresserSwitchEnhanced adse;
         public bool[] enableds;
+        public bool[] isActives;
+        public bool isActive;
     }
 }

@@ -144,6 +144,38 @@ namespace online.kamishiro.alterdresser.editor
             Undo.RecordObject(context, ADSettings.undoName);
             serializedContext.ApplyModifiedProperties();
         }
+        internal static void SaveSkinnedMeshRendererBackup(SkinnedMeshRenderer smr, Mesh mesh, Material[] materials, Transform[] bones, ADBuildContext context)
+        {
+            SerializedObject serializedContext = new SerializedObject(context);
+
+            SerializedProperty skinnedMeshRendererBackupsProperty = serializedContext.FindProperty(nameof(ADBuildContext.skinnedMeshRendererBackups));
+            serializedContext.Update();
+
+            skinnedMeshRendererBackupsProperty.InsertArrayElementAtIndex(skinnedMeshRendererBackupsProperty.arraySize);
+            SerializedProperty newBackupObject = skinnedMeshRendererBackupsProperty.GetArrayElementAtIndex(skinnedMeshRendererBackupsProperty.arraySize - 1);
+
+            newBackupObject.FindPropertyRelative(nameof(SkinnedMeshRendererBackup.smr)).objectReferenceValue = smr;
+            newBackupObject.FindPropertyRelative(nameof(SkinnedMeshRendererBackup.mesh)).objectReferenceValue = mesh;
+
+            SerializedProperty materialsProperty = newBackupObject.FindPropertyRelative(nameof(SkinnedMeshRendererBackup.materials));
+            materialsProperty.arraySize = 0;
+            foreach (Material material in materials)
+            {
+                materialsProperty.InsertArrayElementAtIndex(materialsProperty.arraySize);
+                materialsProperty.GetArrayElementAtIndex(materialsProperty.arraySize - 1).objectReferenceValue = material;
+            }
+
+            SerializedProperty bonesProperty = newBackupObject.FindPropertyRelative(nameof(SkinnedMeshRendererBackup.bones));
+            materialsProperty.arraySize = 0;
+            foreach (Transform bone in bones)
+            {
+                bonesProperty.InsertArrayElementAtIndex(bonesProperty.arraySize);
+                bonesProperty.GetArrayElementAtIndex(bonesProperty.arraySize - 1).objectReferenceValue = bone;
+            }
+
+            Undo.RecordObject(context, ADSettings.undoName);
+            serializedContext.ApplyModifiedProperties();
+        }
 
 
         [InitializeOnLoadMethod]
