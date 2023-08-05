@@ -181,6 +181,7 @@ namespace online.kamishiro.alterdresser.editor
                 name = $"ADSEnhanced_{t.name}_Disabled"
             };
 
+            animationClip.SetCurve(string.Empty, typeof(GameObject), "m_IsActive", new AnimationCurve(new Keyframe[] { new Keyframe(0, 1) }));
             foreach (string relativePath in relativePaths.Append($"{ADRuntimeUtils.GenerateID(item)}_MergedMesh"))
             {
                 AnimationCurve enabledCurve = new AnimationCurve(new Keyframe[] { new Keyframe(0, 0) });
@@ -201,6 +202,7 @@ namespace online.kamishiro.alterdresser.editor
                 animationClip.SetCurve(relativePath, typeof(SkinnedMeshRenderer), "material._DissolvePos.y", dissolvePosYCurve);
                 animationClip.SetCurve(relativePath, typeof(SkinnedMeshRenderer), "material._DissolvePos.z", dissolvePosZCurve);
                 animationClip.SetCurve(relativePath, typeof(SkinnedMeshRenderer), "material._DissolvePos.w", dissolvePosWCurve);
+                animationClip.SetCurve(relativePath, typeof(GameObject), "m_IsActive", new AnimationCurve(new Keyframe[] { new Keyframe(0, 1) }));
 
                 if (relativePath != $"{ADRuntimeUtils.GenerateID(item)}_MergedMesh")
                 {
@@ -259,6 +261,7 @@ namespace online.kamishiro.alterdresser.editor
                 name = $"ADSEnhanced_{t.name}_Enabled"
             };
 
+            animationClip.SetCurve(string.Empty, typeof(GameObject), "m_IsActive", new AnimationCurve(new Keyframe[] { new Keyframe(0, 1) }));
             foreach (string relativePath in relativePaths.Append($"{ADRuntimeUtils.GenerateID(item)}_MergedMesh"))
             {
                 AnimationCurve enabledCurve = new AnimationCurve(new Keyframe[] { new Keyframe(0, 1) });
@@ -279,6 +282,7 @@ namespace online.kamishiro.alterdresser.editor
                 animationClip.SetCurve(relativePath, typeof(SkinnedMeshRenderer), "material._DissolvePos.y", dissolvePosYCurve);
                 animationClip.SetCurve(relativePath, typeof(SkinnedMeshRenderer), "material._DissolvePos.z", dissolvePosZCurve);
                 animationClip.SetCurve(relativePath, typeof(SkinnedMeshRenderer), "material._DissolvePos.w", dissolvePosWCurve);
+                animationClip.SetCurve(relativePath, typeof(GameObject), "m_IsActive", new AnimationCurve(new Keyframe[] { new Keyframe(0, 1) }));
 
                 if (relativePath != $"{ADRuntimeUtils.GenerateID(item)}_MergedMesh")
                 {
@@ -337,6 +341,7 @@ namespace online.kamishiro.alterdresser.editor
                 name = $"ADSEnhanced_{t.name}_Enabling"
             };
 
+            animationClip.SetCurve(string.Empty, typeof(GameObject), "m_IsActive", new AnimationCurve(new Keyframe[] { new Keyframe(0, 1) }));
             foreach (string relativePath in relativePaths.Append($"{ADRuntimeUtils.GenerateID(item)}_MergedMesh"))
             {
                 AnimationCurve enabledCurve = new AnimationCurve(new Keyframe[] { new Keyframe(0, 1), new Keyframe(motionTime, 1) });
@@ -357,6 +362,7 @@ namespace online.kamishiro.alterdresser.editor
                 animationClip.SetCurve(relativePath, typeof(SkinnedMeshRenderer), "material._DissolvePos.y", dissolvePosYCurve);
                 animationClip.SetCurve(relativePath, typeof(SkinnedMeshRenderer), "material._DissolvePos.z", dissolvePosZCurve);
                 animationClip.SetCurve(relativePath, typeof(SkinnedMeshRenderer), "material._DissolvePos.w", dissolvePosWCurve);
+                animationClip.SetCurve(relativePath, typeof(GameObject), "m_IsActive", new AnimationCurve(new Keyframe[] { new Keyframe(0, 1) }));
 
                 if (relativePath != $"{ADRuntimeUtils.GenerateID(item)}_MergedMesh")
                 {
@@ -426,6 +432,7 @@ namespace online.kamishiro.alterdresser.editor
                 name = $"ADSEnhanced_{t.name}_Disabling"
             };
 
+            animationClip.SetCurve(string.Empty, typeof(GameObject), "m_IsActive", new AnimationCurve(new Keyframe[] { new Keyframe(0, 1) }));
             foreach (string relativePath in relativePaths.Append($"{ADRuntimeUtils.GenerateID(item)}_MergedMesh"))
             {
                 AnimationCurve enabledCurve = new AnimationCurve(new Keyframe[] { new Keyframe(0, 1), new Keyframe((motiomTime * 60 - 2) / 60.0f, 1), new Keyframe(motiomTime, 0) });
@@ -446,6 +453,7 @@ namespace online.kamishiro.alterdresser.editor
                 animationClip.SetCurve(relativePath, typeof(SkinnedMeshRenderer), "material._DissolvePos.y", dissolvePosYCurve);
                 animationClip.SetCurve(relativePath, typeof(SkinnedMeshRenderer), "material._DissolvePos.z", dissolvePosZCurve);
                 animationClip.SetCurve(relativePath, typeof(SkinnedMeshRenderer), "material._DissolvePos.w", dissolvePosWCurve);
+                animationClip.SetCurve(relativePath, typeof(GameObject), "m_IsActive", new AnimationCurve(new Keyframe[] { new Keyframe(0, 1) }));
 
                 if (relativePath != $"{ADRuntimeUtils.GenerateID(item)}_MergedMesh")
                 {

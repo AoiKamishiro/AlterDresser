@@ -26,6 +26,7 @@ namespace online.kamishiro.alterdresser.editor
             };
 
             GameObject mergedMesh = new GameObject($"{ADRuntimeUtils.GenerateID(item)}_MergedMesh");
+            mergedMesh.SetActive(false);
             mergedMesh.transform.SetParent(itemTransform);
             ADEditorUtils.SaveGeneratedItem(mergedMesh, context);
 
@@ -73,7 +74,7 @@ namespace online.kamishiro.alterdresser.editor
             maMeshSettings.Bounds = new Bounds(avatarDescriptor.ViewPosition / 2, new Vector3(2.5f, 2.5f, 2.5f));
             ADEditorUtils.SaveGeneratedItem(maMeshSettings, context);
 
-            if (false)
+            if (existedSync.Count > 0)
             {
                 ModularAvatarBlendshapeSync maBlendshapeSync = mergedMesh.AddComponent<ModularAvatarBlendshapeSync>();
 

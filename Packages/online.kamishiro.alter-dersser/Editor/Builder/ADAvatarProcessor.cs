@@ -126,7 +126,7 @@ namespace online.kamishiro.alterdresser.editor
             {
                 Debug.LogException(ex);
                 EditorUtility.DisplayDialog("Altert Dresser", $"{L.AD_ERROR}: {avatar.name}", "OK");
-                //ResetAvatar(avatar);
+                ResetAvatar(avatar);
             }
             finally
             {
