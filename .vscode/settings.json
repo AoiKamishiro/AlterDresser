@@ -1,0 +1,12 @@
+{
+    "dotnet.defaultSolution": "AlterDresser.sln",
+    "files.exclude": {
+        ".vs*": true,
+        "*.csproj": true,
+        "*.sln": true,
+        "Assets/BuildReports*": true,
+        "Library*": true,
+        "obj*": true,
+        "Temp*": true
+    }
+}
