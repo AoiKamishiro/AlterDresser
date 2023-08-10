@@ -86,7 +86,7 @@ namespace online.kamishiro.alterdresser.editor
                             o.ApplyModifiedProperties();
 
                             IEnumerable<Renderer> targets = ADSwitchEnhancedEditor.GetValidChildRenderers(ads.gameObject.transform);
-                            Transform mergedMesh = adse.transform.Find($"{ADRuntimeUtils.GenerateID(ads.gameObject.transform)}_MergedMesh");
+                            Transform mergedMesh = adse.transform.Find($"{ADRuntimeUtils.GenerateID(ads.gameObject)}_MergedMesh");
                             if (mergedMesh)
                             {
                                 targets = targets.Append(mergedMesh.GetComponent<SkinnedMeshRenderer>());
