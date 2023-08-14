@@ -33,6 +33,8 @@ namespace online.kamishiro.alterdresser.editor
                     case SwitchMode.Simple:
                         if (!simpleOriginStatesSet.Contains(ads.objRefValue))
                         {
+                            if (!init || !ads.objRefValue) continue;
+
                             ADSSimple adss = ads.objRefValue as ADSSimple;
                             bool isActive = item.gameObject.activeSelf;
 
@@ -54,10 +56,12 @@ namespace online.kamishiro.alterdresser.editor
                     case SwitchMode.Enhanced:
                         if (!enhancedOriginStatesSet.Contains(ads.objRefValue))
                         {
+                            if (!init || !ads.objRefValue) continue;
+
                             ADSEnhanced adse = ads.objRefValue as ADSEnhanced;
                             GameObject adseGO = ads.gameObject;
-                            bool[] enableds = ADSwitchEnhancedEditor.GetValidChildRenderers(ads.gameObject.transform).Select(x => x.enabled).ToArray();
-                            bool[] isActives = ADSwitchEnhancedEditor.GetValidChildRenderers(ads.gameObject.transform).Select(x => x.gameObject.activeSelf).ToArray();
+                            bool[] enableds = ADSwitchEnhancedEditor.GetValidChildRenderers(adseGO.transform).Select(x => x.enabled).ToArray();
+                            bool[] isActives = ADSwitchEnhancedEditor.GetValidChildRenderers(adseGO.transform).Select(x => x.gameObject.activeSelf).ToArray();
 
                             SerializedObject o = new SerializedObject(context);
                             o.Update();
@@ -80,17 +84,18 @@ namespace online.kamishiro.alterdresser.editor
                             }
 
                             SerializedProperty a2 = i.FindPropertyRelative(nameof(EnhancedOriginState.isActive));
-                            a2.boolValue = ads.gameObject.activeSelf;
+                            a2.boolValue = adseGO.activeSelf;
 
 
                             o.ApplyModifiedProperties();
 
-                            IEnumerable<Renderer> targets = ADSwitchEnhancedEditor.GetValidChildRenderers(ads.gameObject.transform);
-                            Transform mergedMesh = adse.transform.Find($"{ADRuntimeUtils.GenerateID(ads.gameObject)}_MergedMesh");
+                            IEnumerable<Renderer> targets = ADSwitchEnhancedEditor.GetValidChildRenderers(adseGO.transform);
+                            Transform mergedMesh = adseGO.transform.Find($"{ADRuntimeUtils.GenerateID(adseGO)}_MergedMesh");
                             if (mergedMesh)
                             {
                                 targets = targets.Append(mergedMesh.GetComponent<SkinnedMeshRenderer>());
                             }
+
 
                             targets.Where(x => x).ToList().ForEach(x =>
                             {
@@ -113,7 +118,7 @@ namespace online.kamishiro.alterdresser.editor
                     case SwitchMode.Blendshape:
                         if (!blendshapeOriginStatesSet.Contains(ads.objRefValue))
                         {
-                            if (!init) continue;
+                            if (!init || !ads.objRefValue) continue;
 
                             ADSBlendshape adsb = ads.objRefValue as ADSBlendshape;
                             SkinnedMeshRenderer smr = adsb.GetComponent<SkinnedMeshRenderer>();
@@ -153,7 +158,7 @@ namespace online.kamishiro.alterdresser.editor
                     case SwitchMode.Constraint:
                         if (!constraintOriginStatesSet.Contains(ads.objRefValue))
                         {
-                            if (!init) continue;
+                            if (!init || !ads.objRefValue) continue;
 
                             ADSConstraint adsc = ads.objRefValue as ADSConstraint;
                             Vector3 pos = adsc.transform.position;

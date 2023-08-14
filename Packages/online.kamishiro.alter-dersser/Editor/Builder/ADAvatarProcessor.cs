@@ -102,6 +102,8 @@ namespace online.kamishiro.alterdresser.editor
                     }
                 }
 
+                admItems.ToList().ForEach(x => ADInitialStateApplyer.Process(x, buildContext));
+
                 adsBlendshapes.ToList().ForEach(x => { ADSBlendshapeProcessor.Process(x.Key, x.Value.ToArray(), buildContext); });
                 adsConstraints.ToList().ForEach(x => ADSConstraintProcessor.Process(x, buildContext));
                 adsSimples.ToList().ForEach(x => ADSSimpleProcessor.Process(x, buildContext));
@@ -119,8 +121,6 @@ namespace online.kamishiro.alterdresser.editor
 
                 ADEParticle[] adePartilces = avatar.GetComponentsInChildren<ADEParticle>(true);
                 if (adePartilces.Length > 0) ADMEParticleProcessor.Process(adePartilces[0], buildContext);
-
-                admItems.ToList().ForEach(x => ADInitialStateApplyer.Process(x, buildContext));
             }
             catch (System.Exception ex)
             {
