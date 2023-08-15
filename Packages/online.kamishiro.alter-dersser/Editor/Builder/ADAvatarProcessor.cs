@@ -265,7 +265,7 @@ namespace online.kamishiro.alterdresser.editor
             foreach (BlendshapeOriginState state in target.blendshapeOriginStates)
             {
                 SerializedSkinnedMeshRenderer smr = new SerializedSkinnedMeshRenderer(state.adsb.GetComponent<SkinnedMeshRenderer>());
-                for (int i = 0; i < state.weights.Length; i++)
+                for (int i = 0; i < smr.m_BlendShapeWeights.arraySize; i++)
                 {
                     if (PrefabUtility.IsPartOfPrefabInstance(smr.skinnedMeshRenderer)) PrefabUtility.RevertPropertyOverride(smr.m_BlendShapeWeights.GetArrayElementAtIndex(i), InteractionMode.AutomatedAction);
                 }
