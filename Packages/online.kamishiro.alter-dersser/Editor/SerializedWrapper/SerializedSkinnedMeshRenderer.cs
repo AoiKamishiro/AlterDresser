@@ -31,11 +31,15 @@ namespace online.kamishiro.alterdresser.editor
             }
             set
             {
-                if (m_BlendShapeWeights.arraySize != value.Length) throw new Exception();
+                float[] arr = new float[m_BlendShapeWeights.arraySize];
+                for (int i = 0; i < m_BlendShapeWeights.arraySize; i++)
+                {
+                    arr[i] = i > value.Length - 1 ? 0.0f : value[i];
+                }
                 serializedObject.Update();
                 Enumerable.Range(0, m_BlendShapeWeights.arraySize).ToList().ForEach(x =>
                 {
-                    m_BlendShapeWeights.GetArrayElementAtIndex(x).floatValue = value[x];
+                    m_BlendShapeWeights.GetArrayElementAtIndex(x).floatValue = arr[x];
                 });
                 serializedObject.ApplyModifiedProperties();
             }
