@@ -25,6 +25,12 @@ namespace online.kamishiro.alterdresser.editor
         internal static void ProcessAvatar(GameObject avatar)
         {
             if (nowProcessing || avatar == null) return;
+
+            if (avatar.GetComponentsInChildren<ADB>(true).Length == 0)
+            {
+                return;
+            }
+
             Debug.Log($"AD ProcessAvatar Processng:{avatar.name}");
 
             Vector3 position = avatar.transform.position;
@@ -232,6 +238,7 @@ namespace online.kamishiro.alterdresser.editor
                         item.objectReferenceValue = null;
                     }
                 }
+                so.ApplyModifiedProperties();
             }
 
             foreach (SimpleOriginState state in target.simpleOriginStates)
@@ -328,7 +335,17 @@ namespace online.kamishiro.alterdresser.editor
             for (int i = 0; i < SceneManager.sceneCount; i++)
             {
                 Scene scene = SceneManager.GetSceneAt(i);
-                scene.GetRootGameObjects().Select(x => x.GetComponent<ADBuildContext>()).Where(x => x != null).Select(x => x.gameObject).ToList().ForEach(x => ResetAvatar(x));
+                scene.GetRootGameObjects().Select(x => x.GetComponent<ADBuildContext>()).Where(x => x != null).Select(x => x.gameObject).ToList().ForEach(x =>
+                {
+                    try
+                    {
+                        ResetAvatar(x);
+                    }
+                    catch (System.Exception ex)
+                    {
+                        Debug.LogException(ex);
+                    }
+                });
             }
             ADEditorUtils.DeleteTempDir();
         }
