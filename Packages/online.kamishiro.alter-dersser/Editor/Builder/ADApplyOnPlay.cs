@@ -27,9 +27,9 @@ namespace online.kamishiro.alterdresser.editor
 
         private static void OnPlayModeStateChanged(PlayModeStateChange obj)
         {
-            if (!ADSettings.ApplyOnPlay || ADApplyOnBuild.OnBuildProcessing) return;
+            if (!ADSettings.ApplyOnPlay) return;
 
-            if (obj == PlayModeStateChange.ExitingEditMode)
+            if (obj == PlayModeStateChange.ExitingEditMode && !ADApplyOnBuild.OnBuildProcessing)
             {
                 InitializeOnEnterPlayMode();
                 OnPlayProcessing = true;
