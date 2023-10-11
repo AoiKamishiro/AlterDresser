@@ -45,7 +45,7 @@
       "url": "https://packages.unity.com"
     },
     "com.unity.ide.visualstudio": {
-      "version": "2.0.18",
+      "version": "2.0.21",
       "depth": 0,
       "source": "registry",
       "dependencies": {
@@ -172,6 +172,12 @@
       "dependencies": {
         "com.unity.nuget.newtonsoft-json": "2.0.0"
       }
+    },
+    "nadena.dev.ndmf": {
+      "version": "file:nadena.dev.ndmf",
+      "depth": 0,
+      "source": "embedded",
+      "dependencies": {}
     },
     "online.kamishiro.alter-dersser": {
       "version": "file:online.kamishiro.alter-dersser",
