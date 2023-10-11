@@ -2,7 +2,7 @@
 using UnityEditorInternal;
 using UnityEngine;
 using ADSConstraint = online.kamishiro.alterdresser.AlterDresserSwitchConstraint;
-using L = online.kamishiro.alterdresser.editor.ADLocalizer;
+using L = online.kamishiro.alterdresser.editor.localization.Localizer;
 
 namespace online.kamishiro.alterdresser.editor
 {

@@ -1,7 +1,7 @@
 ﻿using UnityEditor;
 using UnityEngine;
 using ADSSimple = online.kamishiro.alterdresser.AlterDresserSwitchSimple;
-using L = online.kamishiro.alterdresser.editor.ADLocalizer;
+using L = online.kamishiro.alterdresser.editor.localization.Localizer;
 
 namespace online.kamishiro.alterdresser.editor
 {

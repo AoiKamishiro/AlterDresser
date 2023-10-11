@@ -3,7 +3,7 @@
 namespace online.kamishiro.alterdresser
 {
     [DisallowMultipleComponent]
-    [AddComponentMenu("AlterDresser/AD Effect Particle")]
+    [AddComponentMenu("AlterDresser/AD Setting")]
     public class AlterDresserEffectParticel : ADBase
     {
         public ParticleType particleType;

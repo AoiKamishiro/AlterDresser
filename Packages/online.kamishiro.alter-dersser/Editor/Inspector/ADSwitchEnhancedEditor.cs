@@ -6,7 +6,7 @@ using UnityEditorInternal;
 using UnityEngine;
 using ADS = online.kamishiro.alterdresser.ADSwitchBase;
 using ADSEnhanced = online.kamishiro.alterdresser.AlterDresserSwitchEnhanced;
-using L = online.kamishiro.alterdresser.editor.ADLocalizer;
+using L = online.kamishiro.alterdresser.editor.localization.Localizer;
 
 namespace online.kamishiro.alterdresser.editor
 {
@@ -287,7 +287,7 @@ namespace online.kamishiro.alterdresser.editor
             }
 
             EditorGUILayout.BeginVertical(new GUIStyle(GUI.skin.box));
-            using (new EditorGUI.DisabledGroupScope(!ADAvaterOptimizer.IsImported))
+            using (new EditorGUI.DisabledGroupScope(!AAOType.IsImported))
             {
                 EditorGUILayout.LabelField(new GUIContent(L.ADAOTitle, L.ADAODescription), EditorStyles.boldLabel);
                 EditorGUILayout.PropertyField(DoMergeMesh, new GUIContent(L.ADSE_AO_DoMerge, L.ADSE_AO_DoMerge_Tips));
@@ -296,7 +296,6 @@ namespace online.kamishiro.alterdresser.editor
                 MergeMeshRL.DoLayoutList();
 
                 EditorGUILayout.Space();
-                EditorGUILayout.HelpBox(L.ADSE_AO_MA_ERROR, MessageType.Warning);
                 EditorGUILayout.HelpBox(L.ADSE_AO_UNITY_WARNING, MessageType.Error);
             }
             EditorGUILayout.EndVertical();

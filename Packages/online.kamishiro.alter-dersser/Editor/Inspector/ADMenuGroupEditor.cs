@@ -6,7 +6,7 @@ using UnityEngine;
 using ADM = online.kamishiro.alterdresser.ADMenuBase;
 using ADMGroup = online.kamishiro.alterdresser.AlterDresserMenuGroup;
 using ADMItem = online.kamishiro.alterdresser.AlterDresserMenuItem;
-using L = online.kamishiro.alterdresser.editor.ADLocalizer;
+using L = online.kamishiro.alterdresser.editor.localization.Localizer;
 
 namespace online.kamishiro.alterdresser.editor
 {
@@ -164,7 +164,7 @@ namespace online.kamishiro.alterdresser.editor
                     list = list.Append(i);
                 }
             }
-            return list.OrderBy(x => ADMItemProcessor.GetIdx(x)).ToList();
+            return list.OrderBy(x => ADEditorUtils.GetIdx(x)).ToList();
         }
     }
 }

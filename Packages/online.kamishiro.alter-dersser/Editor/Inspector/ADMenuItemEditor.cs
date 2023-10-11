@@ -10,7 +10,7 @@ using ADSBlendshape = online.kamishiro.alterdresser.AlterDresserSwitchBlendshape
 using ADSConstraint = online.kamishiro.alterdresser.AlterDresserSwitchConstraint;
 using ADSEnhanced = online.kamishiro.alterdresser.AlterDresserSwitchEnhanced;
 using ADSSimple = online.kamishiro.alterdresser.AlterDresserSwitchSimple;
-using L = online.kamishiro.alterdresser.editor.ADLocalizer;
+using L = online.kamishiro.alterdresser.editor.localization.Localizer;
 
 namespace online.kamishiro.alterdresser.editor
 {
@@ -196,7 +196,7 @@ namespace online.kamishiro.alterdresser.editor
                 {
                     EditorGUILayout.TextField(new GUIContent(L.ADMI_PF_MenuName, L.ADMI_PF_MenuName_ToolTip), Item.name);
                 }
-                if (ADMItemProcessor.IsRoot((ADMItem)target)) EditorGUILayout.PropertyField(InitState, new GUIContent(L.ADMI_PF_InitValue));
+                if (ADEditorUtils.IsRoot((ADMItem)target)) EditorGUILayout.PropertyField(InitState, new GUIContent(L.ADMI_PF_InitValue));
                 List.DoLayoutList();
             }
         }
