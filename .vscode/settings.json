@@ -8,5 +8,6 @@
         "Library*": true,
         "obj*": true,
         "Temp*": true
-    }
+    },
+    "dotnet.preferCSharpExtension": true
 }
