@@ -42,7 +42,7 @@ namespace online.kamishiro.alterdresser.editor.pass
                             if (!init || !ads.objRefValue) continue;
 
                             ADSEnhanced adse = ads.objRefValue as ADSEnhanced;
-                            GameObject adseGO = ads.gameObject;
+                            GameObject adseGO = adse.gameObject;
 
                             IEnumerable<Renderer> targets = ADSwitchEnhancedEditor.GetValidChildRenderers(adseGO.transform);
                             Transform mergedMesh = adseGO.transform.Find($"{ADRuntimeUtils.GenerateID(adseGO)}_MergedMesh");

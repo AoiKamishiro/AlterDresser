@@ -19,7 +19,6 @@ namespace online.kamishiro.alterdresser
     [Serializable]
     public class ADMItemElement
     {
-        public GameObject gameObject;
         public SwitchMode mode;
         public ADSwitchBase objRefValue;
         public int intValue;
