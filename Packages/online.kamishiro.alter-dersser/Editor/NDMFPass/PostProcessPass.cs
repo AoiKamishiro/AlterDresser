@@ -3,7 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using ADM = online.kamishiro.alterdresser.ADMenuBase;
 using ADMElemtnt = online.kamishiro.alterdresser.ADMItemElement;
 using ADMGroup = online.kamishiro.alterdresser.AlterDresserMenuGroup;
 using ADMItem = online.kamishiro.alterdresser.AlterDresserMenuItem;
@@ -76,20 +75,11 @@ namespace online.kamishiro.alterdresser.editor.pass
                             SkinnedMeshRenderer smr = adsb.GetComponent<SkinnedMeshRenderer>();
 
                             char[] bin = Convert.ToString(ads.intValue, 2).PadLeft(smr.sharedMesh.blendShapeCount, '0').ToCharArray();
+                            Array.Reverse(bin);
 
                             SerializedSkinnedMeshRenderer serializedSkinnedMeshRenderer = new SerializedSkinnedMeshRenderer(smr)
                             {
-                                BlendShapeWeights = Enumerable.Range(0, bin.Length).Select(x =>
-                            {
-                                if (bin[x] == '1')
-                                {
-                                    return 100.0f;
-                                }
-                                else
-                                {
-                                    return smr.GetBlendShapeWeight(x);
-                                }
-                            }).ToArray()
+                                BlendShapeWeights = Enumerable.Range(0, bin.Length).Select(x => bin[x] == '1' ? 100.0f : smr.GetBlendShapeWeight(x)).ToArray()
                             };
                             break;
                         case SwitchMode.Constraint:
