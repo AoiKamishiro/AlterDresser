@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Reflection;
 using UnityEditor;
-using ADEParticle = online.kamishiro.alterdresser.AlterDresserEffectParticel;
+using ADEParticle = online.kamishiro.alterdresser.AlterDresserSettings;
 using ADMGroup = online.kamishiro.alterdresser.AlterDresserMenuGroup;
 using ADMItem = online.kamishiro.alterdresser.AlterDresserMenuItem;
 using ADSBlendshape = online.kamishiro.alterdresser.AlterDresserSwitchBlendshape;

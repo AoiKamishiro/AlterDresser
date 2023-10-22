@@ -9,7 +9,7 @@ using UnityEngine;
 using VRC.SDK3.Avatars.Components;
 using ACM = UnityEditor.Animations.AnimatorConditionMode;
 using ACPT = UnityEngine.AnimatorControllerParameterType;
-using ADEParticle = online.kamishiro.alterdresser.AlterDresserEffectParticel;
+using ADEParticle = online.kamishiro.alterdresser.AlterDresserSettings;
 using ADSEnhanced = online.kamishiro.alterdresser.AlterDresserSwitchEnhanced;
 
 namespace online.kamishiro.alterdresser.editor.pass
