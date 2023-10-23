@@ -1,7 +1,9 @@
 ﻿using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using UnityEditor;
 using UnityEngine;
+using VRC.SDK3.Avatars.Components;
 using ADMElemtnt = online.kamishiro.alterdresser.ADMItemElement;
 using ADS = online.kamishiro.alterdresser.ADSwitchBase;
 using ADSBlendshape = online.kamishiro.alterdresser.AlterDresserSwitchBlendshape;
@@ -15,6 +17,21 @@ namespace online.kamishiro.alterdresser.editor
     [CustomPropertyDrawer(typeof(ADMElemtnt))]
     internal class ADMItemElementDrawer : PropertyDrawer
     {
+        private static GUIStyle _errorStyle;
+        private static GUIStyle ErrorStyle
+        {
+            get
+            {
+                if (_errorStyle == null)
+                {
+                    _errorStyle = new GUIStyle(EditorStyles.objectField);
+                    _errorStyle.normal.textColor = Color.red;
+                }
+                return _errorStyle;
+            }
+        }
+
+
         internal readonly float LineHeight = EditorGUIUtility.singleLineHeight;
         internal readonly int Margin = 4;
         public override void OnGUI(Rect rect, SerializedProperty property, GUIContent label)
@@ -22,6 +39,7 @@ namespace online.kamishiro.alterdresser.editor
             SerializedProperty objVal = property.FindPropertyRelative(nameof(ADMElemtnt.objRefValue));
             SerializedProperty intVal = property.FindPropertyRelative(nameof(ADMElemtnt.intValue));
             SerializedProperty mode = property.FindPropertyRelative(nameof(ADMElemtnt.mode));
+            SerializedProperty path = property.FindPropertyRelative(nameof(ADMElemtnt.path));
 
             float w = rect.width - Margin;
             Rect r0 = new Rect(rect.x, rect.yMin + Margin, w - Margin, LineHeight);
@@ -30,7 +48,29 @@ namespace online.kamishiro.alterdresser.editor
             Rect r2 = new Rect(rect.x + w / 3, rect.yMin + Margin, w / 3 - Margin, LineHeight);
             Rect r3 = new Rect(rect.x + w / 3 * 2, rect.yMin + Margin, w / 3, LineHeight);
 
-            ADS curAds = (ADS)objVal.objectReferenceValue;
+            //後方互換ブロック
+            if (path.stringValue == string.Empty && objVal.objectReferenceValue)
+            {
+                Transform t0 = ((ADS)objVal.objectReferenceValue).transform;
+                path.stringValue = ADRuntimeUtils.GetRelativePath(t0);
+                objVal.objectReferenceValue = null;
+            }
+
+            Transform transform = ADRuntimeUtils.GetRelativeObject(GetAvatar(property), path.stringValue);
+
+            if (path.stringValue != string.Empty && (transform == null || transform.GetComponent<ADS>() == null))
+            {
+                ADS tmp = (ADS)EditorGUI.ObjectField(r0, null, typeof(ADS), true);
+                EditorGUI.LabelField(r0, $"{Path.GetFileName(path.stringValue)} ({(SwitchMode)mode.intValue})", ErrorStyle);
+                if (tmp)
+                {
+                    path.stringValue = ADRuntimeUtils.GetRelativePath(tmp.transform);
+                    objVal.objectReferenceValue = null;
+                }
+                return;
+            }
+
+            ADS curAds = transform.GetComponent<ADS>();
             GameObject cur = curAds != null ? curAds.gameObject : null;
             ADS newAds = (ADS)EditorGUI.ObjectField(cur == null ? r0 : r1, curAds, typeof(ADS), true);
             GameObject temp = newAds != null ? newAds.gameObject : null;
@@ -59,33 +99,29 @@ namespace online.kamishiro.alterdresser.editor
                     }
                     else
                     {
-                        if (l.ElementAt(n) == nameof(SwitchMode.Blendshape))
+                        switch (l.ElementAt(n))
                         {
-                            objVal.objectReferenceValue = temp.GetComponent<ADSBlendshape>();
-                            mode.intValue = (int)SwitchMode.Blendshape;
+                            case nameof(SwitchMode.Blendshape):
+                                mode.intValue = (int)SwitchMode.Blendshape;
+                                break;
+                            case nameof(SwitchMode.Constraint):
+                                mode.intValue = (int)SwitchMode.Constraint;
+                                break;
+                            case nameof(SwitchMode.Enhanced):
+                                mode.intValue = (int)SwitchMode.Enhanced;
+                                break;
+                            case nameof(SwitchMode.Simple):
+                                mode.intValue = (int)SwitchMode.Simple;
+                                break;
                         }
-                        if (l.ElementAt(n) == nameof(SwitchMode.Constraint))
-                        {
-                            objVal.objectReferenceValue = temp.GetComponent<ADSConstraint>();
-                            mode.intValue = (int)SwitchMode.Constraint;
-                        }
-                        if (l.ElementAt(n) == nameof(SwitchMode.Enhanced))
-                        {
-                            objVal.objectReferenceValue = temp.GetComponent<ADSEnhanced>();
-                            mode.intValue = (int)SwitchMode.Enhanced;
-                        }
-                        if (l.ElementAt(n) == nameof(SwitchMode.Simple))
-                        {
-                            objVal.objectReferenceValue = temp.GetComponent<ADSSimple>();
-                            mode.intValue = (int)SwitchMode.Simple;
-                        }
+                        path.stringValue = ADRuntimeUtils.GetRelativePath(temp.transform);
                     }
 
                     if ((SwitchMode)mode.intValue == SwitchMode.Blendshape)
                     {
-                        if (objVal.objectReferenceValue != null)
+                        if (path.stringValue != string.Empty)
                         {
-                            if ((objVal.objectReferenceValue as ADSBlendshape).TryGetComponent(out SkinnedMeshRenderer smr1) && smr1.sharedMesh && smr1.sharedMesh.blendShapeCount > 0)
+                            if ((ADRuntimeUtils.GetRelativeObject(GetAvatar(property), path.stringValue)).TryGetComponent(out SkinnedMeshRenderer smr1) && smr1.sharedMesh && smr1.sharedMesh.blendShapeCount > 0)
                             {
                                 IEnumerable<string> names = new List<string>();
                                 for (int i = 0; i < smr1.sharedMesh.blendShapeCount; i++)
@@ -98,9 +134,9 @@ namespace online.kamishiro.alterdresser.editor
                     }
                     if ((SwitchMode)mode.intValue == SwitchMode.Constraint)
                     {
-                        if (objVal.objectReferenceValue != null)
+                        if (path.stringValue != string.Empty)
                         {
-                            ADSConstraint c = objVal.objectReferenceValue as ADSConstraint;
+                            ADSConstraint c = ADRuntimeUtils.GetRelativeObject(GetAvatar(property), path.stringValue).GetComponent<ADSConstraint>();
                             IEnumerable<string> names = new List<string>();
                             IEnumerable<GUIContent> nams = Enumerable.Empty<GUIContent>();
                             names = names.Append(L.ADMI_RL_F2W);
@@ -117,7 +153,7 @@ namespace online.kamishiro.alterdresser.editor
             }
             else
             {
-                objVal.objectReferenceValue = null;
+                path.stringValue = string.Empty;
             }
         }
         public static int GetIdx(IEnumerable<string> l, SwitchMode switchMode)
@@ -154,6 +190,30 @@ namespace online.kamishiro.alterdresser.editor
                 if (ads.GetType() == typeof(ADSSimple)) list = list.Append(nameof(SwitchMode.Simple));
             }
             return list;
+        }
+        private static VRCAvatarDescriptor GetAvatar(SerializedProperty property)
+        {
+            if (property.serializedObject == null) return null;
+
+            VRCAvatarDescriptor commonAvatar = null;
+            Object[] targets = property.serializedObject.targetObjects;
+            for (int i = 0; i < targets.Length; i++)
+            {
+                Component obj = targets[i] as Component;
+                if (obj == null) return null;
+
+                Transform transform = obj.transform;
+                VRCAvatarDescriptor avatar = ADRuntimeUtils.GetAvatar(transform);
+
+                if (i == 0)
+                {
+                    if (avatar == null) return null;
+                    commonAvatar = avatar;
+                }
+                else if (commonAvatar != avatar) return null;
+            }
+
+            return commonAvatar;
         }
     }
 }

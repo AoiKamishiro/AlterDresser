@@ -31,7 +31,10 @@ namespace online.kamishiro.alterdresser.editor.pass
                 maMargeAnimator.deleteAttachedAnimator = true;
                 maMargeAnimator.animator = animator;
 
-                string[] blendShapeNames = menuItems.Where(x => x.objRefValue as ADSBlendshape == item).SelectMany(x => x.GetUsingBlendshapeNames()).Distinct().ToArray();
+                string[] blendShapeNames = menuItems
+                    .Where(x => ADRuntimeUtils.GetRelativeObject(context.AvatarDescriptor, x.path).GetComponent<ADSBlendshape>() == item)
+                    .SelectMany(x => x.GetUsingBlendshapeNames(context))
+                    .Distinct().ToArray();
                 foreach (string blendShape in blendShapeNames)
                 {
                     string paramName = $"ADSB_{item.Id}_{GetBlendShapeIndex(item, blendShape)}";
@@ -96,10 +99,10 @@ namespace online.kamishiro.alterdresser.editor.pass
     }
     internal static class ADSBlendshapePassExtension
     {
-        internal static IEnumerable<string> GetUsingBlendshapeNames(this ADMElement element)
+        internal static IEnumerable<string> GetUsingBlendshapeNames(this ADMElement element, BuildContext context)
         {
             IEnumerable<string> addBlendShapeNames = Enumerable.Empty<string>();
-            SkinnedMeshRenderer smr = element.objRefValue.GetComponent<SkinnedMeshRenderer>();
+            SkinnedMeshRenderer smr = ADRuntimeUtils.GetRelativeObject(context.AvatarDescriptor, element.path).GetComponent<SkinnedMeshRenderer>();
             if (!smr || !smr.sharedMesh) return Enumerable.Empty<string>();
             string binaryNumber = System.Convert.ToString(element.intValue, 2);
 

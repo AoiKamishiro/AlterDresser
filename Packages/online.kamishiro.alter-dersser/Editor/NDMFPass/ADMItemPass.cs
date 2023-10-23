@@ -66,7 +66,7 @@ namespace online.kamishiro.alterdresser.editor.pass
 
                         AnimatorControllerLayer layer = AnimationUtils.AddLayer(animatorController, $"ADMItem_{item.name}");
 
-                        IEnumerable<string> paramNames = GetParams(item);
+                        IEnumerable<string> paramNames = GetParams(item, context);
 
                         IEnumerable<VRC_AvatarParameterDriver.Parameter> enableParameters = Enumerable.Empty<VRC_AvatarParameterDriver.Parameter>();
                         foreach (string p in paramNames)
@@ -142,7 +142,7 @@ namespace online.kamishiro.alterdresser.editor.pass
 
                         AnimatorControllerLayer layer = AnimationUtils.AddLayer(animatorController, $"ADMItem_{item.name}");
 
-                        IEnumerable<string> paramNames = GetParams(item);
+                        IEnumerable<string> paramNames = GetParams(item, context);
 
                         IEnumerable<VRC_AvatarParameterDriver.Parameter> enableParameters = Enumerable.Empty<VRC_AvatarParameterDriver.Parameter>();
                         foreach (string p in paramNames)
@@ -237,12 +237,12 @@ namespace online.kamishiro.alterdresser.editor.pass
 
             return item == rootMG;
         }
-        private static IEnumerable<string> GetParams(ADMItem item)
+        private static IEnumerable<string> GetParams(ADMItem item, BuildContext context)
         {
             IEnumerable<string> paramNames = Enumerable.Empty<string>();
-            foreach (ADMElemtnt ads in item.adElements.Where(x => x.mode == SwitchMode.Blendshape).Where(x => x.objRefValue != null))
+            foreach (ADMElemtnt ads in item.adElements.Where(x => x.mode == SwitchMode.Blendshape).Where(x => x.path != string.Empty))
             {
-                ADS obj = ads.objRefValue;
+                ADS obj = ADRuntimeUtils.GetRelativeObject(context.AvatarDescriptor, ads.path).GetComponent<ADS>();
                 SkinnedMeshRenderer smr = obj.GetComponent<SkinnedMeshRenderer>();
                 if (!smr || !smr.sharedMesh) continue;
                 string binaryNumber = Convert.ToString(ads.intValue, 2);
@@ -257,19 +257,19 @@ namespace online.kamishiro.alterdresser.editor.pass
                     if (binaryNumber[smr.sharedMesh.blendShapeCount - 1 - bi] == '1') paramNames = paramNames.Append($"ADSB_{obj.Id}_{bi}");
                 }
             }
-            foreach (ADMElemtnt ads in item.adElements.Where(x => x.mode == SwitchMode.Constraint).Where(x => x.objRefValue != null))
+            foreach (ADMElemtnt ads in item.adElements.Where(x => x.mode == SwitchMode.Constraint).Where(x => x.path != string.Empty))
             {
-                ADS obj = ads.objRefValue;
+                ADS obj = ADRuntimeUtils.GetRelativeObject(context.AvatarDescriptor, ads.path).GetComponent<ADS>();
                 paramNames = paramNames.Append($"ADSC_{obj.Id}_{ads.intValue}");
             }
-            foreach (ADMElemtnt ads in item.adElements.Where(x => x.mode == SwitchMode.Enhanced).Where(x => x.objRefValue != null))
+            foreach (ADMElemtnt ads in item.adElements.Where(x => x.mode == SwitchMode.Enhanced).Where(x => x.path != string.Empty))
             {
-                ADS obj = ads.objRefValue;
+                ADS obj = ADRuntimeUtils.GetRelativeObject(context.AvatarDescriptor, ads.path).GetComponent<ADS>();
                 paramNames = paramNames.Append($"ADSE_{obj.Id}");
             }
-            foreach (ADMElemtnt ads in item.adElements.Where(x => x.mode == SwitchMode.Simple).Where(x => x.objRefValue != null))
+            foreach (ADMElemtnt ads in item.adElements.Where(x => x.mode == SwitchMode.Simple).Where(x => x.path != string.Empty))
             {
-                ADS obj = ads.objRefValue;
+                ADS obj = ADRuntimeUtils.GetRelativeObject(context.AvatarDescriptor, ads.path).GetComponent<ADS>();
                 paramNames = paramNames.Append($"ADSS_{obj.Id}");
             }
             return paramNames;

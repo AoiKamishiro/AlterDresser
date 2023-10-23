@@ -26,12 +26,11 @@ namespace online.kamishiro.alterdresser.editor.pass
 
                 foreach (ADMElemtnt ads in item.adElements)
                 {
+                    if (!init || ads.path == string.Empty) continue;
                     switch (ads.mode)
                     {
                         case SwitchMode.Simple:
-                            if (!init || !ads.objRefValue) continue;
-
-                            ADSSimple adss = ads.objRefValue as ADSSimple;
+                            ADSSimple adss = ADRuntimeUtils.GetRelativeObject(context.AvatarDescriptor, ads.path).GetComponent<ADSSimple>();
 
                             new SerializedGameObject(adss.gameObject)
                             {
@@ -39,9 +38,7 @@ namespace online.kamishiro.alterdresser.editor.pass
                             };
                             break;
                         case SwitchMode.Enhanced:
-                            if (!init || !ads.objRefValue) continue;
-
-                            ADSEnhanced adse = ads.objRefValue as ADSEnhanced;
+                            ADSEnhanced adse = ADRuntimeUtils.GetRelativeObject(context.AvatarDescriptor, ads.path).GetComponent<ADSEnhanced>();
                             GameObject adseGO = adse.gameObject;
 
                             IEnumerable<Renderer> targets = ADSwitchEnhancedEditor.GetValidChildRenderers(adseGO.transform);
@@ -69,9 +66,7 @@ namespace online.kamishiro.alterdresser.editor.pass
                             };
                             break;
                         case SwitchMode.Blendshape:
-                            if (!init || !ads.objRefValue) continue;
-
-                            ADSBlendshape adsb = ads.objRefValue as ADSBlendshape;
+                            ADSBlendshape adsb = ADRuntimeUtils.GetRelativeObject(context.AvatarDescriptor, ads.path).GetComponent<ADSBlendshape>();
                             SkinnedMeshRenderer smr = adsb.GetComponent<SkinnedMeshRenderer>();
 
                             char[] bin = Convert.ToString(ads.intValue, 2).PadLeft(smr.sharedMesh.blendShapeCount, '0').ToCharArray();
@@ -83,9 +78,7 @@ namespace online.kamishiro.alterdresser.editor.pass
                             };
                             break;
                         case SwitchMode.Constraint:
-                            if (!init || !ads.objRefValue) continue;
-
-                            ADSConstraint adsc = ads.objRefValue as ADSConstraint;
+                            ADSConstraint adsc = ADRuntimeUtils.GetRelativeObject(context.AvatarDescriptor, ads.path).GetComponent<ADSConstraint>();
 
                             SerializedTransform serializedTransform = new SerializedTransform(adsc.transform);
                             if (ads.intValue > 0 && ads.intValue < adsc.targets.Length)

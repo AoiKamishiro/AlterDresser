@@ -24,6 +24,14 @@ namespace online.kamishiro.alterdresser
             if (path.EndsWith("/")) path = path.Substring(0, path.Length - 1);
             return path;
         }
+        internal static string GetRelativePath(Transform child)
+        {
+            return GetRelativePath(GetAvatar(child).transform, child);
+        }
+        internal static Transform GetRelativeObject(VRCAvatarDescriptor avatar, string path)
+        {
+            return avatar.transform.Find(path);
+        }
 
         internal static VRCAvatarDescriptor GetAvatar(Transform c)
         {
