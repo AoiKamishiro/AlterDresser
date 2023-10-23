@@ -40,6 +40,10 @@ namespace online.kamishiro.alterdresser.editor.pass
             rootBone.transform.SetParent(context.AvatarRootTransform, false);
             rootBone.transform.SetPositionAndRotation(context.AvatarDescriptor.ViewPosition * 0.5f, Quaternion.identity);
 
+            ParticleType particleType = ParticleType.None;
+            ADEParticle adeParticle = context.AvatarRootObject.GetComponentsInChildren<ADEParticle>(true).First();
+            if (adeParticle != null) particleType = adeParticle.particleType;
+
             foreach (ADSEnhanced item in adsEnhanceds)
             {
                 if (ADEditorUtils.IsEditorOnly(item.transform)) return;
@@ -78,40 +82,57 @@ namespace online.kamishiro.alterdresser.editor.pass
                     ToArray();
                 string paramName = $"ADSE_{item.Id}";
 
-                AnimationClip enabledAnimationClip = CreateEnhancedEnabledAnimationClip(targetPathes, item.transform, item);
-                AnimationClip disabledAnimationClip = CreateEnhancedDisabledAnimationClip(targetPathes, item.transform, item);
-                AnimationClip enablingAnimationClip = CreateEnhancedEnablingAnimationClip(targetPathes, item.transform, item, ADSettings.AD_MotionTime);
-                AnimationClip disablingAnimationClip = CreateEnhancedDisablingAnimationClip(targetPathes, item.transform, item, ADSettings.AD_MotionTime);
 
-                AnimationUtils.AddParameter(animator, paramName, ACPT.Int);
-                AnimationUtils.AddParameter(animator, ADSettings.paramIsReady, ACPT.Bool);
+                switch (particleType)
+                {
+                    case ParticleType.ParticleRing_Blue:
+                    case ParticleType.ParticleRing_Green:
+                    case ParticleType.ParticleRing_Pink:
+                    case ParticleType.ParticleRing_Purple:
+                    case ParticleType.ParticleRing_Red:
+                    case ParticleType.ParticleRing_Yellow:
+                        AnimationClip enabledAnimationClip = Create_ParticleRing_EnabledAnimationClip(targetPathes, item.transform, item);
+                        AnimationClip disabledAnimationClip = Create_ParticleRing_DisabledAnimationClip(targetPathes, item.transform, item);
+                        AnimationClip enablingAnimationClip = Create_ParticleRing_EnablingAnimationClip(targetPathes, item.transform, item, ADSettings.AD_MotionTime);
+                        AnimationClip disablingAnimationClip = Create_ParticleRing_DisablingAnimationClip(targetPathes, item.transform, item, ADSettings.AD_MotionTime);
 
-                AnimatorControllerLayer layer = AnimationUtils.AddLayer(animator, $"ADSEnhanced_{item.name}");
+                        AnimationUtils.AddParameter(animator, paramName, ACPT.Int);
+                        AnimationUtils.AddParameter(animator, ADSettings.paramIsReady, ACPT.Bool);
 
-                AnimatorState initState = AnimationUtils.AddState(layer, disabledAnimationClip, "Init", new StateMachineBehaviour[] { });
-                AnimatorState disabledState = AnimationUtils.AddState(layer, disabledAnimationClip, "Disabled", new StateMachineBehaviour[] { });
-                AnimatorState enabledState = AnimationUtils.AddState(layer, enabledAnimationClip, "Enabled", new StateMachineBehaviour[] { });
-                AnimatorState disablingState = AnimationUtils.AddState(layer, disablingAnimationClip, "Disableing", new StateMachineBehaviour[] { });
-                AnimatorState enablingState = AnimationUtils.AddState(layer, enablingAnimationClip, "Enabling", new StateMachineBehaviour[] { });
+                        AnimatorControllerLayer layer = AnimationUtils.AddLayer(animator, $"ADSEnhanced_{item.name}");
 
-                AnimationUtils.AddTransition(initState, enabledState, new (ACM, float, string)[] { (ACM.IfNot, 1, ADSettings.paramIsReady) });
-                AnimationUtils.AddTransition(disabledState, enabledState, new (ACM, float, string)[] { (ACM.Greater, 0, paramName), (ACM.IfNot, 1, ADSettings.paramIsReady) });
-                AnimationUtils.AddTransition(enabledState, disabledState, new (ACM, float, string)[] { (ACM.Equals, 0, paramName), (ACM.IfNot, 1, ADSettings.paramIsReady) });
-                AnimationUtils.AddTransition(enabledState, disabledState, new (ACM, float, string)[] { (ACM.Less, 0, paramName), (ACM.IfNot, 1, ADSettings.paramIsReady) });
-                AnimationUtils.AddTransition(enablingState, enabledState);
-                AnimationUtils.AddTransition(disablingState, disabledState);
-                AnimationUtils.AddTransition(disabledState, enablingState, new (ACM, float, string)[] { (ACM.Greater, 0, paramName), (ACM.If, 1, ADSettings.paramIsReady) });
-                AnimationUtils.AddTransition(enabledState, disablingState, new (ACM, float, string)[] { (ACM.Equals, 0, paramName), (ACM.If, 1, ADSettings.paramIsReady) });
-                AnimationUtils.AddTransition(enabledState, disablingState, new (ACM, float, string)[] { (ACM.Less, 0, paramName), (ACM.If, 1, ADSettings.paramIsReady) });
+                        AnimatorState initState = AnimationUtils.AddState(layer, disabledAnimationClip, "Init", new StateMachineBehaviour[] { });
+                        AnimatorState disabledState = AnimationUtils.AddState(layer, disabledAnimationClip, "Disabled", new StateMachineBehaviour[] { });
+                        AnimatorState enabledState = AnimationUtils.AddState(layer, enabledAnimationClip, "Enabled", new StateMachineBehaviour[] { });
+                        AnimatorState disablingState = AnimationUtils.AddState(layer, disablingAnimationClip, "Disableing", new StateMachineBehaviour[] { });
+                        AnimatorState enablingState = AnimationUtils.AddState(layer, enablingAnimationClip, "Enabling", new StateMachineBehaviour[] { });
+
+                        AnimationUtils.AddTransition(initState, enabledState, new (ACM, float, string)[] { (ACM.IfNot, 1, ADSettings.paramIsReady) });
+                        AnimationUtils.AddTransition(disabledState, enabledState, new (ACM, float, string)[] { (ACM.Greater, 0, paramName), (ACM.IfNot, 1, ADSettings.paramIsReady) });
+                        AnimationUtils.AddTransition(enabledState, disabledState, new (ACM, float, string)[] { (ACM.Equals, 0, paramName), (ACM.IfNot, 1, ADSettings.paramIsReady) });
+                        AnimationUtils.AddTransition(enabledState, disabledState, new (ACM, float, string)[] { (ACM.Less, 0, paramName), (ACM.IfNot, 1, ADSettings.paramIsReady) });
+                        AnimationUtils.AddTransition(enablingState, enabledState);
+                        AnimationUtils.AddTransition(disablingState, disabledState);
+                        AnimationUtils.AddTransition(disabledState, enablingState, new (ACM, float, string)[] { (ACM.Greater, 0, paramName), (ACM.If, 1, ADSettings.paramIsReady) });
+                        AnimationUtils.AddTransition(enabledState, disablingState, new (ACM, float, string)[] { (ACM.Equals, 0, paramName), (ACM.If, 1, ADSettings.paramIsReady) });
+                        AnimationUtils.AddTransition(enabledState, disablingState, new (ACM, float, string)[] { (ACM.Less, 0, paramName), (ACM.If, 1, ADSettings.paramIsReady) });
+                        break;
+                }
             }
 
-
-            ADEParticle adeParticle = context.AvatarRootObject.GetComponentsInChildren<ADEParticle>(true).First();
-            GameObject effect = adeParticle.particleType == ParticleType.None ? null : Object.Instantiate(AssetDatabase.LoadAssetAtPath<GameObject>(AssetDatabase.GUIDToAssetPath(particleGUID[adeParticle.particleType])));
-            if (effect != null)
+            GameObject effectCommon = null;
+            switch (particleType)
             {
-                effect.transform.SetParent(context.AvatarRootTransform);
+                case ParticleType.ParticleRing_Blue:
+                case ParticleType.ParticleRing_Green:
+                case ParticleType.ParticleRing_Pink:
+                case ParticleType.ParticleRing_Purple:
+                case ParticleType.ParticleRing_Red:
+                case ParticleType.ParticleRing_Yellow:
+                    effectCommon = Object.Instantiate(AssetDatabase.LoadAssetAtPath<GameObject>(AssetDatabase.GUIDToAssetPath(particleGUID[adeParticle.particleType])));
+                    break;
             }
+            if (effectCommon) effectCommon.transform.SetParent(context.AvatarRootTransform);
         }
         internal static void GenerateMergeMesh(ADSEnhanced item, Transform rootbone, BuildContext context)
         {
@@ -274,7 +295,22 @@ namespace online.kamishiro.alterdresser.editor.pass
             }
             so.ApplyModifiedProperties();
         }
-        internal static AnimationClip CreateEnhancedDisabledAnimationClip(string[] relativePaths, Transform t, ADSEnhanced item)
+        internal static Material[] GetMergedMaterials(ADSEnhanced item)
+        {
+            List<Renderer> validChildRenderers = item.GetComponentsInChildren<Renderer>()
+                .Where(x => (x is SkinnedMeshRenderer || x is MeshRenderer)).ToList();
+
+            char[] bin = System.Convert.ToString(item.mergeMeshIgnoreMask, 2).PadLeft(validChildRenderers.Count, '0').ToCharArray();
+
+            return Enumerable.Range(0, validChildRenderers.Count)
+                  .Where(i => bin[i] == '0')
+                  .Select(x => validChildRenderers[x])
+                  .SelectMany(x => x.sharedMaterials)
+                  .Distinct()
+                  .ToArray();
+        }
+
+        internal static AnimationClip Create_ParticleRing_DisabledAnimationClip(string[] relativePaths, Transform t, ADSEnhanced item)
         {
             AnimationClip animationClip = new AnimationClip
             {
@@ -354,7 +390,7 @@ namespace online.kamishiro.alterdresser.editor.pass
 
             return animationClip;
         }
-        internal static AnimationClip CreateEnhancedEnabledAnimationClip(string[] relativePaths, Transform t, ADSEnhanced item)
+        internal static AnimationClip Create_ParticleRing_EnabledAnimationClip(string[] relativePaths, Transform t, ADSEnhanced item)
         {
             AnimationClip animationClip = new AnimationClip
             {
@@ -434,7 +470,7 @@ namespace online.kamishiro.alterdresser.editor.pass
 
             return animationClip;
         }
-        internal static AnimationClip CreateEnhancedEnablingAnimationClip(string[] relativePaths, Transform t, ADSEnhanced item, float motionTime)
+        internal static AnimationClip Create_ParticleRing_EnablingAnimationClip(string[] relativePaths, Transform t, ADSEnhanced item, float motionTime)
         {
             AnimationClip animationClip = new AnimationClip
             {
@@ -525,7 +561,7 @@ namespace online.kamishiro.alterdresser.editor.pass
 
             return animationClip;
         }
-        internal static AnimationClip CreateEnhancedDisablingAnimationClip(string[] relativePaths, Transform t, ADSEnhanced item, float motiomTime)
+        internal static AnimationClip Create_ParticleRing_DisablingAnimationClip(string[] relativePaths, Transform t, ADSEnhanced item, float motiomTime)
         {
             AnimationClip animationClip = new AnimationClip
             {
@@ -604,20 +640,6 @@ namespace online.kamishiro.alterdresser.editor.pass
             }
 
             return animationClip;
-        }
-        internal static Material[] GetMergedMaterials(ADSEnhanced item)
-        {
-            List<Renderer> validChildRenderers = item.GetComponentsInChildren<Renderer>()
-                .Where(x => (x is SkinnedMeshRenderer || x is MeshRenderer)).ToList();
-
-            char[] bin = System.Convert.ToString(item.mergeMeshIgnoreMask, 2).PadLeft(validChildRenderers.Count, '0').ToCharArray();
-
-            return Enumerable.Range(0, validChildRenderers.Count)
-                  .Where(i => bin[i] == '0')
-                  .Select(x => validChildRenderers[x])
-                  .SelectMany(x => x.sharedMaterials)
-                  .Distinct()
-                  .ToArray();
         }
     }
 }
