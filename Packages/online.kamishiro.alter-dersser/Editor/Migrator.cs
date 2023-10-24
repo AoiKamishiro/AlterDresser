@@ -20,6 +20,8 @@ namespace online.kamishiro.alterdresser.editor.migrator
         {
             EditorSceneManager.sceneOpened += (Scene scene, OpenSceneMode mode) =>
             {
+                if (!scene.IsValid()) return;
+
                 foreach (VRCAvatarDescriptor desc in scene.GetRootGameObjects().SelectMany(x => x.GetComponentsInChildren<VRCAvatarDescriptor>(true)))
                 {
                     bool migrated = false;
