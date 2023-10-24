@@ -67,20 +67,20 @@ namespace online.kamishiro.alterdresser.editor.pass
                 AnimationUtils.AddParameter(animator, ADSettings.paramIsReady, ACPT.Bool);
                 AnimatorControllerLayer layer = AnimationUtils.AddLayer(animator, $"ADSConstraint_{item.name}");
 
-                AnimationClip constraintIntClip = CreateInitConstraintSwitchAnimationClip(item.name, item.targets.Length + 1, item.transform, context);
+                AnimationClip constraintIntClip = CreateInitConstraintSwitchAnimationClip(item.name, item.avatarObjectReferences.Length + 1, item.transform, context);
                 AnimatorState constraintInitState = AnimationUtils.AddState(layer, constraintIntClip, $"Init", new StateMachineBehaviour[] { });
 
-                AnimationUtils.AddAnyStateTransition(layer.stateMachine, constraintInitState, Enumerable.Range(0, item.targets.Length).Append(-100).Select(x => (ACM.Less, (float)0, $"ADSC_{item.Id}_{x}")).ToArray());
-                AnimationUtils.AddAnyStateTransition(layer.stateMachine, constraintInitState, Enumerable.Range(0, item.targets.Length).Append(-100).Select(x => (ACM.Equals, (float)0, $"ADSC_{item.Id}_{x}")).ToArray());
+                AnimationUtils.AddAnyStateTransition(layer.stateMachine, constraintInitState, Enumerable.Range(0, item.avatarObjectReferences.Length).Append(-100).Select(x => (ACM.Less, (float)0, $"ADSC_{item.Id}_{x}")).ToArray());
+                AnimationUtils.AddAnyStateTransition(layer.stateMachine, constraintInitState, Enumerable.Range(0, item.avatarObjectReferences.Length).Append(-100).Select(x => (ACM.Equals, (float)0, $"ADSC_{item.Id}_{x}")).ToArray());
 
                 IEnumerable<AnimatorState> states = Enumerable.Empty<AnimatorState>();
 
-                for (int i = 0; i < item.targets.Length + 1; i++)
+                for (int i = 0; i < item.avatarObjectReferences.Length + 1; i++)
                 {
                     int idx = i;
-                    if (i == item.targets.Length) idx = -100;
+                    if (i == item.avatarObjectReferences.Length) idx = -100;
                     string paramName = $"ADSC_{item.Id}_{idx}";
-                    AnimationClip constraintAnimatinClip = CreateConstraintSwitchAnimationClip(item.name, i, item.targets.Length + 1, item.transform, context);
+                    AnimationClip constraintAnimatinClip = CreateConstraintSwitchAnimationClip(item.name, i, item.avatarObjectReferences.Length + 1, item.transform, context);
                     AnimationUtils.AddParameter(animator, paramName, ACPT.Int);
 
                     AnimatorState constraintState = AnimationUtils.AddState(layer, constraintAnimatinClip, $"Source_{i}", new StateMachineBehaviour[] { });
@@ -131,13 +131,13 @@ namespace online.kamishiro.alterdresser.editor.pass
         private static ParentConstraint AddConstraint(ADSConstraint item, Transform objMirror)
         {
             ParentConstraint constraint = item.gameObject.AddComponent<ParentConstraint>();
-            for (int i = 0; i < item.targets.Length; i++)
+            for (int i = 0; i < item.avatarObjectReferences.Length; i++)
             {
                 ConstraintSource source = new ConstraintSource();
-                if (item.targets[i] != null)
+                if (item.avatarObjectReferences[i] != null)
                 {
                     source.weight = 0;
-                    source.sourceTransform = item.targets[i];
+                    source.sourceTransform = item.avatarObjectReferences[i].Get(item).transform;
                     constraint.AddSource(source);
                 }
                 else
