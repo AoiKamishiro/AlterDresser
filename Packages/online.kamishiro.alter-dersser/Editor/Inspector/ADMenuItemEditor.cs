@@ -58,8 +58,10 @@ namespace online.kamishiro.alterdresser.editor
                         },
                         drawElementCallback = (rect, index, isActive, isFocused) =>
                         {
+                            SerializedObject.Update();
                             SerializedProperty elem = ADElements.GetArrayElementAtIndex(index);
                             EditorGUI.PropertyField(rect, elem);
+                            SerializedObject.ApplyModifiedProperties();
                         },
                     };
                 }

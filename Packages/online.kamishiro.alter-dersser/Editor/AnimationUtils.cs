@@ -26,11 +26,13 @@ namespace online.kamishiro.alterdresser.editor
         /// <summary>
         /// 新規のアニメーターコントローラーを作成します。
         /// </summary>
+        /// <param name="name">アニメーターコントローラー名</param>
         /// <returns>空のアニメーターコントローラー</returns>
-        internal static AnimatorController CreateController()
+        internal static AnimatorController CreateController(string name = "")
         {
             AnimatorController animatorController = new AnimatorController
             {
+                name = name,
                 parameters = new AnimatorControllerParameter[0],
                 layers = new AnimatorControllerLayer[0]
             };

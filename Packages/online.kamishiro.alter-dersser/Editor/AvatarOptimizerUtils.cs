@@ -2,8 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using UnityEditor;
+using UnityEngine;
 
-internal static class AAOType
+internal static class AvatarOptimizerUtils
 {
     private static Assembly _avatarOptimizerAssembly;
     private static Assembly AvatarOptimzerAssembly
@@ -40,4 +42,21 @@ internal static class AAOType
     }
 
     internal static bool IsImported => AvatarOptimzerAssembly != null;
+
+    internal static void AddMergeMesh(this Component component, List<Renderer> renderers)
+    {
+        Component mergeMeshComponent = component.gameObject.AddComponent(MergeMeshType);
+        SerializedObject serializedMergeMesh = new SerializedObject(mergeMeshComponent);
+        serializedMergeMesh.Update();
+
+        SerializedProperty renderersSet = serializedMergeMesh.FindProperty("renderersSet").FindPropertyRelative("mainSet");
+
+        foreach (Renderer renderer in renderers)
+        {
+            renderersSet.InsertArrayElementAtIndex(renderersSet.arraySize);
+            renderersSet.GetArrayElementAtIndex(renderersSet.arraySize - 1).objectReferenceValue = renderer;
+        }
+
+        serializedMergeMesh.ApplyModifiedProperties();
+    }
 }

@@ -6,6 +6,7 @@ using UnityEditor;
 using UnityEditor.Animations;
 using UnityEngine;
 using UnityEngine.Animations;
+using VRC.SDK3.Avatars.Components;
 using ACM = UnityEditor.Animations.AnimatorConditionMode;
 using ACPT = UnityEngine.AnimatorControllerParameterType;
 using ADSConstraint = online.kamishiro.alterdresser.AlterDresserSwitchConstraint;
@@ -16,17 +17,23 @@ namespace online.kamishiro.alterdresser.editor.pass
     {
         private static readonly string emptyPrefGUID = "b70e7b4f759f5d1408c5eb72ef1c1b65";
         private static Transform _emptyPrefab;
+        internal static Transform FixedToWorld => _emptyPrefab = _emptyPrefab != null 
+            ? _emptyPrefab 
+            : AssetDatabase.LoadAssetAtPath<Transform>(AssetDatabase.GUIDToAssetPath(emptyPrefGUID));
 
-        internal static Transform FixedToWorld => _emptyPrefab = _emptyPrefab != null ? _emptyPrefab : AssetDatabase.LoadAssetAtPath<Transform>(AssetDatabase.GUIDToAssetPath(emptyPrefGUID));
         public override string DisplayName => "ADSConstraint";
         protected override void Execute(BuildContext context)
         {
-            ADSConstraint[] adsConstraints = context.AvatarRootObject.GetComponentsInChildren<ADSConstraint>(true);
+            ExecuteInternal(context.AvatarDescriptor);
+        }
+        internal static void ExecuteInternal(VRCAvatarDescriptor avatarRoot)
+        {
+            ADSConstraint[] adsConstraints = avatarRoot.GetComponentsInChildren<ADSConstraint>(true);
 
             if (adsConstraints.Length <= 0) return;
 
             GameObject fixedToWorld = new GameObject(ADSettings.fixed2world);
-            fixedToWorld.transform.parent = context.AvatarRootTransform;
+            fixedToWorld.transform.parent = avatarRoot.transform;
             fixedToWorld.transform.localScale = Vector3.one;
             ParentConstraint fixedToWorldConstraint = fixedToWorld.AddComponent<ParentConstraint>();
             ConstraintSource fixedToWorldConstraintSource = new ConstraintSource
@@ -42,13 +49,8 @@ namespace online.kamishiro.alterdresser.editor.pass
             {
                 if (ADEditorUtils.IsEditorOnly(item.transform)) continue;
 
-                AnimatorController animator = AnimationUtils.CreateController();
-                animator.name = $"ADSC_{item.Id}";
-
-                ModularAvatarMergeAnimator maMargeAnimator = item.gameObject.AddComponent<ModularAvatarMergeAnimator>();
-                maMargeAnimator.deleteAttachedAnimator = true;
-                maMargeAnimator.animator = animator;
-                maMargeAnimator.pathMode = MergeAnimatorPathMode.Absolute;
+                AnimatorController animator = AnimationUtils.CreateController($"ADSC_{item.Id}");
+                item.AddMAMergeAnimator(animator, pathMode: MergeAnimatorPathMode.Absolute);
 
                 GameObject objPosMirror = new GameObject(item.name);
                 objPosMirror.transform.parent = fixedToWorld.transform;
@@ -67,7 +69,7 @@ namespace online.kamishiro.alterdresser.editor.pass
                 AnimationUtils.AddParameter(animator, ADSettings.paramIsReady, ACPT.Bool);
                 AnimatorControllerLayer layer = AnimationUtils.AddLayer(animator, $"ADSConstraint_{item.name}");
 
-                AnimationClip constraintIntClip = CreateInitConstraintSwitchAnimationClip(item.name, item.avatarObjectReferences.Length + 1, item.transform, context);
+                AnimationClip constraintIntClip = CreateInitConstraintSwitchAnimationClip(item.name, item.avatarObjectReferences.Length + 1, item.transform, avatarRoot);
                 AnimatorState constraintInitState = AnimationUtils.AddState(layer, constraintIntClip, $"Init", new StateMachineBehaviour[] { });
 
                 AnimationUtils.AddAnyStateTransition(layer.stateMachine, constraintInitState, Enumerable.Range(0, item.avatarObjectReferences.Length).Append(-100).Select(x => (ACM.Less, (float)0, $"ADSC_{item.Id}_{x}")).ToArray());
@@ -80,7 +82,7 @@ namespace online.kamishiro.alterdresser.editor.pass
                     int idx = i;
                     if (i == item.avatarObjectReferences.Length) idx = -100;
                     string paramName = $"ADSC_{item.Id}_{idx}";
-                    AnimationClip constraintAnimatinClip = CreateConstraintSwitchAnimationClip(item.name, i, item.avatarObjectReferences.Length + 1, item.transform, context);
+                    AnimationClip constraintAnimatinClip = CreateConstraintSwitchAnimationClip(item.name, i, item.avatarObjectReferences.Length + 1, item.transform, avatarRoot);
                     AnimationUtils.AddParameter(animator, paramName, ACPT.Int);
 
                     AnimatorState constraintState = AnimationUtils.AddState(layer, constraintAnimatinClip, $"Source_{i}", new StateMachineBehaviour[] { });
@@ -90,9 +92,10 @@ namespace online.kamishiro.alterdresser.editor.pass
                 }
             }
         }
-        internal static AnimationClip CreateInitConstraintSwitchAnimationClip(string name, int max, Transform p, BuildContext context)
+
+        internal static AnimationClip CreateInitConstraintSwitchAnimationClip(string name, int max, Transform p, VRCAvatarDescriptor avatarRoot)
         {
-            string path = ADRuntimeUtils.GetRelativePath(context.AvatarRootTransform, p);
+            string path = ADRuntimeUtils.GetRelativePath(avatarRoot.transform, p);
             AnimationCurve kf0 = new AnimationCurve(new Keyframe[] { new Keyframe(0, 0) });
             AnimationCurve kf1 = new AnimationCurve(new Keyframe[] { new Keyframe(0, 1) });
             AnimationClip animationClip = new AnimationClip
@@ -109,9 +112,9 @@ namespace online.kamishiro.alterdresser.editor.pass
 
             return animationClip;
         }
-        internal static AnimationClip CreateConstraintSwitchAnimationClip(string name, int idx, int max, Transform p, BuildContext context)
+        internal static AnimationClip CreateConstraintSwitchAnimationClip(string name, int idx, int max, Transform p, VRCAvatarDescriptor avatarRoot)
         {
-            string path = ADRuntimeUtils.GetRelativePath(context.AvatarRootTransform, p);
+            string path = ADRuntimeUtils.GetRelativePath(avatarRoot.transform, p);
             AnimationCurve kf0 = new AnimationCurve(new Keyframe[] { new Keyframe(0, 0) });
             AnimationCurve kf1 = new AnimationCurve(new Keyframe[] { new Keyframe(0, 1) });
             AnimationClip animationClip = new AnimationClip
@@ -128,13 +131,13 @@ namespace online.kamishiro.alterdresser.editor.pass
 
             return animationClip;
         }
-        private static ParentConstraint AddConstraint(ADSConstraint item, Transform objMirror)
+        internal static ParentConstraint AddConstraint(ADSConstraint item, Transform objMirror)
         {
             ParentConstraint constraint = item.gameObject.AddComponent<ParentConstraint>();
             for (int i = 0; i < item.avatarObjectReferences.Length; i++)
             {
                 ConstraintSource source = new ConstraintSource();
-                if (item.avatarObjectReferences[i] != null)
+                if (!string.IsNullOrEmpty(item.avatarObjectReferences[i].referencePath))
                 {
                     source.weight = 0;
                     source.sourceTransform = item.avatarObjectReferences[i].Get(item).transform;

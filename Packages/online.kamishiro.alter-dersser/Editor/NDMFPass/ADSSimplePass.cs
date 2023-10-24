@@ -1,7 +1,7 @@
-﻿using nadena.dev.modular_avatar.core;
-using nadena.dev.ndmf;
+﻿using nadena.dev.ndmf;
 using UnityEditor.Animations;
 using UnityEngine;
+using VRC.SDK3.Avatars.Components;
 using ACM = UnityEditor.Animations.AnimatorConditionMode;
 using ACPT = UnityEngine.AnimatorControllerParameterType;
 using ADSSimple = online.kamishiro.alterdresser.AlterDresserSwitchSimple;
@@ -13,19 +13,18 @@ namespace online.kamishiro.alterdresser.editor.pass
         public override string DisplayName => "ADSSimple";
         protected override void Execute(BuildContext context)
         {
-            //IEnumerable<ADMElement> menuItems = context.AvatarRootObject.GetComponentsInChildren<AlterDresserMenuItem>(true).SelectMany(x => x.adElements).Where(x => x.mode == SwitchMode.Simple);
-            ADSSimple[] adsSimples = context.AvatarRootObject.GetComponentsInChildren<ADSSimple>(true);
+            ExecuteInternal(context.AvatarDescriptor);
+        }
+        internal void ExecuteInternal(VRCAvatarDescriptor avatarRoot)
+        {
+            ADSSimple[] adsSimples = avatarRoot.GetComponentsInChildren<ADSSimple>(true);
 
             foreach (ADSSimple item in adsSimples)
             {
                 if (ADEditorUtils.IsEditorOnly(item.transform)) continue;
 
-                AnimatorController animator = AnimationUtils.CreateController();
-                animator.name = $"ADSS_{item.Id}";
-
-                ModularAvatarMergeAnimator maMargeAnimator = item.gameObject.AddComponent<ModularAvatarMergeAnimator>();
-                maMargeAnimator.deleteAttachedAnimator = true;
-                maMargeAnimator.animator = animator;
+                AnimatorController animator = AnimationUtils.CreateController($"ADSS_{item.Id}");
+                item.AddMAMergeAnimator(animator);
 
                 string paramName = $"ADSS_{item.Id}";
 
@@ -45,6 +44,7 @@ namespace online.kamishiro.alterdresser.editor.pass
                 AnimationUtils.AddAnyStateTransition(layer.stateMachine, disableState, new (ACM, float, string)[] { (ACM.Less, 0, paramName) });
             }
         }
+
         internal static AnimationClip CreateDissolveGroupEnableAnimationClip(Transform t)
         {
             AnimationClip animationClip = new AnimationClip

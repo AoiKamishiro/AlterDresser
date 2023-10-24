@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using VRC.SDK3.Avatars.Components;
 using ADMElemtnt = online.kamishiro.alterdresser.ADMItemElement;
 using ADMGroup = online.kamishiro.alterdresser.AlterDresserMenuGroup;
 using ADMItem = online.kamishiro.alterdresser.AlterDresserMenuItem;
@@ -18,7 +19,47 @@ namespace online.kamishiro.alterdresser.editor.pass
         public override string DisplayName => "PostProcess";
         protected override void Execute(BuildContext context)
         {
-            ADMItem[] admItems = context.AvatarRootObject.GetComponentsInChildren<ADMItem>(true);
+            ExecuteInternal(context.AvatarDescriptor);
+        }
+        internal void ExecuteInternal(VRCAvatarDescriptor avatarRoot)
+        {
+            ADMItem[] admItems = avatarRoot.GetComponentsInChildren<ADMItem>(true);
+
+            foreach (ADMElemtnt elem in admItems.SelectMany(x => x.adElements).Where(x => x != null).Where(x => !string.IsNullOrEmpty(x.reference.referencePath)))
+            {
+                if (elem.mode == SwitchMode.Enhanced)
+                {
+                    ADSEnhanced adse = ADRuntimeUtils.GetRelativeObject(avatarRoot, elem.reference.referencePath).GetComponent<ADSEnhanced>();
+                    if (!adse) continue;
+
+                    IEnumerable<Renderer> targets = ADEditorUtils.GetValidChildRenderers(adse.transform);
+                    Transform mergedMesh = adse.transform.Find($"{ADRuntimeUtils.GenerateID(adse.gameObject)}_MergedMesh");
+
+                    foreach (Transform item in adse.transform)
+                    {
+                        Debug.LogWarning(item.name);
+                    }
+
+                    if (mergedMesh)
+                    {
+                        targets = targets.Append(mergedMesh.GetComponent<SkinnedMeshRenderer>());
+                    }
+
+                    targets.ToList().ForEach(x =>
+                    {
+                        x.enabled = false;
+                        x.gameObject.SetActive(true);
+                    });
+
+                    adse.gameObject.SetActive(true);
+                }
+                if (elem.mode == SwitchMode.Simple)
+                {
+                    ADSSimple adss = ADRuntimeUtils.GetRelativeObject(avatarRoot, elem.reference.referencePath).GetComponent<ADSSimple>();
+                    if (!adss) continue;
+                    adss.gameObject.SetActive(false);
+                }
+            }
 
             foreach (ADMItem item in admItems)
             {
@@ -30,19 +71,15 @@ namespace online.kamishiro.alterdresser.editor.pass
                     switch (ads.mode)
                     {
                         case SwitchMode.Simple:
-                            ADSSimple adss = ADRuntimeUtils.GetRelativeObject(context.AvatarDescriptor, ads.reference.referencePath).GetComponent<ADSSimple>();
+                            ADSSimple adss = ADRuntimeUtils.GetRelativeObject(avatarRoot, ads.reference.referencePath).GetComponent<ADSSimple>();
 
-                            new SerializedGameObject(adss.gameObject)
-                            {
-                                IsActive = init
-                            };
+                            adss.gameObject.SetActive(init);
                             break;
                         case SwitchMode.Enhanced:
-                            ADSEnhanced adse = ADRuntimeUtils.GetRelativeObject(context.AvatarDescriptor, ads.reference.referencePath).GetComponent<ADSEnhanced>();
-                            GameObject adseGO = adse.gameObject;
+                            ADSEnhanced adse = ADRuntimeUtils.GetRelativeObject(avatarRoot, ads.reference.referencePath).GetComponent<ADSEnhanced>();
 
-                            IEnumerable<Renderer> targets = ADSwitchEnhancedEditor.GetValidChildRenderers(adseGO.transform);
-                            Transform mergedMesh = adseGO.transform.Find($"{ADRuntimeUtils.GenerateID(adseGO)}_MergedMesh");
+                            IEnumerable<Renderer> targets = ADEditorUtils.GetValidChildRenderers(adse.transform);
+                            Transform mergedMesh = adse.transform.Find($"{ADRuntimeUtils.GenerateID(adse.gameObject)}_MergedMesh");
                             if (mergedMesh)
                             {
                                 targets = targets.Append(mergedMesh.GetComponent<SkinnedMeshRenderer>());
@@ -50,23 +87,12 @@ namespace online.kamishiro.alterdresser.editor.pass
 
                             targets.Where(x => x).ToList().ForEach(x =>
                             {
-                                new SerializedRenderer(x)
-                                {
-                                    Enabled = init
-                                };
-                                new SerializedGameObject(x.gameObject)
-                                {
-                                    IsActive = true
-                                };
+                                x.enabled = init;
+                                x.gameObject.SetActive(true);
                             });
-
-                            new SerializedGameObject(adseGO)
-                            {
-                                IsActive = init
-                            };
                             break;
                         case SwitchMode.Blendshape:
-                            ADSBlendshape adsb = ADRuntimeUtils.GetRelativeObject(context.AvatarDescriptor, ads.reference.referencePath).GetComponent<ADSBlendshape>();
+                            ADSBlendshape adsb = ADRuntimeUtils.GetRelativeObject(avatarRoot, ads.reference.referencePath).GetComponent<ADSBlendshape>();
                             SkinnedMeshRenderer smr = adsb.GetComponent<SkinnedMeshRenderer>();
 
                             char[] bin = Convert.ToString(ads.intValue, 2).PadLeft(smr.sharedMesh.blendShapeCount, '0').ToCharArray();
@@ -78,13 +104,13 @@ namespace online.kamishiro.alterdresser.editor.pass
                             };
                             break;
                         case SwitchMode.Constraint:
-                            ADSConstraint adsc = ADRuntimeUtils.GetRelativeObject(context.AvatarDescriptor, ads.reference.referencePath).GetComponent<ADSConstraint>();
+                            ADSConstraint adsc = ADRuntimeUtils.GetRelativeObject(avatarRoot, ads.reference.referencePath).GetComponent<ADSConstraint>();
 
                             SerializedTransform serializedTransform = new SerializedTransform(adsc.transform);
                             if (ads.intValue > 0 && ads.intValue < adsc.avatarObjectReferences.Length)
                             {
-                                serializedTransform.LocalPosision = adsc.avatarObjectReferences[ads.intValue].Get(context.AvatarRootTransform).transform.position;
-                                serializedTransform.LocalRotation = adsc.avatarObjectReferences[ads.intValue].Get(context.AvatarRootTransform).transform.rotation;
+                                serializedTransform.LocalPosision = adsc.avatarObjectReferences[ads.intValue].Get(avatarRoot).transform.position;
+                                serializedTransform.LocalRotation = adsc.avatarObjectReferences[ads.intValue].Get(avatarRoot).transform.rotation;
                             }
                             break;
                     }

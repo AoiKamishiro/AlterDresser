@@ -10,187 +10,162 @@ using VRC.SDK3.Avatars.ScriptableObjects;
 using VRC.SDKBase;
 using ACM = UnityEditor.Animations.AnimatorConditionMode;
 using ACPT = UnityEngine.AnimatorControllerParameterType;
-using ADM = online.kamishiro.alterdresser.ADMenuBase;
 using ADMElemtnt = online.kamishiro.alterdresser.ADMItemElement;
 using ADMGroup = online.kamishiro.alterdresser.AlterDresserMenuGroup;
 using ADMItem = online.kamishiro.alterdresser.AlterDresserMenuItem;
 using ADS = online.kamishiro.alterdresser.ADSwitchBase;
+using Parameter = VRC.SDKBase.VRC_AvatarParameterDriver.Parameter;
 
 namespace online.kamishiro.alterdresser.editor.pass
 {
     internal class ADMItemPass : Pass<ADMItemPass>
     {
         public override string DisplayName => "ADMItem";
-
         protected override void Execute(BuildContext context)
         {
-            ADMItem[] admItems = context.AvatarRootObject.GetComponentsInChildren<ADMItem>(true);
+            ExecuteInternal(context.AvatarDescriptor);
+        }
+        internal void ExecuteInternal(VRCAvatarDescriptor avatarRoot)
+        {
+            ADMItem[] admItems = avatarRoot.GetComponentsInChildren<ADMItem>(true);
 
             foreach (ADMItem item in admItems)
             {
-                if (ADEditorUtils.IsEditorOnly(item.transform)) continue;
+                if (ADEditorUtils.IsEditorOnly(item.transform) || !ADEditorUtils.WillUse(item)) continue;
 
                 string paramRequierdID = $"ADM_{ADEditorUtils.GetID(item)}_RequireID";
                 string paramAppliedID = $"ADM_{ADEditorUtils.GetID(item)}_AppliedID";
 
-                if (ADEditorUtils.WillUse(item))
+                if (!ADEditorUtils.IsRoot(item))
                 {
-                    if (!IsRoot(item))
+                    AnimatorController animatorController = AnimationUtils.CreateController($"ADMI_{item.Id}");
+                    VRCExpressionsMenu.Control control = new VRCExpressionsMenu.Control
                     {
-                        ModularAvatarMenuItem maMenuItem = item.gameObject.AddComponent<ModularAvatarMenuItem>();
-                        VRCExpressionsMenu.Control control = new VRCExpressionsMenu.Control
+                        style = VRCExpressionsMenu.Control.Style.Style1,
+                        type = VRCExpressionsMenu.Control.ControlType.Toggle,
+                        parameter = new VRCExpressionsMenu.Control.Parameter
                         {
-                            style = VRCExpressionsMenu.Control.Style.Style1,
-                            type = VRCExpressionsMenu.Control.ControlType.Toggle,
-                            parameter = new VRCExpressionsMenu.Control.Parameter
-                            {
-                                name = paramRequierdID
-                            },
-                            value = GetIdx(item),
-                            icon = item.menuIcon,
-                        };
-                        maMenuItem.Control = control;
-                        maMenuItem.MenuSource = SubmenuSource.MenuAsset;
+                            name = paramRequierdID
+                        },
+                        value = GetExclusiveMenuIdx(item),
+                        icon = item.menuIcon,
+                    };
 
-                        //Animator
-                        AnimatorController animatorController = AnimationUtils.CreateController();
-                        animatorController.name = $"ADMI_{item.Id}";
+                    item.AddMAMenuItem(control);
+                    item.AddMAMergeAnimator(animatorController, pathMode: MergeAnimatorPathMode.Absolute);
 
-                        ModularAvatarMergeAnimator maMargeAnimator = item.gameObject.AddComponent<ModularAvatarMergeAnimator>();
-                        maMargeAnimator.animator = animatorController;
-                        maMargeAnimator.layerType = VRCAvatarDescriptor.AnimLayerType.FX;
-                        maMargeAnimator.pathMode = MergeAnimatorPathMode.Absolute;
+                    AnimationUtils.AddParameter(animatorController, paramAppliedID, ACPT.Int);
+                    AnimationUtils.AddParameter(animatorController, ADSettings.paramIsReady, ACPT.Bool);
 
-                        AnimationUtils.AddParameter(animatorController, paramAppliedID, ACPT.Int);
-                        AnimationUtils.AddParameter(animatorController, ADSettings.paramIsReady, ACPT.Bool);
+                    AnimatorControllerLayer layer = AnimationUtils.AddLayer(animatorController, $"ADMItem_{item.name}");
 
-                        AnimatorControllerLayer layer = AnimationUtils.AddLayer(animatorController, $"ADMItem_{item.name}");
+                    IEnumerable<string> paramNames = GetParams(item, avatarRoot);
 
-                        IEnumerable<string> paramNames = GetParams(item, context);
+                    IEnumerable<Parameter> enableParameters = Enumerable.Empty<Parameter>();
+                    IEnumerable<Parameter> disableParameters = Enumerable.Empty<Parameter>();
 
-                        IEnumerable<VRC_AvatarParameterDriver.Parameter> enableParameters = Enumerable.Empty<VRC_AvatarParameterDriver.Parameter>();
-                        foreach (string p in paramNames)
-                        {
-                            VRC_AvatarParameterDriver.Parameter pa = new VRC_AvatarParameterDriver.Parameter
-                            {
-                                value = 1,
-                                name = p,
-                                type = VRC_AvatarParameterDriver.ChangeType.Add
-                            };
-                            enableParameters = enableParameters.Append(pa);
-                        }
-
-                        IEnumerable<VRC_AvatarParameterDriver.Parameter> disableParameters = Enumerable.Empty<VRC_AvatarParameterDriver.Parameter>();
-                        foreach (string p in paramNames)
-                        {
-                            VRC_AvatarParameterDriver.Parameter pa = new VRC_AvatarParameterDriver.Parameter
-                            {
-                                value = -1,
-                                name = p,
-                                type = VRC_AvatarParameterDriver.ChangeType.Add
-                            };
-                            disableParameters = disableParameters.Append(pa);
-                        }
-
-                        VRCAvatarParameterDriver enableParameter = ScriptableObject.CreateInstance<VRCAvatarParameterDriver>();
-                        enableParameter.localOnly = false;
-                        enableParameter.parameters = enableParameters.ToList();
-
-                        VRCAvatarParameterDriver disableParameter = ScriptableObject.CreateInstance<VRCAvatarParameterDriver>();
-                        disableParameter.localOnly = false;
-                        disableParameter.parameters = disableParameters.ToList();
-
-                        AnimatorState initState = AnimationUtils.AddState(layer, AnimationUtils.EmptyClip, "Init", new StateMachineBehaviour[] { }, 100);
-                        AnimatorState enableState = AnimationUtils.AddState(layer, AnimationUtils.EmptyClip, "Enable", new StateMachineBehaviour[] { enableParameter }, 100);
-                        AnimatorState revertState = AnimationUtils.AddState(layer, AnimationUtils.EmptyClip, "Revert", new StateMachineBehaviour[] { disableParameter }, 100);
-                        AnimatorState disableState = AnimationUtils.AddState(layer, AnimationUtils.EmptyClip, "Disable", new StateMachineBehaviour[] { }, 100);
-
-                        AnimationUtils.AddTransition(initState, enableState, new (ACM, float, string)[] { (ACM.Equals, GetIdx(item), paramAppliedID) });
-                        AnimationUtils.AddTransition(initState, disableState, new (ACM, float, string)[] { (ACM.NotEqual, GetIdx(item), paramAppliedID) });
-                        AnimationUtils.AddTransition(enableState, revertState, new (ACM, float, string)[] { (ACM.NotEqual, GetIdx(item), paramAppliedID) });
-                        AnimationUtils.AddTransition(disableState, enableState, new (ACM, float, string)[] { (ACM.Equals, GetIdx(item), paramAppliedID) });
-                        AnimationUtils.AddTransition(revertState, disableState);
-                    }
-                    else
+                    foreach (string p in paramNames)
                     {
-                        ModularAvatarMenuItem maMenuItem = item.gameObject.AddComponent<ModularAvatarMenuItem>();
-                        VRCExpressionsMenu.Control control = new VRCExpressionsMenu.Control
+                        Parameter pa = new Parameter
                         {
-                            style = VRCExpressionsMenu.Control.Style.Style1,
-                            type = VRCExpressionsMenu.Control.ControlType.Toggle,
-                            parameter = new VRCExpressionsMenu.Control.Parameter
-                            {
-                                name = paramRequierdID
-                            },
                             value = 1,
-                            icon = item.menuIcon,
+                            name = p,
+                            type = VRC_AvatarParameterDriver.ChangeType.Add
                         };
-                        maMenuItem.Control = control;
-                        maMenuItem.MenuSource = SubmenuSource.MenuAsset;
-
-                        //Animator
-                        AnimatorController animatorController = AnimationUtils.CreateController();
-                        animatorController.name = $"ADMI_{item.Id}";
-
-                        ModularAvatarMergeAnimator maMargeAnimator = item.gameObject.AddComponent<ModularAvatarMergeAnimator>();
-                        maMargeAnimator.animator = animatorController;
-                        maMargeAnimator.layerType = VRCAvatarDescriptor.AnimLayerType.FX;
-                        maMargeAnimator.pathMode = MergeAnimatorPathMode.Absolute;
-
-                        AnimationUtils.AddParameter(animatorController, paramAppliedID, ACPT.Bool);
-                        AnimationUtils.AddParameter(animatorController, ADSettings.paramIsReady, ACPT.Bool);
-
-                        AnimatorControllerLayer layer = AnimationUtils.AddLayer(animatorController, $"ADMItem_{item.name}");
-
-                        IEnumerable<string> paramNames = GetParams(item, context);
-
-                        IEnumerable<VRC_AvatarParameterDriver.Parameter> enableParameters = Enumerable.Empty<VRC_AvatarParameterDriver.Parameter>();
-                        foreach (string p in paramNames)
-                        {
-                            VRC_AvatarParameterDriver.Parameter pa = new VRC_AvatarParameterDriver.Parameter
-                            {
-                                value = 1,
-                                name = p,
-                                type = VRC_AvatarParameterDriver.ChangeType.Add
-                            };
-                            enableParameters = enableParameters.Append(pa);
-                        }
-
-                        IEnumerable<VRC_AvatarParameterDriver.Parameter> disableParameters = Enumerable.Empty<VRC_AvatarParameterDriver.Parameter>();
-                        foreach (string p in paramNames)
-                        {
-                            VRC_AvatarParameterDriver.Parameter pa = new VRC_AvatarParameterDriver.Parameter
-                            {
-                                value = -1,
-                                name = p,
-                                type = VRC_AvatarParameterDriver.ChangeType.Add
-                            };
-                            disableParameters = disableParameters.Append(pa);
-                        }
-
-                        VRCAvatarParameterDriver enableParameter = ScriptableObject.CreateInstance<VRCAvatarParameterDriver>();
-                        enableParameter.localOnly = false;
-                        enableParameter.parameters = enableParameters.ToList();
-
-                        VRCAvatarParameterDriver disableParameter = ScriptableObject.CreateInstance<VRCAvatarParameterDriver>();
-                        disableParameter.localOnly = false;
-                        disableParameter.parameters = disableParameters.ToList();
-
-                        AnimatorState initState = AnimationUtils.AddState(layer, AnimationUtils.EmptyClip, "Init", new StateMachineBehaviour[] { }, 100);
-                        AnimatorState enableState = AnimationUtils.AddState(layer, AnimationUtils.EmptyClip, "Enable", new StateMachineBehaviour[] { enableParameter }, 100);
-                        AnimatorState revertState = AnimationUtils.AddState(layer, AnimationUtils.EmptyClip, "Revert", new StateMachineBehaviour[] { disableParameter }, 100);
-                        AnimatorState disableState = AnimationUtils.AddState(layer, AnimationUtils.EmptyClip, "Disable", new StateMachineBehaviour[] { }, 100);
-
-                        AnimationUtils.AddTransition(initState, enableState, new (ACM, float, string)[] { (ACM.If, GetIdx(item), paramAppliedID) });
-                        AnimationUtils.AddTransition(initState, disableState, new (ACM, float, string)[] { (ACM.IfNot, GetIdx(item), paramAppliedID) });
-                        AnimationUtils.AddTransition(enableState, revertState, new (ACM, float, string)[] { (ACM.IfNot, GetIdx(item), paramAppliedID) });
-                        AnimationUtils.AddTransition(disableState, enableState, new (ACM, float, string)[] { (ACM.If, GetIdx(item), paramAppliedID) });
-                        AnimationUtils.AddTransition(revertState, disableState);
+                        enableParameters = enableParameters.Append(pa);
                     }
+                    foreach (string p in paramNames)
+                    {
+                        Parameter pa = new Parameter
+                        {
+                            value = -1,
+                            name = p,
+                            type = VRC_AvatarParameterDriver.ChangeType.Add
+                        };
+                        disableParameters = disableParameters.Append(pa);
+                    }
+
+                    VRCAvatarParameterDriver enableParameter = VRCStateMachineBehaviourUtils.CreateVRCAvatarParameterDriver(enableParameters.ToList());
+                    VRCAvatarParameterDriver disableParameter = VRCStateMachineBehaviourUtils.CreateVRCAvatarParameterDriver(disableParameters.ToList());
+
+                    AnimatorState initState = AnimationUtils.AddState(layer, AnimationUtils.EmptyClip, "Init", new StateMachineBehaviour[] { }, 100);
+                    AnimatorState enableState = AnimationUtils.AddState(layer, AnimationUtils.EmptyClip, "Enable", new StateMachineBehaviour[] { enableParameter }, 100);
+                    AnimatorState revertState = AnimationUtils.AddState(layer, AnimationUtils.EmptyClip, "Revert", new StateMachineBehaviour[] { disableParameter }, 100);
+                    AnimatorState disableState = AnimationUtils.AddState(layer, AnimationUtils.EmptyClip, "Disable", new StateMachineBehaviour[] { }, 100);
+
+                    AnimationUtils.AddTransition(initState, enableState, new (ACM, float, string)[] { (ACM.Equals, GetExclusiveMenuIdx(item), paramAppliedID) });
+                    AnimationUtils.AddTransition(initState, disableState, new (ACM, float, string)[] { (ACM.NotEqual, GetExclusiveMenuIdx(item), paramAppliedID) });
+                    AnimationUtils.AddTransition(enableState, revertState, new (ACM, float, string)[] { (ACM.NotEqual, GetExclusiveMenuIdx(item), paramAppliedID) });
+                    AnimationUtils.AddTransition(disableState, enableState, new (ACM, float, string)[] { (ACM.Equals, GetExclusiveMenuIdx(item), paramAppliedID) });
+                    AnimationUtils.AddTransition(revertState, disableState);
+                }
+                else
+                {
+                    AnimatorController animatorController = AnimationUtils.CreateController($"ADMI_{item.Id}");
+                    VRCExpressionsMenu.Control control = new VRCExpressionsMenu.Control
+                    {
+                        style = VRCExpressionsMenu.Control.Style.Style1,
+                        type = VRCExpressionsMenu.Control.ControlType.Toggle,
+                        parameter = new VRCExpressionsMenu.Control.Parameter
+                        {
+                            name = paramRequierdID
+                        },
+                        value = 1,
+                        icon = item.menuIcon,
+                    };
+
+                    item.AddMAMenuItem(control);
+                    item.AddMAMergeAnimator(animatorController, pathMode: MergeAnimatorPathMode.Absolute);
+
+                    AnimationUtils.AddParameter(animatorController, paramAppliedID, ACPT.Bool);
+                    AnimationUtils.AddParameter(animatorController, ADSettings.paramIsReady, ACPT.Bool);
+
+                    AnimatorControllerLayer layer = AnimationUtils.AddLayer(animatorController, $"ADMItem_{item.name}");
+
+                    IEnumerable<string> paramNames = GetParams(item, avatarRoot);
+
+                    IEnumerable<Parameter> enableParameters = Enumerable.Empty<Parameter>();
+                    IEnumerable<Parameter> disableParameters = Enumerable.Empty<Parameter>();
+
+                    foreach (string p in paramNames)
+                    {
+                        Parameter pa = new Parameter
+                        {
+                            value = 1,
+                            name = p,
+                            type = VRC_AvatarParameterDriver.ChangeType.Add
+                        };
+                        enableParameters = enableParameters.Append(pa);
+                    }
+                    foreach (string p in paramNames)
+                    {
+                        Parameter pa = new Parameter
+                        {
+                            value = -1,
+                            name = p,
+                            type = VRC_AvatarParameterDriver.ChangeType.Add
+                        };
+                        disableParameters = disableParameters.Append(pa);
+                    }
+
+                    VRCAvatarParameterDriver enableParameter = VRCStateMachineBehaviourUtils.CreateVRCAvatarParameterDriver(enableParameters.ToList());
+                    VRCAvatarParameterDriver disableParameter = VRCStateMachineBehaviourUtils.CreateVRCAvatarParameterDriver(disableParameters.ToList());
+
+                    AnimatorState initState = AnimationUtils.AddState(layer, AnimationUtils.EmptyClip, "Init", new StateMachineBehaviour[] { }, 100);
+                    AnimatorState enableState = AnimationUtils.AddState(layer, AnimationUtils.EmptyClip, "Enable", new StateMachineBehaviour[] { enableParameter }, 100);
+                    AnimatorState revertState = AnimationUtils.AddState(layer, AnimationUtils.EmptyClip, "Revert", new StateMachineBehaviour[] { disableParameter }, 100);
+                    AnimatorState disableState = AnimationUtils.AddState(layer, AnimationUtils.EmptyClip, "Disable", new StateMachineBehaviour[] { }, 100);
+
+                    AnimationUtils.AddTransition(initState, enableState, new (ACM, float, string)[] { (ACM.If, GetExclusiveMenuIdx(item), paramAppliedID) });
+                    AnimationUtils.AddTransition(initState, disableState, new (ACM, float, string)[] { (ACM.IfNot, GetExclusiveMenuIdx(item), paramAppliedID) });
+                    AnimationUtils.AddTransition(enableState, revertState, new (ACM, float, string)[] { (ACM.IfNot, GetExclusiveMenuIdx(item), paramAppliedID) });
+                    AnimationUtils.AddTransition(disableState, enableState, new (ACM, float, string)[] { (ACM.If, GetExclusiveMenuIdx(item), paramAppliedID) });
+                    AnimationUtils.AddTransition(revertState, disableState);
                 }
             }
         }
-        internal static int GetIdx(ADMItem item)
+
+        internal static int GetExclusiveMenuIdx(ADMItem item)
         {
             ADMGroup rootMG = null;
 
@@ -222,27 +197,12 @@ namespace online.kamishiro.alterdresser.editor.pass
             throw new Exception();
             //return 0;
         }
-        internal static bool IsRoot(ADMItem item)
-        {
-            ADM rootMG = item;
-            Transform p = item.transform.parent;
-            while (p != null)
-            {
-                if (p.TryGetComponent(out ADMGroup c) && c.exclusivityGroup)
-                {
-                    rootMG = c;
-                }
-                p = p.parent;
-            }
-
-            return item == rootMG;
-        }
-        private static IEnumerable<string> GetParams(ADMItem item, BuildContext context)
+        internal static IEnumerable<string> GetParams(ADMItem item, VRCAvatarDescriptor avatarRoot)
         {
             IEnumerable<string> paramNames = Enumerable.Empty<string>();
             foreach (ADMElemtnt ads in item.adElements.Where(x => x.mode == SwitchMode.Blendshape).Where(x => x.reference.referencePath != string.Empty))
             {
-                ADS obj = ADRuntimeUtils.GetRelativeObject(context.AvatarDescriptor, ads.reference.referencePath).GetComponent<ADS>();
+                ADS obj = ADRuntimeUtils.GetRelativeObject(avatarRoot, ads.reference.referencePath).GetComponent<ADS>();
                 SkinnedMeshRenderer smr = obj.GetComponent<SkinnedMeshRenderer>();
                 if (!smr || !smr.sharedMesh) continue;
                 string binaryNumber = Convert.ToString(ads.intValue, 2);
@@ -259,17 +219,17 @@ namespace online.kamishiro.alterdresser.editor.pass
             }
             foreach (ADMElemtnt ads in item.adElements.Where(x => x.mode == SwitchMode.Constraint).Where(x => x.reference.referencePath != string.Empty))
             {
-                ADS obj = ADRuntimeUtils.GetRelativeObject(context.AvatarDescriptor, ads.reference.referencePath).GetComponent<ADS>();
+                ADS obj = ADRuntimeUtils.GetRelativeObject(avatarRoot, ads.reference.referencePath).GetComponent<ADS>();
                 paramNames = paramNames.Append($"ADSC_{obj.Id}_{ads.intValue}");
             }
             foreach (ADMElemtnt ads in item.adElements.Where(x => x.mode == SwitchMode.Enhanced).Where(x => x.reference.referencePath != string.Empty))
             {
-                ADS obj = ADRuntimeUtils.GetRelativeObject(context.AvatarDescriptor, ads.reference.referencePath).GetComponent<ADS>();
+                ADS obj = ADRuntimeUtils.GetRelativeObject(avatarRoot, ads.reference.referencePath).GetComponent<ADS>();
                 paramNames = paramNames.Append($"ADSE_{obj.Id}");
             }
             foreach (ADMElemtnt ads in item.adElements.Where(x => x.mode == SwitchMode.Simple).Where(x => x.reference.referencePath != string.Empty))
             {
-                ADS obj = ADRuntimeUtils.GetRelativeObject(context.AvatarDescriptor, ads.reference.referencePath).GetComponent<ADS>();
+                ADS obj = ADRuntimeUtils.GetRelativeObject(avatarRoot, ads.reference.referencePath).GetComponent<ADS>();
                 paramNames = paramNames.Append($"ADSS_{obj.Id}");
             }
             return paramNames;

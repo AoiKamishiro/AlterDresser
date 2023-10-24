@@ -167,7 +167,7 @@ namespace online.kamishiro.alterdresser.editor
             {
                 if (_childRenderers == null)
                 {
-                    _childRenderers = GetValidChildRenderers(Item).ToArray();
+                    _childRenderers = ADEditorUtils.GetWillMergeMesh(Item).ToArray();
                 }
                 return _childRenderers;
             }
@@ -287,7 +287,7 @@ namespace online.kamishiro.alterdresser.editor
             }
 
             EditorGUILayout.BeginVertical(new GUIStyle(GUI.skin.box));
-            using (new EditorGUI.DisabledGroupScope(!AAOType.IsImported))
+            using (new EditorGUI.DisabledGroupScope(!AvatarOptimizerUtils.IsImported))
             {
                 EditorGUILayout.LabelField(new GUIContent(L.ADAOTitle, L.ADAODescription), EditorStyles.boldLabel);
                 EditorGUILayout.PropertyField(DoMergeMesh, new GUIContent(L.ADSE_AO_DoMerge, L.ADSE_AO_DoMerge_Tips));
@@ -306,7 +306,7 @@ namespace online.kamishiro.alterdresser.editor
         private Material[] GetMaterials()
         {
             IEnumerable<Material> mats = Enumerable.Empty<Material>();
-            return GetValidChildRenderers((ADSEnhanced)target).SelectMany(x => x.sharedMaterials).Distinct().ToArray();
+            return ADEditorUtils.GetValidChildRenderers((ADSEnhanced)target).SelectMany(x => x.sharedMaterials).Distinct().ToArray();
         }
         private Renderer[] GetRelatedRenderers(Material mat)
         {
@@ -320,19 +320,6 @@ namespace online.kamishiro.alterdresser.editor
                 if (r.sharedMaterials.Contains(mat)) rs = rs.Append(r);
             }
             return rs.Distinct().ToArray();
-        }
-        internal static IEnumerable<Renderer> GetValidChildRenderers(Component Item)
-        {
-            return Item.GetComponentsInChildren<Renderer>(true)
-                .Where(x => !ADEditorUtils.IsEditorOnly(x.transform))
-                .Where(x => x is SkinnedMeshRenderer || x is MeshRenderer)
-                .Where(x => !x.TryGetComponent(out Cloth _))
-                .Where(x =>
-                {
-                    if (x is SkinnedMeshRenderer smr) return smr.sharedMaterials.Length != 0 && smr.sharedMesh != null;
-                    if (x is MeshRenderer mr) return mr.sharedMaterials.Length != 0 && mr.TryGetComponent(out MeshFilter f) && f.sharedMesh != null;
-                    return false;
-                });
         }
     }
 }

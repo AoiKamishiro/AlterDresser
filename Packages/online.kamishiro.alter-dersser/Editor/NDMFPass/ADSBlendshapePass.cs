@@ -1,13 +1,12 @@
-﻿using nadena.dev.modular_avatar.core;
-using nadena.dev.ndmf;
+﻿using nadena.dev.ndmf;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
 using UnityEditor.Animations;
 using UnityEngine;
+using VRC.SDK3.Avatars.Components;
 using ACM = UnityEditor.Animations.AnimatorConditionMode;
 using ACPT = UnityEngine.AnimatorControllerParameterType;
-using ADMElement = online.kamishiro.alterdresser.ADMItemElement;
 using ADSBlendshape = online.kamishiro.alterdresser.AlterDresserSwitchBlendshape;
 
 namespace online.kamishiro.alterdresser.editor.pass
@@ -17,27 +16,25 @@ namespace online.kamishiro.alterdresser.editor.pass
         public override string DisplayName => "ADSBlendshape";
         protected override void Execute(BuildContext context)
         {
-            IEnumerable<ADMElement> menuItems = context.AvatarRootObject.GetComponentsInChildren<AlterDresserMenuItem>(true).SelectMany(x => x.adElements).Where(x => x.mode == SwitchMode.Blendshape);
-            ADSBlendshape[] adsBlendShapes = context.AvatarRootObject.GetComponentsInChildren<ADSBlendshape>(true);
+            ExecuteInternal(context.AvatarDescriptor);
+        }
+        internal void ExecuteInternal(VRCAvatarDescriptor avatarRoot)
+        {
+            ADSBlendshape[] adsbs = avatarRoot.GetComponentsInChildren<ADSBlendshape>(true);
 
-            foreach (ADSBlendshape item in adsBlendShapes)
+            foreach (ADSBlendshape item in adsbs)
             {
                 if (ADEditorUtils.IsEditorOnly(item.transform)) continue;
 
-                AnimatorController animator = AnimationUtils.CreateController();
-                animator.name = $"ADSB_{item.Id}";
+                IEnumerable<int> idxs = GetAllIBlendshapeDs(item, avatarRoot);
+                SkinnedMeshRenderer smr = item.GetComponent<SkinnedMeshRenderer>();
 
-                ModularAvatarMergeAnimator maMargeAnimator = item.gameObject.AddComponent<ModularAvatarMergeAnimator>();
-                maMargeAnimator.deleteAttachedAnimator = true;
-                maMargeAnimator.animator = animator;
+                AnimatorController animator = AnimationUtils.CreateController($"ADSB_{item.Id}");
 
-                string[] blendShapeNames = menuItems
-                    .Where(x => ADRuntimeUtils.GetRelativeObject(context.AvatarDescriptor, x.reference.referencePath).GetComponent<ADSBlendshape>() == item)
-                    .SelectMany(x => x.GetUsingBlendshapeNames(context))
-                    .Distinct().ToArray();
-                foreach (string blendShape in blendShapeNames)
+                foreach (int idx in idxs)
                 {
-                    string paramName = $"ADSB_{item.Id}_{GetBlendShapeIndex(item, blendShape)}";
+                    string blendShape = smr.sharedMesh.GetBlendShapeName(idx);
+                    string paramName = $"ADSB_{item.Id}_{idx}";
 
                     AnimationClip enabledClip = CreateBlendshapeEnabledAnimationClip(item.name, blendShape);
                     AnimationClip disabledClip = CreateBlendshapeDisabledAnimationClip(item.name, blendShape);
@@ -58,14 +55,30 @@ namespace online.kamishiro.alterdresser.editor.pass
                     AnimationUtils.AddTransition(enablingState, enabledState, ADSettings.AD_MotionTime);
                     AnimationUtils.AddTransition(disabledState, enabledState, new (ACM, float, string)[] { (ACM.Greater, 0, paramName), (ACM.IfNot, 0, ADSettings.paramIsReady) });
                 }
+
+                item.AddMAMergeAnimator(animator);
             }
         }
 
-        private static int GetBlendShapeIndex(ADSBlendshape item, string blendshape)
+        internal static IEnumerable<int> GetBlendshapeIDs(int intValue)
         {
-            Mesh m = item.GetComponent<SkinnedMeshRenderer>().sharedMesh;
-            return m.GetBlendShapeIndex(blendshape);
+            string bin = System.Convert.ToString(intValue, 2);
+            return Enumerable.Range(0, bin.Length).Where(x => (bin[bin.Length - 1 - x] == '1'));
         }
+        internal static IEnumerable<int> GetAllIBlendshapeDs(ADSBlendshape item, VRCAvatarDescriptor avatarRoot)
+        {
+            return avatarRoot.GetComponentsInChildren<AlterDresserMenuItem>(true)
+                .SelectMany(x => x.adElements)
+                .Where(x => x.mode == SwitchMode.Blendshape)
+                .Where(x =>
+                {
+                    ADSBlendshape asdb = avatarRoot.GetRelativeObject(x.reference.referencePath).GetComponent<ADSBlendshape>();
+                    return asdb == item;
+                })
+                .SelectMany(x => GetBlendshapeIDs(x.intValue))
+                .Distinct();
+        }
+
         private static AnimationClip CreateBlendshapeEnabledAnimationClip(string name, string blendShapeName)
         {
             AnimationClip animationClip = new AnimationClip
@@ -95,27 +108,6 @@ namespace online.kamishiro.alterdresser.editor.pass
             }
             animationClip.SetCurve(string.Empty, typeof(SkinnedMeshRenderer), "blendShape." + blendShapeName, curve);
             return animationClip;
-        }
-    }
-    internal static class ADSBlendshapePassExtension
-    {
-        internal static IEnumerable<string> GetUsingBlendshapeNames(this ADMElement element, BuildContext context)
-        {
-            IEnumerable<string> addBlendShapeNames = Enumerable.Empty<string>();
-            SkinnedMeshRenderer smr = element.reference.Get(context.AvatarRootTransform).GetComponent<SkinnedMeshRenderer>();
-            if (!smr || !smr.sharedMesh) return Enumerable.Empty<string>();
-            string binaryNumber = System.Convert.ToString(element.intValue, 2);
-
-            while (smr.sharedMesh.blendShapeCount - binaryNumber.Length > 0)
-            {
-                binaryNumber = "0" + binaryNumber;
-            }
-
-            for (int bi = 0; bi < smr.sharedMesh.blendShapeCount; bi++)
-            {
-                if (binaryNumber[smr.sharedMesh.blendShapeCount - 1 - bi] == '1') addBlendShapeNames = addBlendShapeNames.Append(smr.sharedMesh.GetBlendShapeName(bi));
-            }
-            return addBlendShapeNames;
         }
     }
 }
