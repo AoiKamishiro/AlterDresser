@@ -211,8 +211,6 @@ namespace online.kamishiro.alterdresser.editor.pass
 
             foreach (MeshFilter meshFilter in mf)
             {
-                Undo.RecordObject(item, ADSettings.undoName);
-
                 MeshRenderer meshRenderer = meshFilter.GetComponent<MeshRenderer>();
 
                 GameObject renderer = new GameObject(meshRenderer.name);
@@ -245,8 +243,6 @@ namespace online.kamishiro.alterdresser.editor.pass
 
             foreach (SkinnedMeshRenderer smr in smrs)
             {
-                Undo.RecordObject(item, ADSettings.undoName);
-
                 Mesh newMesh = Object.Instantiate(smr.sharedMesh);
                 newMesh.boneWeights = Enumerable.Repeat(new BoneWeight() { boneIndex0 = 0, weight0 = 1 }, newMesh.vertexCount).ToArray();
                 newMesh.bindposes = new Matrix4x4[] { smr.transform.worldToLocalMatrix * smr.transform.localToWorldMatrix };
@@ -260,7 +256,6 @@ namespace online.kamishiro.alterdresser.editor.pass
         }
         internal static void MaterialInstanciator(ADSEnhanced item)
         {
-            Undo.RecordObject(item, ADSettings.undoName);
             SerializedObject so = new SerializedObject(item);
             so.Update();
 
