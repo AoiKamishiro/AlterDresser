@@ -295,8 +295,10 @@ namespace online.kamishiro.alterdresser.editor
 
                 MergeMeshRL.DoLayoutList();
 
+#if UNITY_2019
                 EditorGUILayout.Space();
                 EditorGUILayout.HelpBox(L.ADSE_AO_UNITY_WARNING, MessageType.Error);
+#endif
             }
             EditorGUILayout.EndVertical();
         }
