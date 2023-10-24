@@ -1,4 +1,5 @@
 ﻿using nadena.dev.modular_avatar.core;
+using online.kamishiro.alterdresser.editor.migrator;
 using UnityEditor;
 using UnityEditorInternal;
 using UnityEngine;
@@ -17,16 +18,6 @@ namespace online.kamishiro.alterdresser.editor
             {
                 if (_targetAvatarObjectReferences == null) _targetAvatarObjectReferences = SerializedObject.FindProperty(nameof(ADSConstraint.avatarObjectReferences));
                 return _targetAvatarObjectReferences;
-            }
-        }
-
-        private SerializedProperty _targetTransforms;
-        private SerializedProperty TargetTransforms
-        {
-            get
-            {
-                if (_targetTransforms == null) _targetTransforms = SerializedObject.FindProperty(nameof(ADSConstraint.targets));
-                return _targetTransforms;
             }
         }
 
@@ -69,27 +60,11 @@ namespace online.kamishiro.alterdresser.editor
                 return _reorderable;
             }
         }
+
         protected override void OnInnerInspectorGUI()
         {
-            //移行ブロック
-            if (TargetAvatarObjectReferences.arraySize == 0 && TargetTransforms.arraySize > 0)
-            {
-                TargetAvatarObjectReferences.arraySize = TargetTransforms.arraySize;
-                for (int i = 0; i < TargetTransforms.arraySize; i++)
-                {
-                    Transform target = (Transform)TargetTransforms.GetArrayElementAtIndex(i).objectReferenceValue;
-                    if (!target) continue;
-                    Transform avatarTransform = ADRuntimeUtils.GetAvatar(target).transform;
-                    string path = target == avatarTransform ? AvatarObjectReference.AVATAR_ROOT : ADRuntimeUtils.GetRelativePath(target);
-
-                    SerializedProperty avatarObjectReference = TargetAvatarObjectReferences.GetArrayElementAtIndex(i);
-                    SerializedProperty refPath = avatarObjectReference.FindPropertyRelative(nameof(AvatarObjectReference.referencePath));
-
-                    refPath.stringValue = path;
-                }
-                TargetTransforms.arraySize = 0;
-                return;
-            }
+            //移行処理
+            Migrator.ADSConstraintMigration(SerializedObject);
 
             using (new EditorGUILayout.VerticalScope(new GUIStyle(GUI.skin.box)))
             {
