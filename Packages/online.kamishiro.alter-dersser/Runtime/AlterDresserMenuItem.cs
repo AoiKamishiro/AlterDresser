@@ -1,5 +1,6 @@
 ﻿using System;
 using UnityEngine;
+using ADS = online.kamishiro.alterdresser.ADSwitchBase;
 
 namespace online.kamishiro.alterdresser
 {
@@ -19,9 +20,12 @@ namespace online.kamishiro.alterdresser
     [Serializable]
     public class ADMItemElement
     {
+        [Obsolete]
         public string path;
         public SwitchMode mode;
-        public ADSwitchBase objRefValue;
+        [Obsolete]
+        public ADS objRefValue;
         public int intValue;
+        public ADAvatarObjectReference reference;
     }
 }

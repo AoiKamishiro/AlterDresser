@@ -32,7 +32,7 @@ namespace online.kamishiro.alterdresser.editor.pass
                 maMargeAnimator.animator = animator;
 
                 string[] blendShapeNames = menuItems
-                    .Where(x => ADRuntimeUtils.GetRelativeObject(context.AvatarDescriptor, x.path).GetComponent<ADSBlendshape>() == item)
+                    .Where(x => ADRuntimeUtils.GetRelativeObject(context.AvatarDescriptor, x.reference.referencePath).GetComponent<ADSBlendshape>() == item)
                     .SelectMany(x => x.GetUsingBlendshapeNames(context))
                     .Distinct().ToArray();
                 foreach (string blendShape in blendShapeNames)
@@ -102,7 +102,7 @@ namespace online.kamishiro.alterdresser.editor.pass
         internal static IEnumerable<string> GetUsingBlendshapeNames(this ADMElement element, BuildContext context)
         {
             IEnumerable<string> addBlendShapeNames = Enumerable.Empty<string>();
-            SkinnedMeshRenderer smr = ADRuntimeUtils.GetRelativeObject(context.AvatarDescriptor, element.path).GetComponent<SkinnedMeshRenderer>();
+            SkinnedMeshRenderer smr = element.reference.Get(context.AvatarRootTransform).GetComponent<SkinnedMeshRenderer>();
             if (!smr || !smr.sharedMesh) return Enumerable.Empty<string>();
             string binaryNumber = System.Convert.ToString(element.intValue, 2);
 
