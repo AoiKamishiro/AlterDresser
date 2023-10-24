@@ -240,9 +240,9 @@ namespace online.kamishiro.alterdresser.editor.pass
         private static IEnumerable<string> GetParams(ADMItem item, BuildContext context)
         {
             IEnumerable<string> paramNames = Enumerable.Empty<string>();
-            foreach (ADMElemtnt ads in item.adElements.Where(x => x.mode == SwitchMode.Blendshape).Where(x => x.path != string.Empty))
+            foreach (ADMElemtnt ads in item.adElements.Where(x => x.mode == SwitchMode.Blendshape).Where(x => x.reference.referencePath != string.Empty))
             {
-                ADS obj = ADRuntimeUtils.GetRelativeObject(context.AvatarDescriptor, ads.path).GetComponent<ADS>();
+                ADS obj = ADRuntimeUtils.GetRelativeObject(context.AvatarDescriptor, ads.reference.referencePath).GetComponent<ADS>();
                 SkinnedMeshRenderer smr = obj.GetComponent<SkinnedMeshRenderer>();
                 if (!smr || !smr.sharedMesh) continue;
                 string binaryNumber = Convert.ToString(ads.intValue, 2);
@@ -257,19 +257,19 @@ namespace online.kamishiro.alterdresser.editor.pass
                     if (binaryNumber[smr.sharedMesh.blendShapeCount - 1 - bi] == '1') paramNames = paramNames.Append($"ADSB_{obj.Id}_{bi}");
                 }
             }
-            foreach (ADMElemtnt ads in item.adElements.Where(x => x.mode == SwitchMode.Constraint).Where(x => x.path != string.Empty))
+            foreach (ADMElemtnt ads in item.adElements.Where(x => x.mode == SwitchMode.Constraint).Where(x => x.reference.referencePath != string.Empty))
             {
-                ADS obj = ADRuntimeUtils.GetRelativeObject(context.AvatarDescriptor, ads.path).GetComponent<ADS>();
+                ADS obj = ADRuntimeUtils.GetRelativeObject(context.AvatarDescriptor, ads.reference.referencePath).GetComponent<ADS>();
                 paramNames = paramNames.Append($"ADSC_{obj.Id}_{ads.intValue}");
             }
-            foreach (ADMElemtnt ads in item.adElements.Where(x => x.mode == SwitchMode.Enhanced).Where(x => x.path != string.Empty))
+            foreach (ADMElemtnt ads in item.adElements.Where(x => x.mode == SwitchMode.Enhanced).Where(x => x.reference.referencePath != string.Empty))
             {
-                ADS obj = ADRuntimeUtils.GetRelativeObject(context.AvatarDescriptor, ads.path).GetComponent<ADS>();
+                ADS obj = ADRuntimeUtils.GetRelativeObject(context.AvatarDescriptor, ads.reference.referencePath).GetComponent<ADS>();
                 paramNames = paramNames.Append($"ADSE_{obj.Id}");
             }
-            foreach (ADMElemtnt ads in item.adElements.Where(x => x.mode == SwitchMode.Simple).Where(x => x.path != string.Empty))
+            foreach (ADMElemtnt ads in item.adElements.Where(x => x.mode == SwitchMode.Simple).Where(x => x.reference.referencePath != string.Empty))
             {
-                ADS obj = ADRuntimeUtils.GetRelativeObject(context.AvatarDescriptor, ads.path).GetComponent<ADS>();
+                ADS obj = ADRuntimeUtils.GetRelativeObject(context.AvatarDescriptor, ads.reference.referencePath).GetComponent<ADS>();
                 paramNames = paramNames.Append($"ADSS_{obj.Id}");
             }
             return paramNames;

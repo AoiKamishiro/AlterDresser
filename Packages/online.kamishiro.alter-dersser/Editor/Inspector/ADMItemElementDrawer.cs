@@ -1,5 +1,5 @@
-﻿using System.Collections.Generic;
-using System.IO;
+﻿using online.kamishiro.alterdresser.editor.migrator;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
 using UnityEngine;
@@ -17,29 +17,13 @@ namespace online.kamishiro.alterdresser.editor
     [CustomPropertyDrawer(typeof(ADMElemtnt))]
     internal class ADMItemElementDrawer : PropertyDrawer
     {
-        private static GUIStyle _errorStyle;
-        private static GUIStyle ErrorStyle
-        {
-            get
-            {
-                if (_errorStyle == null)
-                {
-                    _errorStyle = new GUIStyle(EditorStyles.objectField);
-                    _errorStyle.normal.textColor = Color.red;
-                }
-                return _errorStyle;
-            }
-        }
-
-
         internal readonly float LineHeight = EditorGUIUtility.singleLineHeight;
         internal readonly int Margin = 4;
         public override void OnGUI(Rect rect, SerializedProperty property, GUIContent label)
         {
-            SerializedProperty objVal = property.FindPropertyRelative(nameof(ADMElemtnt.objRefValue));
             SerializedProperty intVal = property.FindPropertyRelative(nameof(ADMElemtnt.intValue));
             SerializedProperty mode = property.FindPropertyRelative(nameof(ADMElemtnt.mode));
-            SerializedProperty path = property.FindPropertyRelative(nameof(ADMElemtnt.path));
+            SerializedProperty path = property.FindPropertyRelative(nameof(ADMElemtnt.reference)).FindPropertyRelative(nameof(ADAvatarObjectReference.referencePath));
 
             float w = rect.width - Margin;
             Rect r0 = new Rect(rect.x, rect.yMin + Margin, w - Margin, LineHeight);
@@ -48,27 +32,10 @@ namespace online.kamishiro.alterdresser.editor
             Rect r2 = new Rect(rect.x + w / 3, rect.yMin + Margin, w / 3 - Margin, LineHeight);
             Rect r3 = new Rect(rect.x + w / 3 * 2, rect.yMin + Margin, w / 3, LineHeight);
 
-            //後方互換ブロック
-            if (path.stringValue == string.Empty && objVal.objectReferenceValue)
-            {
-                Transform t0 = ((ADS)objVal.objectReferenceValue).transform;
-                path.stringValue = ADRuntimeUtils.GetRelativePath(t0);
-                objVal.objectReferenceValue = null;
-            }
+            //移行処理
+            Migrator.ADMItemElementMigration(property);
 
             Transform transform = ADRuntimeUtils.GetRelativeObject(GetAvatar(property), path.stringValue);
-
-            if (path.stringValue != string.Empty && (transform == null || transform.GetComponent<ADS>() == null))
-            {
-                ADS tmp = (ADS)EditorGUI.ObjectField(r0, null, typeof(ADS), true);
-                EditorGUI.LabelField(r0, $"{Path.GetFileName(path.stringValue)} ({(SwitchMode)mode.intValue})", ErrorStyle);
-                if (tmp)
-                {
-                    path.stringValue = ADRuntimeUtils.GetRelativePath(tmp.transform);
-                    objVal.objectReferenceValue = null;
-                }
-                return;
-            }
 
             ADS curAds = transform.GetComponent<ADS>();
             GameObject cur = curAds != null ? curAds.gameObject : null;
