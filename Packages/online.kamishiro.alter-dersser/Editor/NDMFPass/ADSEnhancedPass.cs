@@ -136,7 +136,7 @@ namespace online.kamishiro.alterdresser.editor.pass
         }
         internal static void GenerateMergeMesh(ADSEnhanced item, Transform rootbone, BuildContext context)
         {
-            //if (!item.doMergeMesh) return;
+            if (!item.doMergeMesh) return;
 
             VRCAvatarDescriptor avatarDescriptor = context.AvatarDescriptor;
             Transform avatarTransform = avatarDescriptor.transform;
