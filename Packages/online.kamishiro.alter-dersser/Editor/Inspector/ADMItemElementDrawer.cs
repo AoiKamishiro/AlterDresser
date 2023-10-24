@@ -140,9 +140,9 @@ namespace online.kamishiro.alterdresser.editor
                             IEnumerable<string> names = new List<string>();
                             IEnumerable<GUIContent> nams = Enumerable.Empty<GUIContent>();
                             names = names.Append(L.ADMI_RL_F2W);
-                            for (int i = 0; i < c.targets.Length; i++)
+                            for (int i = 0; i < c.avatarObjectReferences.Length; i++)
                             {
-                                names = names.Append(c.targets[i] ? $"{i} : {c.targets[i].name}" : $"{i} : {L.ADMI_RL_CUR}");
+                                names = names.Append(c.avatarObjectReferences[i].Get(GetAvatar(property)) ? $"{i} : {c.avatarObjectReferences[i].Get(GetAvatar(property)).name}" : $"{i} : {L.ADMI_RL_CUR}");
                             }
                             int popup = intVal.intValue == -100 ? 0 : intVal.intValue + 1;
                             popup = EditorGUI.Popup(r3, popup, names.ToArray());

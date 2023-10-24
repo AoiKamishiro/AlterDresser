@@ -12,6 +12,7 @@ namespace online.kamishiro.alterdresser.editor
         protected override void Configure()
         {
             InPhase(BuildPhase.Generating)
+               .Run(MigrationPass.Instance).Then
                .Run(PreProcessPass.Instance).Then
                .Run(ADMGroupPass.Instance).Then
                .Run(ADMItemPass.Instance).Then

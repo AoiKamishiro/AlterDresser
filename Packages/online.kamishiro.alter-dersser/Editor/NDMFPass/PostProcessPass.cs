@@ -81,10 +81,10 @@ namespace online.kamishiro.alterdresser.editor.pass
                             ADSConstraint adsc = ADRuntimeUtils.GetRelativeObject(context.AvatarDescriptor, ads.path).GetComponent<ADSConstraint>();
 
                             SerializedTransform serializedTransform = new SerializedTransform(adsc.transform);
-                            if (ads.intValue > 0 && ads.intValue < adsc.targets.Length)
+                            if (ads.intValue > 0 && ads.intValue < adsc.avatarObjectReferences.Length)
                             {
-                                serializedTransform.LocalPosision = adsc.targets[ads.intValue].position;
-                                serializedTransform.LocalRotation = adsc.targets[ads.intValue].rotation;
+                                serializedTransform.LocalPosision = adsc.avatarObjectReferences[ads.intValue].Get(context.AvatarRootTransform).transform.position;
+                                serializedTransform.LocalRotation = adsc.avatarObjectReferences[ads.intValue].Get(context.AvatarRootTransform).transform.rotation;
                             }
                             break;
                     }

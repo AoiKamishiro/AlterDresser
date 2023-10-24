@@ -1,10 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using UnityEditor;
 using UnityEngine;
+using VRC.SDK3.Avatars.Components;
 using ADM = online.kamishiro.alterdresser.ADMenuBase;
 using ADMGroup = online.kamishiro.alterdresser.AlterDresserMenuGroup;
 using ADMItem = online.kamishiro.alterdresser.AlterDresserMenuItem;
+using Object = UnityEngine.Object;
 
 namespace online.kamishiro.alterdresser.editor
 {
@@ -96,6 +99,30 @@ namespace online.kamishiro.alterdresser.editor
             }
 
             return item == rootMG;
+        }
+        internal static VRCAvatarDescriptor GetAvatar(SerializedProperty property)
+        {
+            if (property.serializedObject == null) return null;
+
+            VRCAvatarDescriptor commonAvatar = null;
+            Object[] targets = property.serializedObject.targetObjects;
+            for (int i = 0; i < targets.Length; i++)
+            {
+                Component obj = targets[i] as Component;
+                if (obj == null) return null;
+
+                Transform transform = obj.transform;
+                VRCAvatarDescriptor avatar = ADRuntimeUtils.GetAvatar(transform);
+
+                if (i == 0)
+                {
+                    if (avatar == null) return null;
+                    commonAvatar = avatar;
+                }
+                else if (commonAvatar != avatar) return null;
+            }
+
+            return commonAvatar;
         }
     }
 }
