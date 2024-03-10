@@ -48,7 +48,7 @@ namespace online.kamishiro.alterdresser.editor.pass
             {
                 if (ADEditorUtils.IsEditorOnly(item.transform)) return;
 
-                if (AAOType.IsImported) GenerateMergeMesh(item, rootBone.transform, context);
+                //if (AAOType.IsImported) GenerateMergeMesh(item, rootBone.transform, context);
                 MeshInstanciator(item);
                 MaterialInstanciator(item);
 
